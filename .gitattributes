@@ -1,0 +1,12 @@
+# Normalize line endings — the WoW client and StyLua both expect LF.
+* text=auto eol=lf
+
+*.lua   text eol=lf
+*.toc   text eol=lf
+*.xml   text eol=lf
+*.md    text eol=lf
+*.sh    text eol=lf
+
+# Keep build/vendored dirs out of language stats and diffs.
+Libs/**      linguist-vendored
+.release/**  linguist-generated

@@ -1,0 +1,25 @@
+{
+  "name": "wow-mock",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "tools/wow-mock",
+  "tags": ["type:tooling"],
+  "targets": {
+    "format": {
+      "executor": "nx:run-commands",
+      "options": { "command": "stylua tools/wow-mock" }
+    },
+    "format-check": {
+      "executor": "nx:run-commands",
+      "options": { "command": "stylua --check tools/wow-mock" }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": { "command": "luacheck tools/wow-mock" }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "busted tools/wow-mock" }
+    }
+  }
+}

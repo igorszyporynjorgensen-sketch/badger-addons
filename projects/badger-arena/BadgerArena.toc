@@ -1,0 +1,32 @@
+## Interface: 20504
+## Title: Badger Arena
+## Notes: Lightweight arena unit-frames and on-screen info for WoW Classic (TBC Anniversary).
+## Author: Igor Szyporyn
+## Version: 0.1.0
+## SavedVariables: BadgerArenaDB
+## X-Category: Arena
+## X-License: MIT
+
+# NOTE: confirm the Interface number against the live Anniversary client with
+#   /run print(select(4, GetBuildInfo()))
+# and update the line above if it differs (TBC Anniversary is a 2xxxx build).
+
+# Libraries — fetched into Libs/ from .pkgmeta externals (see `pnpm nx run badger-arena:build`).
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\AceEvent-3.0\AceEvent-3.0.xml
+Libs\AceConsole-3.0\AceConsole-3.0.xml
+Libs\AceDB-3.0\AceDB-3.0.xml
+Libs\AceLocale-3.0\AceLocale-3.0.xml
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\AceConfig-3.0\AceConfig-3.0.xml
+
+# Locales
+Locales\enUS.lua
+
+# Source — load order matters: utilities -> modules -> core -> config.
+src\util\dr-category.lua
+src\modules\arena-detect.lua
+src\core.lua
+src\config\config.lua

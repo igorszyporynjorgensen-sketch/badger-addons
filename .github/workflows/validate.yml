@@ -1,0 +1,56 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Nx `affected` needs history
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # Lua 5.1 to match the WoW client (and to keep luacheck/busted happy).
+      - name: Set up Lua 5.1
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.1"
+
+      - name: Set up LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+
+      - name: Install Lua tooling (luacheck, busted)
+        run: |
+          luarocks install luacheck
+          luarocks install busted
+          # Make the rock binaries available to later steps (Nx run-commands call them by name).
+          echo "$HOME/.luarocks/bin" >> "$GITHUB_PATH"
+
+      - name: Install StyLua
+        run: |
+          STYLUA_VERSION=2.5.2
+          mkdir -p "$HOME/.local/bin"
+          curl -fsSL -o /tmp/stylua.zip \
+            "https://github.com/JohnnyMorganz/StyLua/releases/download/v${STYLUA_VERSION}/stylua-linux-x86_64.zip"
+          unzip -o /tmp/stylua.zip -d "$HOME/.local/bin"
+          chmod +x "$HOME/.local/bin/stylua"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          "$HOME/.local/bin/stylua" --version
+
+      - name: Install workspace
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate (stylua · luacheck · busted)
+        run: pnpm validate

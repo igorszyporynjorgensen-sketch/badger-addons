@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+# Branch-name check (activated by the root package.json `prepare` script:
+# `git config core.hooksPath .githooks`).
+#
+# Commits are only allowed on a branch named <prefix>/<id>-<slug>, where <prefix> is in the allowed
+# list and <id> is a WORK-ITEM id carrying uppercase author initials:
+#   AI-assisted work -> WO-0xx-II (docs/workorders/) or D-0xx-II (docs/decisions.md);
+#   manual work      -> your tracker's ticket id, e.g. PROJ-123-II.
+# (e.g. WO-001-IJ). main/staging are exempt; a detached HEAD is skipped.
+# Anonymous branches (valid prefix, no id) are allowed only with ALLOW_ANONYMOUS_BRANCH=1.
+
+branch=$(git symbolic-ref --short HEAD 2>/dev/null) || exit 0 # detached HEAD -> skip
+
+case "$branch" in
+main | staging) exit 0 ;;
+esac
+
+allowed="feature core fix chore docs refactor hotfix release migrate"
+prefix=${branch%%/*}
+
+prefix_ok=0
+for a in $allowed; do
+  [ "$prefix" = "$a" ] && prefix_ok=1 && break
+done
+
+if [ "$prefix_ok" = 0 ]; then
+  echo "✗ Branch \"$branch\" needs a valid prefix." >&2
+  echo "  Allowed: $allowed" >&2
+  echo "  Use <prefix>/<WO-0xx-II|D-0xx-II>-<slug>, e.g. feature/WO-001-IJ-initial-setup" >&2
+  exit 1
+fi
+
+# Id must be a work-item id with an uppercase author-initials suffix.
+case "$branch" in
+*/WO-[0-9]*-[A-Z][A-Z]*-* | */D-[0-9]*-[A-Z][A-Z]*-*) exit 0 ;;
+*/*-[A-Z][A-Z]*-*) exit 0 ;;
+esac
+
+if [ "${ALLOW_ANONYMOUS_BRANCH:-}" = "1" ]; then
+  exit 0
+fi
+
+echo "✗ Branch \"$branch\" has no work-item id with author initials." >&2
+echo "  AI work: <prefix>/WO-0xx-II-<slug> or <prefix>/D-0xx-II-<slug> (write the docs entry first)." >&2
+echo "  Manual work: <prefix>/<TICKET>-II-<slug>, e.g. fix/PROJ-123-IJ-<slug>. II = uppercase initials." >&2
+echo "  Truly anchorless work (rare): ALLOW_ANONYMOUS_BRANCH=1 git commit ..." >&2
+exit 1

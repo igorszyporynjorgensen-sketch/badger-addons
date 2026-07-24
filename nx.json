@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "sharedGlobals": [
+      "{workspaceRoot}/.luacheckrc",
+      "{workspaceRoot}/stylua.toml",
+      "{workspaceRoot}/.busted"
+    ],
+    "lua": ["{projectRoot}/**/*.lua"],
+    "mock": ["{workspaceRoot}/tools/wow-mock/**/*.lua"]
+  },
+  "targetDefaults": {
+    "format-check": { "cache": true, "inputs": ["lua", "sharedGlobals"] },
+    "format": { "cache": false },
+    "lint": { "cache": true, "inputs": ["lua", "sharedGlobals"] },
+    "test": { "cache": true, "inputs": ["default", "mock", "sharedGlobals"] },
+    "build": { "cache": false }
+  },
+  "defaultBase": "main"
+}
