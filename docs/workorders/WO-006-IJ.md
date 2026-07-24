@@ -1,6 +1,6 @@
 ---
 wo: WO-006-IJ
-status: Proposed         # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Accepted         # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ             # assignee initials — auto-filled from the committer (git email local-part)
 mr: ~                    # pull-request URL once opened, else ~
 decision: ~              # D-0xx-II once a decision is produced, else ~
@@ -25,7 +25,9 @@ related:
   bug* — `.luacheckrc` scopes the TBC arena APIs monorepo-wide, so a future Vanilla addon calling
   `GetArenaOpponentSpec` would lint clean. Everything else (flavor-aware mock, split/multi-Interface
   `.toc`, packager `-S`) is machinery with **no consumer yet**. Per §1.4/§1.1 we fix the bug + set the
-  framing now and defer the rest, capturing its design in D-004 so it's ready when needed.
+  framing now and defer the rest, capturing its design in D-004 so it's ready when needed. **(Human
+  elected to also include the small, non-breaking flavor-aware `wow-mock` now — it unblocks
+  hardcore-addon specs immediately; split `.toc` + packager `-S` stay deferred.)**
 - **Key facts (from research, confirm live with `/dump select(4, GetBuildInfo())`):**
   - Flavors: **TBC** = Interface `20504`, suffix `_TBC.toc`, `WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC` (5).
     **Vanilla/Era (incl. Hardcore)** = Interface ~`11507`, suffix `_Vanilla.toc`, `WOW_PROJECT_ID == WOW_PROJECT_CLASSIC` (2).
@@ -43,15 +45,19 @@ related:
     referenced *outside* badger-arena would fail luacheck (W113). `pnpm validate` green.
   - `projects/badger-arena/project.json`: a declarative **flavor tag** (e.g. `"flavor:tbc"`) as the
     single source of truth for lint scoping / future build logic.
+  - `tools/wow-mock`: `install()` gains an optional `{ flavor }` (default `"tbc"`, so no existing spec
+    breaks); it stubs `WOW_PROJECT_ID` + the `WOW_PROJECT_*` constants and installs the arena surface
+    **only** for TBC; a new `init_spec.lua` case asserts the `vanilla` surface (`IsActiveBattlefieldArena`
+    absent, `WOW_PROJECT_ID == WOW_PROJECT_CLASSIC`). `pnpm validate` green.
   - Docs broadened from single-flavor: `CLAUDE.md` (the "TBC Anniversary" framing),
     `engineering-principles.md`, `architecture.md` (a flavor-targeting bullet + the "future WOs" note);
     **D-004** recorded (multi-flavor stance · the two models · `WOW_PROJECT_ID` guarding · the deferral);
     `decisions.md` Current-state updated and **Next id → D-005**.
   - `badger-arena` stays **Model 1 / TBC-only**: `BadgerArena.toc` `Interface 20504` unchanged.
-- **Out of scope — deferred to a future WO, triggered by the first non-TBC / both-flavor addon** (design
-  captured in D-004 so it's ready): the **flavor-aware `wow-mock`** (`install({ flavor = "vanilla" })` +
-  `WOW_PROJECT_*` stubs), **split / multi-`## Interface` `.toc`** files, the packager **`-S`** flag, and
-  the mock `load()` addon-name arg. `.pkgmeta` needs no flavor change.
+- **Out of scope — deferred to a future WO, triggered by the first both-flavor addon** (design captured
+  in D-004 so it's ready): **split / multi-`## Interface` `.toc`** files, the packager **`-S`** flag, and
+  the mock `load()` addon-name arg. `.pkgmeta` needs no flavor change. *(The flavor-aware `wow-mock` is
+  now **in scope** — see Phase 3.)*
 - **Behavior delta:** none in-game — lint scoping, project metadata, and docs only; `badger-arena`
   ships identically.
 
@@ -63,7 +69,12 @@ related:
 **Phase 2 — Declarative flavor**
 1. [ ] Add a `flavor:tbc` tag to `projects/badger-arena/project.json`.
 
-**Phase 3 — Framing + decision**
+**Phase 3 — Flavor-aware mock**
+1. [ ] `tools/wow-mock/init.lua`: add a `FLAVORS` table + `install(opts)` with `opts.flavor` (default
+       `tbc`); stub `WOW_PROJECT_ID` + `WOW_PROJECT_*`; gate the arena getters behind TBC. Add a
+       `vanilla`-surface case to `init_spec.lua`; note `install({ flavor })` in the badger-addons skill.
+
+**Phase 4 — Framing + decision**
 1. [ ] Broaden `CLAUDE.md` / `engineering-principles.md` / `architecture.md`; record **D-004**; update
        `decisions.md` Current-state + Next id → D-005.
 
