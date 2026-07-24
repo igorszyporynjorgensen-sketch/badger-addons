@@ -86,6 +86,8 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-004-IJ** — Normalized Ace3 config window — shared embeddable `BadgerConfigUI` + retrofit
+  `badger-arena` (see `docs/workorders/WO-004-IJ.md`). Status: Proposed.
 - **WO-003-IJ** — Git-ignore the personal `.claude/settings.local.json` (see
   `docs/workorders/WO-003-IJ.md`). Status: Done.
 - **WO-002-IJ** — Add a top-level `assets/` folder for inspiration & references (see
