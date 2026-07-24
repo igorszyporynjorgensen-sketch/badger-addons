@@ -1,6 +1,6 @@
 ---
 wo: WO-004-IJ
-status: Proposed         # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Accepted         # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ             # assignee initials — auto-filled from the committer (git email local-part)
 mr: ~                    # pull-request URL once opened, else ~
 decision: ~              # D-0xx-II once a decision is produced, else ~
@@ -71,12 +71,11 @@ related:
 - **MR:** — (added once the PR is opened)
 - **Outcome:** — (running notes; final result on completion)
 
-### Open questions — resolve before `Accepted`
-- **[NEEDS CLARIFICATION: banner content]** — Phase 1 default is a Badger-branded **text/color header**
-  placeholder (real art later). OK, or do you have banner artwork in mind now?
-- **[NEEDS CLARIFICATION: entry points]** — default is a **slash command** (`/badgerarena`,
-  `/ba`) opening the window **plus** a small Blizzard Interface-Options stub whose button opens it.
-  Keep both, or slash-only?
-- **[NEEDS CLARIFICATION: embed mechanism]** — the lib is monorepo-internal, so `.pkgmeta` externals
-  (which fetch from remote repos) don't fit directly; default is to have **`tools/build.sh` copy the
-  shared lib into the addon's `Libs/` at package time**. Confirm that's the mechanism you want.
+### Resolved clarifications (accepted 2026-07-24)
+- **Banner content:** Badger-branded **text/color header** placeholder now; real artwork later.
+- **Entry points:** a **slash command** (`/badgerarena`, `/ba`) opens the window, **plus** a small
+  Blizzard Interface-Options stub whose button opens it (both).
+- **Embed mechanism:** delegated ("your choice for best result"). Chosen approach — consistent with the
+  existing vendored `Libs/` pattern: the shared lib source lives once in the monorepo and
+  **`tools/build.sh` copies it into each addon's `Libs/`** at package/dev-sync time; the addon `.toc`
+  loads it before `src`. Finalised in Phase 1–2.
