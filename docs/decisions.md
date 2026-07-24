@@ -40,7 +40,10 @@ _As of 2026-07-24._
   `docs/workorders/WO-001-IJ.md`, this log, `docs/milestones.md`, `docs/architecture.md`.
 - **Not in scope (by design).** No company-infra registration, no ports/subdomains/Notion — this is a
   standalone game addon repo. No web/security layer.
-- **Next id:** D-002-IJ.
+- **Inspiration assets.** `assets/` (repo root) holds internet-gathered reference material — see
+  `assets/README.md`. Drops land via a lightweight lane: `chore` branch + PR (human merges), **no work
+  order**; images are optimized before the first commit (see D-002-IJ).
+- **Next id:** D-003-IJ.
 
 ---
 
@@ -48,6 +51,16 @@ _As of 2026-07-24._
 
 ### 2026-07-24
 
+- **[D-002-IJ] `assets/` drops use a lightweight lane — `chore` branch + PR, no work order; images
+  optimized first.** Adding reference/inspiration material to `assets/` is treated as *content*, not a
+  code "job": it lands on a `chore/` branch and reaches `main` via a PR the human merges (never a
+  direct push), but skips the work-order ceremony. Images are optimized **before** the first commit —
+  git keeps binaries in history permanently, so a 3.1 MB screenshot became a 280 KB WebP (`cwebp q90`,
+  full resolution retained) rather than bloating history. *Why:* a WO per screenshot is overhead out of
+  all proportion to the change, while the branch+PR+human-merge gate still protects `main`; front-loading
+  optimization keeps the repo lean forever. Established when the first inspiration screenshot was added
+  (`assets/images/arena-ui-1.webp`, PR #4). Does **not** loosen the rule for *code* — code still runs
+  through work orders.
 - **[D-001-IJ] Stack + conventions chosen at scaffold.** An Nx + pnpm monorepo of WoW Classic (TBC
   Anniversary) UI addons under the *Badger* brand, first addon `badger-arena`; Ace3 as the framework;
   the mandatory quality floor (StyLua + Luacheck + Busted behind `pnpm validate`); a shared WoW mock
