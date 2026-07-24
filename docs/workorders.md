@@ -86,6 +86,8 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-005-IJ** — `.luarc.json` so the lua-language-server LSP understands the repo (Lua 5.1 · WoW
+  globals · busted) (see `docs/workorders/WO-005-IJ.md`). Status: Accepted.
 - **WO-004-IJ** — Normalized Ace3 config window — shared embeddable `BadgerConfigUI` + retrofit
   `badger-arena` (see `docs/workorders/WO-004-IJ.md`). Status: In progress.
 - **WO-003-IJ** — Git-ignore the personal `.claude/settings.local.json` (see
