@@ -45,18 +45,21 @@ bends · why · how the spirit is kept · the boundary.*
 
 ### 1.1 Respect the boundary: addons depend on shared tooling, never on each other
 
-Each addon is an Nx project under `projects/*`. Shared, reusable code (the test mock, build helpers,
-and any future shared library) lives under `tools/*`. Addons may depend on shared tooling; **one addon
-never reaches into another addon's files**, and shared code never reaches back up into an addon.
+Each addon is an Nx project under `projects/*`. **Non-shipped** shared code — the test mock and build
+helpers — lives under `tools/*`; **shipped** shared libraries live under `libs/*` and are embedded into
+each addon's `Libs/` at build by `tools/build.sh`. Addons may depend on shared tooling and shared libs;
+**one addon never reaches into another addon's files**, and shared code never reaches back up into an
+addon.
 
 **Why.** The dependency direction is what keeps each addon shippable on its own and keeps Nx's
 `affected`/caching guarantees honest. The moment `badger-arena` imports from a sibling addon, neither
 can be built or released independently.
 
-**How to apply.** Promote code into `tools/` (or a future shared lib) when a second consumer is real —
-not speculatively. Keep addon projects self-contained: everything an addon ships is under its own
-`projects/<addon>/` folder. The shared Busted harness in `tools/wow-mock` is tooling, not shipped code
-— it never appears in a `.toc`.
+**How to apply.** Promote code into `tools/` (non-shipped) or `libs/` (a shipped LibStub library) when a
+second consumer is real — not speculatively. Keep addon projects self-contained: everything an addon
+ships is under its own `projects/<addon>/` folder, plus any `libs/` library its `.toc` opts into. The
+shared Busted harness in `tools/wow-mock` is tooling, not shipped code — it never appears in a `.toc`; a
+`libs/` library is shipped code — it is named in the `.toc` and embedded into `Libs/` at build.
 
 ### 1.2 Keep the namespace honest — nothing leaks into `_G`
 
@@ -90,6 +93,10 @@ only visible in-game.
   (`tools/wow-mock`'s `load`), so a spec exercises the exact file the client loads.
 - **Ace3 is embedded and lockstep.** Libraries are fetched from `.pkgmeta`, never committed, and moved
   as a set. Don't mix Ace3 component versions.
+- **Config windows use `BadgerConfigUI-1.0`.** An addon's options table is normalized, registered,
+  sized, and opened through the shared LibStub config-UI library — never by calling
+  `AceConfig`/`AceConfigDialog` ad hoc per addon. One branded window standard (native tree + banner),
+  wired once and shared across every addon.
 - **SavedVariables carry a schema.** State stored across sessions is versioned; migrate on load rather
   than assuming shape. Treat the saved table as data you must defensively read.
 
@@ -138,9 +145,23 @@ client. *How the spirit is kept:* the `.toc` lists files explicitly (specs are s
 `.pkgmeta`'s `ignore` drops `**/*_spec.lua` from every build. *Boundary:* a spec is test-only; it never
 `require`s shipped code except through the mock loader.
 
+**Divergence note — LibStub library naming (bend, not break).** House style says every file and folder
+is kebab-case. *What bends:* a shipped shared library under `libs/` is foldered by its LibStub
+`Name-Major.Minor` (`libs/BadgerConfigUI-1.0/`), and its entry files carry that same major
+(`BadgerConfigUI-1.0.lua` and its `BadgerConfigUI-1.0.xml` loader) — not kebab-case. *Why:* a LibStub
+library is addressed ecosystem-wide by that exact major, and its embedded copy under `Libs/` must match
+(the `.toc` load line, the XML's `file=` include, and `tools/build.sh`'s copy all key off that name), so
+folder and entry files are copied without renaming — a kebab-case source couldn't map to the shipped
+path. *How the spirit is kept:* only the library's entry `.lua`/`.xml` carry the major; its internal
+sub-modules stay kebab-case (`options-tree.lua`, `frame-size.lua`), each still one module per file hung
+off the LibStub table (the library's export surface standing in for `ns`), with colocated specs on the
+testable pure modules. *Boundary:* applies only to LibStub libraries under `libs/`, never to an addon's
+`src/` files — those stay kebab-case.
+
 **Anti-patterns (reject on sight).** Any global write (`Foo = ...` at file scope); logic in a locale
 file; a spell/data table duplicated instead of shared; reaching into another module's file; a `.toc`
-whose load order contradicts the `ns` dependencies; PascalCase filenames; a behaviour-bearing module
+whose load order contradicts the `ns` dependencies; PascalCase filenames (outside a `libs/` LibStub
+library's `Name-Major.Minor` entry `.lua`/`.xml` — see the divergence note); a behaviour-bearing module
 with no colocated spec.
 
 ---

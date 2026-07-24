@@ -20,5 +20,21 @@ chmod +x "${packager}"
 # -d skip upload · -z skip zip · -r <dir> output root (relative to the addon dir).
 (cd "${dir}" && "${packager}" -dz -r .release)
 
+# --- Embed monorepo-internal shared libraries (NOT .pkgmeta externals) ---
+# The packager copies only the addon's own tree + URL externals; a shared lib that lives ONCE under
+# libs/<Name>/ is injected here into the packaged Libs/ for every addon whose .toc names it. Specs and
+# project.json are stripped from the ship.
+package="$(awk -F': *' '/^package-as:/ { print $2; exit }' "${dir}/.pkgmeta")"
+pkgdir="${dir}/.release/${package}"
+if [ -d libs ] && [ -d "${pkgdir}" ]; then
+    for lib in libs/*/; do
+        name="$(basename "${lib}")"
+        if grep -qs "${name}" "${dir}"/*.toc; then
+            echo "Embedding internal lib ${name} -> ${pkgdir}/Libs/${name}"
+            rsync -a --exclude='*_spec.lua' --exclude='project.json' "${lib}" "${pkgdir}/Libs/${name}/"
+        fi
+    done
+fi
+
 echo ""
 echo "Built -> ${dir}/.release/  — copy the package folder into your WoW Interface/AddOns/."

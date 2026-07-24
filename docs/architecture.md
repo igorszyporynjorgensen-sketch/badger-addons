@@ -22,6 +22,9 @@ architecture, note it here (ADDED / MODIFIED / REMOVED) on Done.
   `Locales/`, `.pkgmeta`). First and only so far: `projects/badger-arena` (folder/TOC `BadgerArena`).
 - **Shared tooling:** `tools/wow-mock` (the Busted stand-in for the WoW client) and `tools/build.sh`
   (the packager wrapper). These are test/build support — never shipped in a `.toc`.
+- **Shared shipped libraries:** `libs/<Name-Major.Minor>/` — LibStub libraries embedded into each
+  addon's `Libs/` at build (e.g. `libs/BadgerConfigUI-1.0`). Distinct from `tools/`: a `libs/` library
+  **is** shipped code, named in the consuming addon's `.toc`.
 - **No JavaScript app.** Node/pnpm/Nx exist only to orchestrate the Lua toolchain and cache its tasks.
 
 ## Runtime model (per addon)
@@ -39,8 +42,10 @@ architecture, note it here (ADDED / MODIFIED / REMOVED) on Done.
 
 - **Lua 5.1 target** (no 5.2+ syntax). The local gate runs Luacheck/Busted under LuaJIT (5.1).
 - **`.toc` load order is load-bearing** — a module must be listed after whatever `ns` fields it reads.
-- **Embedded libraries** come from `.pkgmeta` externals (Ace3, LibStub, …), fetched at build time into
-  `Libs/` — gitignored, never committed, moved as a lockstep set.
+- **Embedded libraries** — most `Libs/` come from `.pkgmeta` externals (Ace3, LibStub, …), fetched at
+  build time into `Libs/` — gitignored, never committed, moved as a lockstep set. Monorepo-internal
+  shared libs under `libs/` are **not** externals: `tools/build.sh` copies them into the packaged
+  `Libs/` after the packager runs, opt-in via the addon's `.toc`.
 - **Colocated specs** (`*_spec.lua`) live in the source tree but never ship: excluded from the `.toc`
   and from the packaged build (`.pkgmeta` `ignore`).
 - Code organization follows the house style in [engineering-principles.md](engineering-principles.md).
@@ -59,7 +64,8 @@ architecture, note it here (ADDED / MODIFIED / REMOVED) on Done.
   immunity, the 18s reset window). Illustrative TBC seed.
 - `modules/arena-detect.lua` — event-driven arena-state tracker with a listener list; API-light.
 - `core.lua` — Ace3 bootstrap (DB defaults, slash commands, wires `arena-detect` to a message).
-- `config/config.lua` — the AceConfig options schema + Blizzard panel registration.
+- `config/config.lua` — the AceConfig options schema, normalized + registered + opened through
+  `BadgerConfigUI-1.0` (native-tree window + banner); a thin Blizzard launcher stub.
 - `Locales/enUS.lua` — AceLocale base locale.
 
 **Open product decisions (future WOs):** unit-frame approach (custom `CreateFrame` vs an oUF-style
