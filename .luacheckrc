@@ -19,6 +19,7 @@ exclude_files = {
 }
 
 -- WoW API surface the addons may READ. Not exhaustive — extend as new API is used.
+-- Mirrored into `.luarc.json` (diagnostics.globals) for the editor LSP — keep the two in sync.
 read_globals = {
     -- Core / frames / timers
     "CreateFrame",
