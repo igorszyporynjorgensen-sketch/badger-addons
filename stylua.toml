@@ -1,0 +1,10 @@
+# StyLua — the one Lua formatter for the workspace. Shared by every project.
+# WoW runs Lua 5.1; keep the target compatible.
+syntax = "Lua51"
+column_width = 100
+line_endings = "Unix"
+indent_type = "Spaces"
+indent_width = 4
+quote_style = "AutoPreferDouble"
+call_parentheses = "Always"
+collapse_simple_statement = "Never"

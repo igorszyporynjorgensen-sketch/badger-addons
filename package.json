@@ -1,0 +1,28 @@
+{
+  "name": "badger-addons",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A family of lightweight WoW Classic (TBC Anniversary) unit-frame / on-screen-info UI addons.",
+  "license": "MIT",
+  "packageManager": "pnpm@10.34.1",
+  "engines": {
+    "node": ">=20.9.0",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "preinstall": "npx -y only-allow pnpm",
+    "prepare": "git config core.hooksPath .githooks || true",
+    "format": "nx run-many -t format",
+    "format:check": "nx run-many -t format-check",
+    "lint": "nx run-many -t lint",
+    "test": "nx run-many -t test",
+    "validate": "nx run-many -t format-check lint test",
+    "build": "nx run badger-arena:build"
+  },
+  "devDependencies": {
+    "nx": "^23.1.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["nx"]
+  }
+}

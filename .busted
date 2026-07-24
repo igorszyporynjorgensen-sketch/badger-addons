@@ -1,0 +1,11 @@
+-- Busted configuration for the workspace. Run from the repo root (Nx sets cwd = workspace root).
+-- Nx per-project `test` targets pass the project/tools dir as the positional root:
+--   busted projects/badger-arena     ·     busted tools/wow-mock
+-- `lpath` lets specs `require("tools.wow-mock.init")` regardless of which dir is under test.
+return {
+    default = {
+        verbose = true,
+        pattern = "_spec",
+        lpath = "./?.lua;./?/init.lua",
+    },
+}

@@ -1,0 +1,29 @@
+{
+  "name": "badger-arena",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "projects/badger-arena/src",
+  "tags": ["type:addon"],
+  "targets": {
+    "format": {
+      "executor": "nx:run-commands",
+      "options": { "command": "stylua projects/badger-arena" }
+    },
+    "format-check": {
+      "executor": "nx:run-commands",
+      "options": { "command": "stylua --check projects/badger-arena" }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": { "command": "luacheck projects/badger-arena" }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "busted projects/badger-arena" }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": { "command": "bash tools/build.sh badger-arena" }
+    }
+  }
+}
