@@ -1,8 +1,8 @@
 ---
 wo: WO-004-IJ
-status: Accepted         # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress      # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ             # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                    # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/7
 decision: ~              # D-0xx-II once a decision is produced, else ~
 depends_on:
   - CLAUDE.md
@@ -68,8 +68,13 @@ related:
   beyond the idiomatic LibStub registration; API-light testable logic). Frame code is the untestable
   edge — kept thin, verified in-client.
 - **Decisions produced:** D-003-IJ (config-window standard) — recorded in Phase 3.
-- **MR:** — (added once the PR is opened)
-- **Outcome:** — (running notes; final result on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/7
+- **Outcome:** implemented on `feature/WO-004-IJ-badger-config-ui` — shared `BadgerConfigUI-1.0` lib
+  (pure options-tree + frame-size + LibStub glue + XML), `badger-arena` retrofit, `tools/build.sh`
+  embed, D-003 + docs. Gate green: stylua · luacheck 0/0 · busted 28/0 across 3 projects. Adversarial
+  review fixed a real `AddToBlizOptions` return-value bug; a case-insensitive `.gitignore` trap that
+  was hiding the new `libs/` source was corrected. PR #7 opened for human merge. Flips to `Done` after
+  merge, `main` green, and an in-client `/reload` confirms the window renders.
 
 ### Resolved clarifications (accepted 2026-07-24)
 - **Banner content:** Badger-branded **text/color header** placeholder now; real artwork later.
