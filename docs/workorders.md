@@ -86,6 +86,8 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-003-IJ** — Git-ignore the personal `.claude/settings.local.json` (see
+  `docs/workorders/WO-003-IJ.md`). Status: Accepted.
 - **WO-002-IJ** — Add a top-level `assets/` folder for inspiration & references (see
   `docs/workorders/WO-002-IJ.md`). Status: Done.
 - **WO-001-IJ** — Scaffold the project (see `docs/workorders/WO-001-IJ.md`). Status: Done.
