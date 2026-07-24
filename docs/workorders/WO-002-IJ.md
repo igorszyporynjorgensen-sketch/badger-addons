@@ -1,6 +1,6 @@
 ---
 wo: WO-002-IJ
-status: In progress      # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done             # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ             # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/2
 decision: ~              # D-0xx-II once a decision is produced, else ~
@@ -42,6 +42,6 @@ related:
 - **Constitution check:** Principles OK — additive, no code, no toolchain or in-game impact.
 - **Decisions produced:** — (none expected)
 - **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/2
-- **Outcome:** `assets/` folder created on branch `chore/WO-002-IJ-assets-folder`; `pnpm validate`
-  green (6/6 cache hit, 0 failures); PR #2 opened for human merge. Flips to `Done` once merged and
-  `main` is green.
+- **Outcome:** **Done.** `assets/` folder (`README.md`, `images/`, `documents/`) created on branch
+  `chore/WO-002-IJ-assets-folder`; PR #2 merged to `main`; `pnpm validate` green on `main` (6/6, 0
+  failures). All acceptance criteria met.
