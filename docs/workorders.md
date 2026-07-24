@@ -88,4 +88,4 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 - **WO-002-IJ** — Add a top-level `assets/` folder for inspiration & references (see
   `docs/workorders/WO-002-IJ.md`). Status: Done.
-- **WO-001-IJ** — Scaffold the project (see `docs/workorders/WO-001-IJ.md`). Status: In progress.
+- **WO-001-IJ** — Scaffold the project (see `docs/workorders/WO-001-IJ.md`). Status: Done.

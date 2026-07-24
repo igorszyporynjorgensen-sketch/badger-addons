@@ -1,6 +1,6 @@
 ---
 wo: WO-001-IJ
-status: In progress
+status: Done
 assigned: IJ
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/1
 decision: D-001-IJ
@@ -61,5 +61,6 @@ related:
 - **Constitution check:** Principles OK (the scaffold *is* the principles).
 - **Decisions produced:** D-001-IJ (stack + conventions).
 - **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/1
-- **Outcome:** scaffold complete and gate-green on branch `core/WO-001-IJ-scaffold`; PR opened for
-  human merge. Flips to `Done` once the PR is merged and `main` is green.
+- **Outcome:** **Done.** Scaffold complete on branch `core/WO-001-IJ-scaffold`; PR #1 merged to
+  `main`; `pnpm validate` green on `main` (stylua · luacheck 0/0 · busted — real run, tools on
+  `~/.luarocks/bin`). CI ran the same gate on the PR.
