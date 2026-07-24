@@ -1,8 +1,8 @@
 ---
 wo: WO-005-IJ
-status: Accepted         # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress      # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ             # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                    # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/9
 decision: ~              # D-0xx-II once a decision is produced, else ~
 depends_on:
   - CLAUDE.md
@@ -50,5 +50,8 @@ related:
 - **Constitution check:** Principles OK — additive dev-tooling, no `_G` leaks (meta files are
   definitions, not runtime code), no shipped/gate impact.
 - **Decisions produced:** —
-- **MR:** — (added once the PR is opened)
-- **Outcome:** — (running notes; final result on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/9
+- **Outcome:** `.luarc.json` (Lua 5.1 · WoW globals mirrored from `.luacheckrc` · `types/` library ·
+  ignore dirs) + `types/busted.lua` `---@meta` stub added on `chore/WO-005-IJ-luarc`. Verified with
+  `lua-language-server --check`: **37 problems → 0** across first-party Lua. `pnpm validate` unaffected
+  and green. PR #9 opened for human merge. Flips to `Done` once merged and `main` green.
