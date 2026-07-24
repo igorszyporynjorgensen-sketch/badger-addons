@@ -3,7 +3,7 @@ wo: WO-004-IJ
 status: In progress      # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ             # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/7
-decision: ~              # D-0xx-II once a decision is produced, else ~
+decision: D-003-IJ       # D-0xx-II once a decision is produced, else ~
 depends_on:
   - CLAUDE.md
   - docs/workorders.md
@@ -73,8 +73,11 @@ related:
   (pure options-tree + frame-size + LibStub glue + XML), `badger-arena` retrofit, `tools/build.sh`
   embed, D-003 + docs. Gate green: stylua · luacheck 0/0 · busted 28/0 across 3 projects. Adversarial
   review fixed a real `AddToBlizOptions` return-value bug; a case-insensitive `.gitignore` trap that
-  was hiding the new `libs/` source was corrected. PR #7 opened for human merge. Flips to `Done` after
-  merge, `main` green, and an in-client `/reload` confirms the window renders.
+  was hiding the new `libs/` source was corrected. **PR #7 merged; `main` green post-merge (luacheck
+  0/0 · busted 28/0).** Code-complete. The only outstanding `Done` gate — an in-client `/reload` to
+  confirm the window renders — is **deferred by the human** (to be tested in WoW later; any render
+  issues handled as follow-up fixes). WO held at `In progress` until that check passes and flips it to
+  `Done`.
 
 ### Resolved clarifications (accepted 2026-07-24)
 - **Banner content:** Badger-branded **text/color header** placeholder now; real artwork later.
