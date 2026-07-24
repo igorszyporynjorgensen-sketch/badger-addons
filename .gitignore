@@ -1,0 +1,21 @@
+# Node / Nx
+node_modules/
+.nx/
+tmp/
+*.log
+
+# Lua tooling artifacts
+luacov.stats.out
+luacov.report.out
+.luarocks/
+
+# Addon build output + vendored libraries (fetched from .pkgmeta externals — never committed)
+**/.release/
+**/Libs/
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
