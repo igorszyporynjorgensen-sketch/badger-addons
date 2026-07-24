@@ -1,8 +1,8 @@
 ---
 wo: WO-003-IJ
-status: Accepted         # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress      # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ             # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                    # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/3
 decision: ~              # D-0xx-II once a decision is produced, else ~
 depends_on:
   - CLAUDE.md
@@ -39,5 +39,7 @@ related:
   PR opened to `main` for human merge.
 - **Constitution check:** Principles OK — additive, no code, no in-game impact.
 - **Decisions produced:** — (none expected)
-- **MR:** — (added once the PR is opened)
-- **Outcome:** — (running notes; final result on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/3
+- **Outcome:** `.gitignore` rule added on branch `chore/WO-003-IJ-ignore-claude-local`;
+  `git check-ignore` confirms the file is ignored; `pnpm validate` green. PR #3 opened for human
+  merge. Flips to `Done` once merged and `main` is green.
