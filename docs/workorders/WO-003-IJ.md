@@ -1,6 +1,6 @@
 ---
 wo: WO-003-IJ
-status: In progress      # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done             # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ             # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/3
 decision: ~              # D-0xx-II once a decision is produced, else ~
@@ -40,6 +40,6 @@ related:
 - **Constitution check:** Principles OK — additive, no code, no in-game impact.
 - **Decisions produced:** — (none expected)
 - **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/3
-- **Outcome:** `.gitignore` rule added on branch `chore/WO-003-IJ-ignore-claude-local`;
-  `git check-ignore` confirms the file is ignored; `pnpm validate` green. PR #3 opened for human
-  merge. Flips to `Done` once merged and `main` is green.
+- **Outcome:** **Done.** `.gitignore` rule merged via PR #3; `git check-ignore` confirms
+  `.claude/settings.local.json` is ignored on `main` while `.claude/skills/` stay tracked;
+  `pnpm validate` green on `main` (real run — luacheck 0/0, busted 12/12). All acceptance criteria met.
