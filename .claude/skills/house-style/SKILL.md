@@ -34,14 +34,19 @@ test.
 - **`.toc` load order is code:** libraries → locales → utilities → modules → core → config. A module
   must be listed *after* whatever `ns` fields it reads.
 - **Promotion:** a helper that gains a second consumer moves to its own module (or into `tools/`) —
-  never reach into another module's file. Shared code lives in `tools/*`, never in a sibling addon.
+  never reach into another module's file. Non-shipped shared code (the mock, build helpers) lives in
+  `tools/*`; **shipped** shared libraries live under `libs/<Name-Major.Minor>/` (embedded into each
+  addon's `Libs/` at build) — never in a sibling addon.
+- **Config windows use `BadgerConfigUI-1.0`:** an addon's options table is normalized, registered, and
+  opened through the shared LibStub config-UI library — never `AceConfig`/`AceConfigDialog` ad hoc per
+  addon.
 
 ## Reject on sight
 
 Any global write (`Foo = ...` at file scope) · logic in a locale file · a data table duplicated
 instead of shared · reaching into another module's file · a `.toc` order that contradicts the `ns`
-dependencies · PascalCase filenames · a behaviour-bearing module with no colocated spec · Lua 5.2+
-syntax (target is 5.1).
+dependencies · PascalCase filenames (except a `libs/` LibStub library's `Name-Major.Minor` entry
+`.lua`/`.xml`) · a behaviour-bearing module with no colocated spec · Lua 5.2+ syntax (target is 5.1).
 
 ## Bend, not break
 

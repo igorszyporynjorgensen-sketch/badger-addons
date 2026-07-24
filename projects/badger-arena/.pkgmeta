@@ -19,6 +19,10 @@ externals:
     path: DRList-1.0
   Libs/LibSharedMedia-3.0: https://repos.wowace.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
 
+# NOTE: BadgerConfigUI-1.0 is intentionally NOT listed here. It is a monorepo-internal shared lib that
+# lives once under libs/BadgerConfigUI-1.0/ and is injected into the packaged Libs/ by tools/build.sh
+# (opt-in via the .toc load line) — it is not a URL external and never needs an ignore entry.
+
 # Colocated Busted specs never ship in the packaged addon.
 ignore:
   - "**/*_spec.lua"

@@ -9,9 +9,12 @@ luacov.stats.out
 luacov.report.out
 .luarocks/
 
-# Addon build output + vendored libraries (fetched from .pkgmeta externals — never committed)
+# Addon build output + vendored libraries (fetched from .pkgmeta externals — never committed).
+# Scope the Libs ignore to projects/ so it does NOT also swallow the repo-root libs/ SOURCE on
+# case-insensitive filesystems (macOS core.ignorecase: bare **/Libs/ matches libs/). Shipped
+# shared-lib source under /libs/ stays tracked; only vendored per-addon Libs/ are ignored.
 **/.release/
-**/Libs/
+projects/**/Libs/
 
 # OS / editor
 .DS_Store

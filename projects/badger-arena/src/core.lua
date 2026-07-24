@@ -17,7 +17,7 @@ function BadgerArena:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("BadgerArenaDB", DEFAULTS, true)
     ns.buildOptions(self)
     self:RegisterChatCommand("badgerarena", "OpenOptions")
-    self:RegisterChatCommand("bga", "OpenOptions")
+    self:RegisterChatCommand("ba", "OpenOptions")
 end
 
 function BadgerArena:OnEnable()
@@ -28,5 +28,5 @@ function BadgerArena:OnEnable()
 end
 
 function BadgerArena:OpenOptions()
-    LibStub("AceConfigDialog-3.0"):Open(ADDON_NAME)
+    LibStub("BadgerConfigUI-1.0"):Toggle(ADDON_NAME)
 end

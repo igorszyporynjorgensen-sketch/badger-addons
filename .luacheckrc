@@ -68,6 +68,12 @@ read_globals = {
     "GetBattlefieldStatus",
     -- Libraries
     "LibStub",
+    -- Options / interface panels (read by the BadgerConfigUI glue)
+    "Settings",
+    "SettingsPanel",
+    "InterfaceOptionsFrame",
+    "InterfaceOptionsFrame_OpenToCategory",
+    "HideUIPanel",
 }
 
 -- Globals the game creates and WRITES for us (SavedVariables). Writable, not just readable.

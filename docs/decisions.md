@@ -35,7 +35,13 @@ _As of 2026-07-24._
   Luacheck (LuaJIT/5.1) · Busted — behind one `pnpm validate` gate. Target client: WoW Classic TBC
   Anniversary. Framework: Ace3. `pnpm validate` passes (stylua · luacheck 0/0 · busted 12/12).
 - **Layout.** `projects/badger-arena` (the first addon, folder `BadgerArena`) · `tools/wow-mock`
-  (shared Busted harness) · `tools/build.sh` (packager wrapper). No JavaScript app.
+  (shared Busted harness) · `tools/build.sh` (packager wrapper) · `libs/BadgerConfigUI-1.0` (shared
+  **shipped** LibStub config-UI library, embedded into each addon's `Libs/` at build). No JavaScript app.
+- **Config-window standard.** Every Badger addon registers, sizes, and opens its options through the
+  shared `BadgerConfigUI-1.0` LibStub library — a native `AceConfigDialog` tree window + branded banner
+  — never ad hoc per addon. Shipped shared libraries live under a top-level `libs/<Name-Major.Minor>/`
+  (distinct from never-shipped `tools/`) and are embedded into `Libs/` by `tools/build.sh`, opt-in via
+  each addon's `.toc` (see D-003-IJ).
 - **Docs/process in place.** `CLAUDE.md`, `docs/engineering-principles.md`, `docs/workorders.md` +
   `docs/workorders/WO-001-IJ.md`, this log, `docs/milestones.md`, `docs/architecture.md`.
 - **Not in scope (by design).** No company-infra registration, no ports/subdomains/Notion — this is a
@@ -43,7 +49,7 @@ _As of 2026-07-24._
 - **Inspiration assets.** `assets/` (repo root) holds internet-gathered reference material — see
   `assets/README.md`. Drops land via a lightweight lane: `chore` branch + PR (human merges), **no work
   order**; images are optimized before the first commit (see D-002-IJ).
-- **Next id:** D-003-IJ.
+- **Next id:** D-004-IJ.
 
 ---
 
@@ -51,6 +57,19 @@ _As of 2026-07-24._
 
 ### 2026-07-24
 
+- **[D-003-IJ] Config windows use the shared `BadgerConfigUI-1.0` LibStub library; shipped shared
+  libraries live under a new top-level `libs/<Name-Major.Minor>/`, embedded into each addon's `Libs/` by
+  `tools/build.sh` (not `.pkgmeta` externals).** One branded config-window standard across every Badger
+  addon — a native `AceConfigDialog` tree + banner header, sized/registered/opened once through the lib
+  rather than each addon wiring `AceConfig`/`AceConfigDialog` ad hoc. *Why the new home:* `tools/` is
+  defined as never-shipped tooling (§1.1), but a lib listed in a `.toc` **is** shipped — so a shipped
+  shared lib needs its own place, and `libs/` makes the shipped-vs-tooling boundary honest. The lib is a
+  LibStub library (deduped across addons via `NewLibrary`), copied into `Libs/` at build like the Ace
+  externals and opt-in via each addon's `.toc` — not a URL external, since the source lives inside the
+  monorepo. *The bend:* the folder **and its entry `.lua`/`.xml`** are named `Name-Major.Minor`
+  (`BadgerConfigUI-1.0`) rather than kebab-case, matching its `Libs/` copy target so the embed is a
+  straight copy (internal sub-modules stay kebab-case) — the same documented divergence already granted
+  to vendored `Libs/`. See WO-004.
 - **[D-002-IJ] `assets/` drops use a lightweight lane — `chore` branch + PR, no work order; images
   optimized first.** Adding reference/inspiration material to `assets/` is treated as *content*, not a
   code "job": it lands on a `chore/` branch and reaches `main` via a PR the human merges (never a

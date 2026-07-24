@@ -1,0 +1,7 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+    <!-- Load order matters: the two pure files export onto `ns` FIRST, then the glue captures them as
+         upvalues. A consumer .toc needs exactly one line pointing at this file. -->
+    <Script file="options-tree.lua"/>
+    <Script file="frame-size.lua"/>
+    <Script file="BadgerConfigUI-1.0.lua"/>
+</Ui>

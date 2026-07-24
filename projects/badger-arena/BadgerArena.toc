@@ -22,6 +22,9 @@ Libs\AceLocale-3.0\AceLocale-3.0.xml
 Libs\AceGUI-3.0\AceGUI-3.0.xml
 Libs\AceConfig-3.0\AceConfig-3.0.xml
 
+# Shared Badger config-UI library — copied into Libs/ by tools/build.sh (NOT a .pkgmeta external).
+Libs\BadgerConfigUI-1.0\BadgerConfigUI-1.0.xml
+
 # Locales
 Locales\enUS.lua
 
