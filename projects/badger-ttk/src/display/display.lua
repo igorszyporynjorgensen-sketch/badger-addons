@@ -169,6 +169,13 @@ function Display.refresh()
     end
 end
 
+-- Hide the whole stack (no target / gated out by the live driver).
+function Display.hide()
+    if container then
+        container:Hide()
+    end
+end
+
 -- Static preview: render the frozen representative model.
 function Display.showPreview(on)
     if on then

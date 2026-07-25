@@ -86,6 +86,10 @@ function BadgerTTK:OnInitialize()
     self:RegisterChatCommand("bttk", "OpenOptions")
 end
 
+function BadgerTTK:OnEnable()
+    ns.LiveDriver.start()
+end
+
 function BadgerTTK:OpenOptions()
     LibStub("BadgerConfigUI-1.0"):Toggle(ADDON_NAME)
 end

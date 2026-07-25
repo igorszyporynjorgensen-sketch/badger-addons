@@ -48,6 +48,8 @@
     "GetInventoryItemID",
     "GetItemCount",
     "GetItemIcon",
+    "UnitCanAttack",
+    "UnitIsDeadOrGhost",
     "IsActiveBattlefieldArena",
     "GetNumArenaOpponents",
     "GetArenaOpponentSpec",
