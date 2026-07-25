@@ -1,8 +1,8 @@
 ---
 wo: WO-017-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/20
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-012-IJ.md
@@ -50,22 +50,21 @@ related:
   persist instead of flashing-then-vanishing.
 
 **Phase 1 — Version stamp**
-1. [ ] `BadgerTTK.toc` `## Version:` → **0.9.0**.
-2. [ ] Config window surfaces the running version (single-sourced via
-       `(C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata)(ADDON_NAME, "Version")`), e.g. in the
-       banner subtitle: "Time-to-kill and optimal cooldown timing — v0.9.0".
+1. [x] `BadgerTTK.toc` `## Version:` → **0.9.0**.
+2. [x] Config window title + banner surface the running version (single-sourced via
+       `(C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata`), subtitle
+       "Time-to-kill and optimal cooldown timing — v0.9.0". Globals whitelisted in `.luacheckrc`/`.luarc.json`.
 
 **Phase 2 — Robust preview ownership**
-1. [ ] `LiveDriver.setSuspended(bool)` — a module-local flag; `update()` returns early when suspended
-       (kept **alongside** the existing `simStatic`/`simPlaying` db-flag guard as a backstop).
-2. [ ] `Display.showPreview` / `Display.playSim` push the desired state at toggle time:
-       `ns.LiveDriver.setSuspended(profile().simStatic or profile().simPlaying)` — synchronous, right after
-       the flag is set, so the driver never has to read the flag on a tick.
-3. [ ] `Display.playSim` runs its animation `OnUpdate` on a **dedicated always-shown ticker frame** (a new
-       display-module upvalue), not on the hideable container; `render` remains the sole container-shower.
+1. [x] `LiveDriver.setSuspended(bool)` — module-local flag; `update()` returns early on `suspended`
+       (kept **alongside** the `simStatic`/`simPlaying` db-flag backstop).
+2. [x] `Display.showPreview` / `Display.playSim` push `setSuspended(simStatic or simPlaying)` at toggle time.
+3. [x] `Display.playSim` runs its animation `OnUpdate` on a dedicated always-shown `simFrame`, not the
+       hideable container; `render` remains the sole container-shower.
 
 **Phase 3 — Verify**
-1. [ ] `pnpm validate` green; rebuild `.release`; human confirms the version shows AND both previews persist.
+1. [x] `pnpm validate` green (luacheck 0/0; 53+16 specs). PR #20 opened.
+2. [ ] After merge: rebuild `.release`; human confirms **v0.9.0** shows AND both previews persist.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR opened for human merge; human re-test.
 - **Constitution check:** Principles OK — edge-only frame/driver coordination; no `_G` leaks; pure logic and
