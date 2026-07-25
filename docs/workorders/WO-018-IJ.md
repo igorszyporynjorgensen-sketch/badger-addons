@@ -24,15 +24,24 @@ related:
 - **Human spec for the sim:** warrior; **total TTK starts at 50s** and counts down to 0; fire the two
   example utilities — **Death Wish (30s) at 30s-left** and **Earthstrike (20s) at 20s-left** — and *only*
   those two. (Both then expire exactly at death → a textbook "perfectly covered kill".)
+- **Coordinate model — FIXED TIMELINE, SIM ONLY (human decision, → D-005).** The render rescales the x-axis
+  to the *current* TTK (window is always "now → death"), so a linear countdown makes bars grow. The human
+  wants steady bars **in the sim preview only** — **live keeps the rescale-to-current-TTK model unchanged**
+  (a real estimate genuinely fluctuates, so rescaling is correct there). Implementation is purely additive:
+  the render model gains an optional **`total`** scale — `xOf(v) = width · (total − v) / total` — that
+  **defaults to `ttk`** (so live behaves exactly as today). The **sim passes `total = 50`** (fixed), so its
+  utility bars are placed by absolute time-from-death and hold the same width/position their whole life
+  (planned AND active); only the health fill + a "now" marker move.
 - **Root causes (from the v0.9.0 in-game test):**
   1. **Dynamic only shows if static is checked.** `Sim.run` reconstructs TTK by feeding scenario samples
      into a fresh EWMA estimator; at low `t` it has too few samples, so `estimator:ttk()` is `nil` →
      `Layout.compute` returns `ok = false` → `render` hides every bar. Static "priming" the container is
      the only reason anything appeared. **Fix:** drive the preview from a **deterministic TTK countdown**
      (`ttk = total − t`), always known, so the dynamic preview stands on its own.
-  2. **Utility bars oversized / funky.** The jittering EWMA `ttk` (plus the old health curve + immune
-     window) made the pixel windows recompute wildly; `over`-coverage bars clamp to full width. The
-     deterministic countdown + the two exactly-fitting pops produce stable, sensible bars.
+  2. **Utility bars oversized / funky / growing (in the sim).** Two causes: the jittering EWMA `ttk`, and
+     the rescale-to-current-TTK model (a linear countdown still grows the bars). **Fix:** the deterministic
+     countdown + the **sim-only fixed-timeline** `total` scale → sim bars are steady; and the pure `Layout`
+     clamps every window to `[0, width]` (all modes) so none can exceed the TTK bar.
   3. **No names on utility bars.** `render()` only ever sets the *main* bar's text. **Fix:** thread a
      display `name` through the render model → layout → display, and set each utility bar's text
      (honouring `showBarNames` / `showTimers`: active → "Name  Ns", planned → "Name").
@@ -53,29 +62,36 @@ related:
 - **Behavior delta:** MODIFIED (in-game) — dynamic preview is a deterministic warrior countdown that no
   longer needs static; utility bars are correctly sized and now labelled.
 
-**Phase 1 — Deterministic warrior scenario**
+**Phase 1 — Fixed-timeline `total` scale (additive; live unchanged)**
+1. [ ] `engine/render-model.lua`: `RenderModel.build(ttk, entries, total)` — `total` **defaults to `ttk`**
+       (live callers unchanged), carried onto the model.
+2. [ ] `display/layout.lua`: scale by `model.total` (`xOf(v) = width·(total−v)/total`) with `total`
+       defaulting to `ttk`; **clamp every window to `[0, width]`** (all modes — the width cap). `ok` follows
+       `total > 0`. Existing ttk-scale specs still hold (total defaults to ttk); add specs for the
+       fixed-`total` case and an over-duration entry → full-width (never wider).
+
+**Phase 2 — Deterministic warrior scenario (steady, sim only)**
 1. [ ] `sim/scenario.lua`: replace the sample/immune `warriorBurst` with a deterministic spec —
        `total = 50`; pops `{ id, name, duration, fireTTK, cooldown, offset }` for Death Wish (30s @ 30
        left) and Earthstrike (20s @ 20 left) only.
 2. [ ] `sim/sim.lua` `Sim.run(scenario, t)`: return `(model, ttk, health)` from a **deterministic
        countdown** — `ttk = max(0, total − t)`, `health = ttk/total`; each pop is `active` (with
-       `remaining`) once `t ≥ total − fireTTK`, else `planned`; entries carry `name`.
+       `remaining`) once `t ≥ total − fireTTK`, else `planned`; build with `RenderModel.build(ttk, entries,
+       total)` so the sim bars are steady. `staticPreview` likewise passes a fixed `total`.
 
-**Phase 2 — Names through the model + display + the width-cap invariant**
-1. [ ] `engine/render-model.lua` + `display/layout.lua`: pass `name` through (additive — geometry
-       unchanged). **`Layout.compute` clamps every window to `[0, width]`** so no bar can exceed the TTK
-       bar's width (an over-long ability fills the full bar); add a spec proving an over-duration entry →
-       full-width, never wider.
-2. [ ] `display/display.lua` `render`: set each utility bar's text from its `name` (+ remaining when
-       `showTimers`), gated by `showBarNames`. Give the static preview entries names too.
+**Phase 3 — Names through the model + display**
+1. [ ] `engine/render-model.lua` + `display/layout.lua`: pass `name` through (additive).
+2. [ ] `display/display.lua` `render`: main bar fills to `ttk/total` (time fraction); set each utility
+       bar's text from its `name` (+ remaining when `showTimers`), gated by `showBarNames`. Static preview
+       entries get names too.
 3. [ ] `live/driver.lua` `assembleEntries`: carry `name` from the ability table so live bars are labelled.
 
-**Phase 3 — Specs + verify**
-1. [ ] Update `sim_spec.lua`, `scenario_spec.lua`, and add `name`-passthrough asserts to the render-model /
-       layout specs. `pnpm validate` green.
+**Phase 4 — Specs + verify**
+1. [ ] Update `sim_spec.lua`, `scenario_spec.lua`, and add `total`-scale, width-cap, and `name`-passthrough
+       asserts to the render-model / layout specs. `pnpm validate` green.
 2. [ ] Bump `.toc` `## Version` → **0.9.1** (new test build), rebuild `.release`.
 3. [ ] **In-game (human, required):** dynamic Play with static off shows the 50s warrior countdown with
-       named, correctly-sized Death Wish / Earthstrike bars.
+       named, steady, correctly-sized Death Wish / Earthstrike bars.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR opened for human merge; human re-test.
 - **Constitution check:** Principles OK — pure geometry/sim changes stay API-light and spec-tested; display
