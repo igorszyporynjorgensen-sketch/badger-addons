@@ -90,7 +90,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
   demo to spec (50s TTK countdown; Death Wish @30s-left, Earthstrike @20s-left, only those two) so it shows
   standalone (no static needed); add utility-bar **names/timers**; and make "no bar wider than the TTK bar"
   a spec-tested `Layout` invariant (over-long abilities fill the full bar). Fixes the three v0.9.0 in-game
-  bugs (see `docs/workorders/WO-018-IJ.md`). Status: In progress — PR #21 opened; D-007 recorded.
+  bugs (see `docs/workorders/WO-018-IJ.md`). Status: Done — PR #21 merged; D-007 recorded; in-game confirmed.
 - **WO-017-IJ** — `badger-ttk`: show the **build version** in the config window (single-sourced from the
   `.toc`, starts `0.9.0`, bumped every test build → `1.0.0` on human sign-off) **and** fix the preview bars
   still vanishing after ~1s — make the display the sole owner during preview (push an explicit suspend to

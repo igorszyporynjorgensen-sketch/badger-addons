@@ -1,6 +1,6 @@
 ---
 wo: WO-018-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/21
 decision: D-007-IJ
@@ -91,8 +91,9 @@ related:
 1. [x] Update `sim_spec.lua`, `scenario_spec.lua`, and add `total`-scale, width-cap, and `name`-passthrough
        asserts to the render-model / layout specs. `pnpm validate` green.
 2. [x] Bump `.toc` `## Version` → **0.9.1** (new test build), rebuild `.release`.
-3. [ ] **In-game (human, required):** dynamic Play with static off shows the 50s warrior countdown with
-       named, steady, correctly-sized Death Wish / Earthstrike bars.
+3. [x] **In-game (human, required):** dynamic Play with static off shows the 50s warrior countdown with
+       named, steady, correctly-sized Death Wish / Earthstrike bars. **Confirmed by the human — "worked
+       really well".**
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR opened for human merge; human re-test.
 - **Constitution check:** Principles OK — pure geometry/sim changes stay API-light and spec-tested; display
