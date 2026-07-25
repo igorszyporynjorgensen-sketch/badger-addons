@@ -29,12 +29,13 @@ working agreement → [../CLAUDE.md](../CLAUDE.md).
 
 ## Current state
 
-_As of 2026-07-24._
+_As of 2026-07-25._
 
 - **Scaffolded and verified green.** Nx (pnpm) monorepo orchestrating a Lua toolchain — StyLua ·
   Luacheck (LuaJIT/5.1) · Busted — behind one `pnpm validate` gate. Framework: Ace3. `pnpm validate`
   passes (stylua · luacheck 0/0 · busted green).
-- **Layout.** `projects/badger-arena` (the first addon, folder `BadgerArena`) · `tools/wow-mock`
+- **Layout.** `projects/badger-arena` (first addon — TBC, folder `BadgerArena`) · `projects/badger-ttk`
+  (second addon — the repo's first **Vanilla / Classic Era** addon, folder `BadgerTTK`; scaffolded) · `tools/wow-mock`
   (shared Busted harness) · `tools/build.sh` (packager wrapper) · `libs/BadgerConfigUI-1.0` (shared
   **shipped** LibStub config-UI library, embedded into each addon's `Libs/` at build). No JavaScript app.
 - **Config-window standard.** Every Badger addon registers, sizes, and opens its options through the
@@ -47,6 +48,13 @@ _As of 2026-07-24._
   flavor (`project.json` `flavor:*` tag · `.toc` `## Interface:` · a scoped `.luacheckrc` API overlay, so
   a Vanilla addon can't reference TBC-only APIs); runtime guards use `WOW_PROJECT_ID`; the shared mock is
   flavor-aware (`install({ flavor })`). Both-flavor build machinery is deferred (see D-004-IJ).
+- **Time-to-kill addon (`badger-ttk`).** A second addon (Vanilla Era 1.15, Model 1 — the repo's first
+  Vanilla addon): a right-anchored *time-until-the-target-dies* bar plus utility bars showing **when to
+  fire each finite cooldown** to cover the kill. One pure engine + three drivers; a live-only-smart TTK
+  estimator (WarcraftLogs history deferred); a static, complete, curated warrior cooldown table
+  (`docs/reference/warrior-ttk-cooldowns.md`) with a live availability/usability overlay; config-driven
+  per-encounter gating; an open user-authored skin system. Design in WO-007; scaffolded by WO-008
+  (D-005/D-006). Functionality WOs follow — config first.
 - **Docs/process in place.** `CLAUDE.md`, `docs/engineering-principles.md`, `docs/workorders.md` +
   `docs/workorders/WO-001-IJ.md`, this log, `docs/milestones.md`, `docs/architecture.md`.
 - **Not in scope (by design).** No company-infra registration, no ports/subdomains/Notion — this is a
@@ -54,11 +62,45 @@ _As of 2026-07-24._
 - **Inspiration assets.** `assets/` (repo root) holds internet-gathered reference material — see
   `assets/README.md`. Drops land via a lightweight lane: `chore` branch + PR (human merges), **no work
   order**; images are optimized before the first commit (see D-002-IJ).
-- **Next id:** D-005-IJ.
+- **Next id:** D-007-IJ.
 
 ---
 
 ## Decision log
+
+### 2026-07-25
+
+- **[D-005-IJ] `badger-ttk` — a second addon: a time-to-kill / optimal-cooldown-timing bar UI for
+  Classic Era 1.15 (Vanilla, Model 1), the repo's first Vanilla addon.** A right-anchored bar shows the
+  estimated *time until the current target dies*; utility bars sit against it to show **when to fire each
+  finite-duration cooldown** so its buff exactly spans the remaining kill — a static *planned* pop-line
+  becomes an *active* draining bar, and a repeated **comb** at TTK = D, D+C… appears when the fight
+  outlives the cooldown. Built as **one pure engine + three drivers** (live events / a simulation script
+  / Busted specs) so the timing math is off-client-testable per the house rule. v1 estimates TTK
+  **live-only but not naively** — a health-fraction EWMA (`UnitHealth` sampling, surfaced to the user as
+  a *Reactivity↔Stability* slider) with an execute-phase correction and a confidence gate; the
+  **WarcraftLogs historical blend is deferred** (v1 only prepares the seam — an `E(h)` kill-curve stored
+  in AceDB `db.global`, not `db.profile`). *Why:* every Vanilla burst cooldown is finite and long-CD, and
+  the optimal pop moment (fit the duration inside the kill; squeeze extra uses when the fight is long) is
+  non-obvious and shifts second-to-second with live DPS — surfacing it is a genuine skill lift, and an
+  engine-first build keeps it testable and drivable from live/sim/spec alike. Design in WO-007;
+  scaffolded by WO-008.
+- **[D-006-IJ] `badger-ttk` ability, config & skin model.** The tracked cooldowns are a **static,
+  complete master table** (warrior curated + Wowhead-verified in
+  `docs/reference/warrior-ttk-cooldowns.md` — *offensive, finite, timed on-use effects only*; defensives,
+  passives/procs, and long maintained/pre-pull buffs excluded), shown in **full** in config. A live scan
+  only **annotates** each entry — *known* (abilities/racials) · *equipped* (items) · *in bags*
+  (consumables) → usable, else dimmed — and a bar renders only when **enabled ∩ usable-now (or its buff
+  is already active)**. **Not-usable / shared-CD lockout is read from the game's live usability**
+  (`GetItemCooldown` / `IsUsableItem` / `IsUsableSpell`), not modeled as relations — which also sidesteps
+  the unresolved Classic shared-trinket-CD question. Show-gating is **config-driven per raid/encounter**
+  (a dedicated Raids node). The bar UI is **skinnable via an open, user-authored `RegisterSkin` data
+  format** (built-in + third-party skins; one font family + a main-vs-other size split; skin owns *look*,
+  placement stays user config); the options window targets a **high-end, icon-rich** look (may extend
+  `BadgerConfigUI-1.0` with icon support). **Config precedes functionality** — a dedicated config-skeleton
+  WO runs before the feature WOs. *Why:* a static list lets a player pre-configure for gear/specs they
+  don't have yet; reading live usability is far cheaper than a relations graph and is always correct; an
+  open skin format lets the community theme it. See WO-007 + the reference data.
 
 ### 2026-07-24
 

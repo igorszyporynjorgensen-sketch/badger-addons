@@ -1,9 +1,9 @@
 ---
 wo: WO-008-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
-decision: ~             # D-0xx-II once a decision is produced, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/11
+decision: D-005-IJ      # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-007-IJ.md
   - CLAUDE.md
@@ -56,20 +56,20 @@ related:
   time-to-kill behavior yet.
 
 **Phase 1 — Project skeleton**
-1. [ ] `projects/badger-ttk/project.json` (targets + `flavor:vanilla` tag); `BadgerTTK.toc` (Interface/
+1. [x] `projects/badger-ttk/project.json` (targets + `flavor:vanilla` tag); `BadgerTTK.toc` (Interface/
        metadata/load order); scoped `.luacheckrc` overlay (`BadgerTTKDB` + Vanilla globals); `.pkgmeta`
        (externals + spec ignore + BadgerConfigUI note).
 
 **Phase 2 — Ace3 bootstrap**
-1. [ ] `core.lua` — `NewAddon` + AceDB (`profile` defaults + reserved `global` history namespace) + slash
+1. [x] `core.lua` — `NewAddon` + AceDB (`profile` defaults + reserved `global` history namespace) + slash
        command; `Locales/enUS.lua` AceLocale stub.
 
 **Phase 3 — Config skeleton + embeds**
-1. [ ] `config/config.lua` — BadgerConfigUI registration with a **General** node + `AceDBOptions` Profiles
+1. [x] `config/config.lua` — BadgerConfigUI registration with a **General** node + `AceDBOptions` Profiles
        node; confirm LibSharedMedia-3.0 + AceDBOptions-3.0 are in `.pkgmeta`/`.toc`.
 
 **Phase 4 — Verify**
-1. [ ] `pnpm validate` green; `badger-ttk:build` packages; record the D-005… decision bundle from WO-007
+1. [x] `pnpm validate` green; `badger-ttk:build` packages; record the D-005… decision bundle from WO-007
        into `docs/decisions.md` (render model · flavor · estimator · ability model · skin system · config)
        and update `architecture.md` with the badger-ttk shape. In-game `/reload` deferred to the human.
 
@@ -78,7 +78,17 @@ related:
 - **Constitution check:** Principles OK — additive first-Vanilla-addon plumbing; house style + `.toc`
   order honored; flavor discipline per D-004 (flavor tag · scoped luacheckrc · mock `vanilla` surface);
   no `_G` leaks; simplest-thing-that-fits (skeleton config, real tree deferred to WO-009).
-- **Decisions produced:** records the **D-005…** bundle from WO-007 into `docs/decisions.md` on Done
-  (no new choices — implements WO-007's accepted design).
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **Decisions produced:** **D-005-IJ** (badger-ttk exists · the TTK render model · engine/estimator) and
+  **D-006-IJ** (ability / config / skin model) recorded in `docs/decisions.md` — no new choices, they
+  capture WO-007's accepted design; `architecture.md` updated; Next id → D-007.
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/11
+- **Outcome:** Implemented on `feature/WO-008-IJ-scaffold`; **PR #11 merged; `main` green.**
+  `projects/badger-ttk` scaffolded — `project.json` (`flavor:vanilla` + Nx targets), `BadgerTTK.toc`
+  (Interface 11507, `SavedVariables BadgerTTKDB`), `.pkgmeta` (Ace3 + AceDBOptions embeds; LibSharedMedia
+  forward-looking; BadgerConfigUI injected at build), `core.lua` Ace3 bootstrap (AceDB `profile` +
+  reserved `global` history seam), `config/config.lua` skeleton BadgerConfigUI (General + Profiles),
+  `Locales/enUS` stub, `smoke_spec` proving the wow-mock `vanilla` surface; scoped `.luacheckrc` overlay.
+  Gate green: stylua · luacheck 0/0 · busted (badger-ttk 2/0) · full `pnpm validate` (4 projects).
+  **D-005/D-006** recorded, `architecture.md` updated. **In-game `/reload` + a live Interface-number
+  confirm are deferred to the human** (the gate runs off-client and can't load the addon in WoW —
+  precedent WO-004). **Done.**

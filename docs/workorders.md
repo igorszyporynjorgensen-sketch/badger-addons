@@ -88,7 +88,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 - **WO-008-IJ** — Scaffold `badger-ttk` (Vanilla/Era, Model 1) — the empty vessel: `.toc`, flavor tag,
   scoped lint, `.pkgmeta` embeds, Ace3 bootstrap (AceDB profile+global), skeleton config window. Child
-  #1 of WO-007 (see `docs/workorders/WO-008-IJ.md`). Status: Accepted.
+  #1 of WO-007 (see `docs/workorders/WO-008-IJ.md`). Status: Done — PR #11 merged.
 - **WO-007-IJ** — `badger-ttk` time-to-kill / optimal-cooldown-timing addon — **umbrella/epic** plan
   (design + child-WO breakdown; no code). Repo's first Classic-Era/Vanilla addon; skinnable UI, config
   before functionality (see `docs/workorders/WO-007-IJ.md`). Status: Accepted.

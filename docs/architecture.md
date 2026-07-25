@@ -19,7 +19,9 @@ architecture, note it here (ADDED / MODIFIED / REMOVED) on Done.
 - **Monorepo:** Nx (pnpm workspaces). Addons depend on shared tooling; tooling never on addons; addons
   never on each other.
 - **Addons:** `projects/<addon>/` — each a self-contained WoW addon (its own `.toc`, `src/`,
-  `Locales/`, `.pkgmeta`). First and only so far: `projects/badger-arena` (folder/TOC `BadgerArena`).
+  `Locales/`, `.pkgmeta`). `projects/badger-arena` (TBC, folder/TOC `BadgerArena`) and
+  `projects/badger-ttk` (the repo's first **Vanilla / Classic Era** addon, folder/TOC `BadgerTTK`;
+  currently a scaffold — see WO-007/WO-008).
 - **Shared tooling:** `tools/wow-mock` (the Busted stand-in for the WoW client) and `tools/build.sh`
   (the packager wrapper). These are test/build support — never shipped in a `.toc`.
 - **Shared shipped libraries:** `libs/<Name-Major.Minor>/` — LibStub libraries embedded into each
@@ -79,6 +81,18 @@ architecture, note it here (ADDED / MODIFIED / REMOVED) on Done.
 layer), whether to adopt DRList-1.0 for real DR data, and trinket/cooldown tracking. *(Per-project
 flavor targeting is established — see D-004-IJ; the both-flavor build machinery is deferred until a
 both-flavor addon exists.)*
+
+## badger-ttk — second addon (Vanilla / Classic Era, scaffold)
+
+The repo's **first Vanilla (Classic Era 1.15) addon** and the first exercise of the D-004 multi-flavor
+setup in a *non-TBC* project (`flavor:vanilla` tag · scoped `.luacheckrc` overlay with no arena API ·
+the mock's `vanilla` surface). Currently a **scaffold** (WO-008): `core.lua` Ace3 bootstrap with AceDB
+`profile` + a reserved `global` (the kill-history seam), and a skeleton `BadgerConfigUI` window (General
++ Profiles). The full design — the right-anchored time-to-kill render model, one pure engine + three
+drivers (live / sim / spec), a live-only-smart TTK estimator, a static-master-table ability model with a
+live availability/usability overlay, config-driven per-encounter gating, and an open user-authored skin
+system — lives in [WO-007](workorders/WO-007-IJ.md) and lands via its child WOs (**config first**). See
+D-005-IJ / D-006-IJ. Warrior cooldown data: [reference/warrior-ttk-cooldowns.md](reference/warrior-ttk-cooldowns.md).
 
 ## Diagram
 <!-- Add a component/flow diagram when the shape is worth a picture. -->
