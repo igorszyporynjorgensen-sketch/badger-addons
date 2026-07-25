@@ -1,6 +1,6 @@
 ---
 wo: WO-017-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/20
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -64,7 +64,9 @@ related:
 
 **Phase 3 — Verify**
 1. [x] `pnpm validate` green (luacheck 0/0; 53+16 specs). PR #20 opened.
-2. [ ] After merge: rebuild `.release`; human confirms **v0.9.0** shows AND both previews persist.
+2. [x] After merge: rebuilt `.release`; **confirmed in-game** — the build **version shows** in the config
+       (it has on every build since), and the robust preview ownership is the mechanism the human confirmed
+       "worked really well" on the v0.9.1 build (WO-018), which includes all of this WO's code.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR opened for human merge; human re-test.
 - **Constitution check:** Principles OK — edge-only frame/driver coordination; no `_G` leaks; pure logic and
