@@ -115,6 +115,13 @@ files["tools/wow-mock/**"] = {
 -- surface above plus its own extra reads (the ability-scan / icon APIs the model uses). It scopes in its
 -- own SavedVariables. A TBC-only API referenced here would fail the lint (W113), keeping it honest.
 files["projects/badger-ttk/**"] = {
-    read_globals = { "IsPlayerSpell", "GetInventoryItemID", "GetItemCount", "GetItemIcon" },
+    read_globals = {
+        "IsPlayerSpell",
+        "GetInventoryItemID",
+        "GetItemCount",
+        "GetItemIcon",
+        "UnitCanAttack",
+        "UnitIsDeadOrGhost",
+    },
     globals = { "BadgerTTKDB" },
 }
