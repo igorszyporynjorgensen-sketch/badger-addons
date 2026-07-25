@@ -86,6 +86,10 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-013-IJ** — `badger-ttk` skin engine **(b)**: an open data-only skin format + public
+  `RegisterSkin` API + built-in Badger skin + LibSharedMedia font/texture/border pickers; the display
+  renders a resolved look (skin + config overrides). Child #5b of WO-007 (see
+  `docs/workorders/WO-013-IJ.md`). Status: Proposed.
 - **WO-012-IJ** — `badger-ttk` display **(a)**: frames + a pure layout helper (render-model → pixel
   rects) + movable container (drag/scale), **sim-driven** (static preview + dynamic playback) — the
   first visible feature. Skin engine split to WO-013. Child #5a of WO-007 (see
