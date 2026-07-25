@@ -1,8 +1,8 @@
 ---
 wo: WO-022-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/25
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-007-IJ.md
@@ -57,16 +57,16 @@ related:
   toggles. No in-combat behavior change yet (enforcement is a later WO).
 
 **Phase 1 — Raid registry (pure data + spec)**
-1. [ ] `src/raids/table.lua`: `ns.RaidTable` (the reviewed list above). `raids/table_spec.lua`: unique raid
+1. [x] `src/raids/table.lua`: `ns.RaidTable` (the reviewed list above). `raids/table_spec.lua`: unique raid
        + encounter ids, ≥1 encounter per raid. Add the file to the `.toc` (after abilities, before core).
 
 **Phase 2 — Config node + storage**
-1. [ ] `config.lua` `buildRaids(db)`: per-raid group (sub-node) with a master toggle + encounter toggles
+1. [x] `config.lua` `buildRaids(db)`: per-raid group (sub-node) with a master toggle + encounter toggles
        (default-on getters; encounters `disabled` when the raid master is off). Replace the placeholder.
-2. [ ] `core.lua`: add `raids = {}` to the profile defaults (absent = default-on, like `abilities`).
+2. [x] `core.lua`: add `raids = {}` to the profile defaults (absent = default-on, like `abilities`).
 
 **Phase 3 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.5**, rebuild `.release`.
+1. [x] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.5**, rebuild `.release`.
 2. [ ] **In-game (human, required):** Raids shows a sub-node per raid with encounter checkboxes + master
        toggle; toggles persist across `/reload`.
 
@@ -74,5 +74,5 @@ related:
 - **Constitution check:** Principles OK — the raid registry is a pure DATA module with a colocated spec
   (house style, like `ns.AbilityTable`); config building is declarative; no `_G` leaks.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** [PR #25](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/25)
+- **Outcome:** Implemented; `pnpm validate` green (64 badger-ttk specs — +3 for the registry; luacheck 0/0). 7 raids / 49 encounters. `.toc` -> v0.9.5. **In progress** pending merge of PR #25 + the human's in-game re-test.
