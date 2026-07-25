@@ -1,8 +1,8 @@
 ---
 wo: WO-011-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/14
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-007-IJ.md
@@ -68,5 +68,11 @@ related:
   playback deferred to v1.1.
 - **Decisions produced:** — (none expected — composes WO-010; a decision only if the scenario/preview
   data shape is worth pinning as a public contract).
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/14
+- **Outcome:** Implemented on `feature/WO-011-IJ-sim`; **PR #14 opened**. `src/sim/scenario.lua`
+  (a warrior-burst scenario — health curve flat inside a 5s immune window, two pop events) +
+  `src/sim/sim.lua` (`ns.Sim.run(scenario, t)` replays samples through `ns.Estimator` → planned/active
+  entries → `ns.RenderModel`; `ns.Sim.staticPreview()` returns a frozen planned + fits/over/short model)
+  + colocated specs (8 cases incl. the immune-window no-blow-up and the decreasing TTK). Sim modules
+  loaded (dormant) in the `.toc`. **Gate green:** stylua · luacheck 0/0 (12 files) · busted 24/0 · full
+  `pnpm validate` exit 0. No frames → no in-game check applies. **Done** once PR #14 merges and `main` is green.

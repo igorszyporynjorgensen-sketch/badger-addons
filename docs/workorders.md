@@ -88,7 +88,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 - **WO-011-IJ** — `badger-ttk` simulation driver: feeds the engine a scripted fight (health curve +
   pop events + immune windows) → render model; ships the **static preview** as pure data. Dev harness
-  for the display; no frames. Child #4 of WO-007 (see `docs/workorders/WO-011-IJ.md`). Status: Accepted.
+  for the display; no frames. Child #4 of WO-007 (see `docs/workorders/WO-011-IJ.md`). Status: In progress — PR #14 opened.
 - **WO-010-IJ** — `badger-ttk` pure fight-state engine + TTK estimator (spec-first): the API-light core
   (EWMA estimator · execute-correction · confidence · render-model geometry — pop-line comb, per-entry
   offset, coverage) unit-tested under the mock; no frames/behavior. First functionality WO; child #3 of
