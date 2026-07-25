@@ -71,4 +71,6 @@ related:
 - **Decisions produced:** —
 - **MR:** [PR #22](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/22)
 - **Outcome:** Implemented; `pnpm validate` green (61 badger-ttk specs — +3 for fill + sort; luacheck 0/0).
-  `.toc` → v0.9.2. **In progress** pending merge of PR #22 + the human's in-game re-test.
+  `.toc` → v0.9.2. **PR #22 merged**; rebuilt `.release/BadgerTTK` at v0.9.2 (load graph resolves 65/0,
+  source parity clean, fill+sort / track+reverse-fill / timer-default-off markers present). **In progress**
+  pending the human's in-game re-test.
