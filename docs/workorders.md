@@ -86,6 +86,12 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-017-IJ** — `badger-ttk`: show the **build version** in the config window (single-sourced from the
+  `.toc`, starts `0.9.0`, bumped every test build → `1.0.0` on human sign-off) **and** fix the preview bars
+  still vanishing after ~1s — make the display the sole owner during preview (push an explicit suspend to
+  the live driver at toggle time + backstop db guard) and run dynamic playback on a dedicated always-shown
+  ticker frame, immune to the hidden-container `OnUpdate` stall (see `docs/workorders/WO-017-IJ.md`).
+  Status: Accepted.
 - **WO-016-IJ** — `badger-ttk` fix (from the first in-game test): `.toc` Interface → 11509; the live
   driver yields while a sim preview is active so it stops clobbering/hiding it (see
   `docs/workorders/WO-016-IJ.md`). Status: Done — PR #19 merged; `.release` rebuilt.
