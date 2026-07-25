@@ -81,4 +81,4 @@ related:
   edge; no `_G` leaks.
 - **Decisions produced:** — (candidate: utility-bar colour is an action signal, not a coverage signal.)
 - **MR:** [PR #26](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/26)
-- **Outcome:** Implemented; `pnpm validate` green (67 badger-ttk specs — +3; luacheck 0/0). `ready = ttk <= duration+offset` is pure/spec-tested; planned bars unified to the steady coverage segment; colours retired->action set; Earthstrike fired 4s late in the sim. `.toc` -> v0.9.6. **In progress** pending merge of PR #26 + the human's in-game re-test.
+- **Outcome:** Implemented; `pnpm validate` green (67 badger-ttk specs — +3; luacheck 0/0). `ready = ttk <= duration+offset` is pure/spec-tested; planned bars unified to the steady coverage segment; colours retired->action set; Earthstrike fired 4s late in the sim. `.toc` -> v0.9.6. **PR #26 merged**; rebuilt `.release/BadgerTTK` at v0.9.6 (load graph resolves 73/0, action colours shipped across core/config/skin/display, no stale coverage colours, source parity clean). **In progress** pending the human's in-game re-test.
