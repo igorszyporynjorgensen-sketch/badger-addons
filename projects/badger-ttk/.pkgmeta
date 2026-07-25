@@ -16,6 +16,9 @@ externals:
   Libs/AceConfig-3.0: https://repos.wowace.com/wow/ace3/trunk/AceConfig-3.0
   # Shared media (skin textures / fonts / borders) — loaded in the .toc since WO-013 (the skin engine).
   Libs/LibSharedMedia-3.0: https://repos.wowace.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
+  # AceGUI SharedMedia preview widgets (LSM30_Statusbar/Font/Border) — the config's media dropdowns render
+  # a visual preview per entry (WO-020). The library files live in the trunk's same-named subfolder.
+  Libs/AceGUI-3.0-SharedMediaWidgets: https://repos.wowace.com/wow/ace-gui-3-0-shared-media-widgets/trunk/AceGUI-3.0-SharedMediaWidgets
 
 # NOTE: BadgerConfigUI-1.0 is intentionally NOT listed here. It is a monorepo-internal shared lib that
 # lives once under libs/BadgerConfigUI-1.0/ and is injected into the packaged Libs/ by tools/build.sh
