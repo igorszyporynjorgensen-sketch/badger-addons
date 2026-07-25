@@ -91,8 +91,9 @@ Ace3 bootstrap with AceDB `profile` (every setting, real-typed defaults) + a res
 (kill-history seam), and a complete `BadgerConfigUI` options window (General/Behavior/Skin/Display/
 Estimator wired to `db.profile`; Raids/Abilities/Simulation placeholders their feature WOs fill;
 Profiles) that **persists settings but drives no gameplay yet**, plus the **pure fight-state engine**
-(WO-010 — `src/engine/` estimator + render-model, loaded but **dormant** until a driver/display consume
-`ns.Estimator` / `ns.RenderModel`). The full design — the right-anchored time-to-kill render model, one pure engine + three
+(WO-010 — `src/engine/` estimator + render-model) and the **sim driver** (WO-011 — `src/sim/` scenario +
+`ns.Sim`: replays a scripted fight through the engine → render model, plus a static preview) — both
+loaded but **dormant** until the display consumes `ns.Estimator` / `ns.RenderModel` / `ns.Sim`. The full design — the right-anchored time-to-kill render model, one pure engine + three
 drivers (live / sim / spec), a live-only-smart TTK estimator, a static-master-table ability model with a
 live availability/usability overlay, config-driven per-encounter gating, and an open user-authored skin
 system — lives in [WO-007](workorders/WO-007-IJ.md) and lands via its child WOs (**config first**). See

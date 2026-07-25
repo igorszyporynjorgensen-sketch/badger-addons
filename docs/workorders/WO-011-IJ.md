@@ -1,6 +1,6 @@
 ---
 wo: WO-011-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/14
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -50,15 +50,15 @@ related:
   display renders it (WO #5).
 
 **Phase 1 — Scenario**
-1. [ ] `src/sim/scenario.lua` — a representative warrior-burst scenario (health curve + pop events +
+1. [x] `src/sim/scenario.lua` — a representative warrior-burst scenario (health curve + pop events +
        an immune window) + builders.
 
 **Phase 2 — Sim stepper + static preview**
-1. [ ] `src/sim/sim.lua` — `ns.Sim` drives the engine from a scenario → render model at `t`;
+1. [x] `src/sim/sim.lua` — `ns.Sim` drives the engine from a scenario → render model at `t`;
        `ns.Sim.staticPreview()` returns the frozen representative model. Load both in the `.toc` (dormant).
 
 **Phase 3 — Verify**
-1. [ ] Colocated specs (well-formed model · every preview state · decreasing TTK · immune pause);
+1. [x] Colocated specs (well-formed model · every preview state · decreasing TTK · immune pause);
        `pnpm validate` green. No in-game check applies (no frames).
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR opened for human merge. Pure logic
@@ -75,4 +75,4 @@ related:
   entries → `ns.RenderModel`; `ns.Sim.staticPreview()` returns a frozen planned + fits/over/short model)
   + colocated specs (8 cases incl. the immune-window no-blow-up and the decreasing TTK). Sim modules
   loaded (dormant) in the `.toc`. **Gate green:** stylua · luacheck 0/0 (12 files) · busted 24/0 · full
-  `pnpm validate` exit 0. No frames → no in-game check applies. **Done** once PR #14 merges and `main` is green.
+  `pnpm validate` exit 0. No frames → no in-game check applies. **PR #14 merged; `main` green.** **Done.**
