@@ -98,6 +98,10 @@ end
 
 local function update()
     local p = ns.addon.db.profile
+    -- A sim preview (static or dynamic playback) owns the display; don't clobber/hide it.
+    if p.simStatic or p.simPlaying then
+        return
+    end
     if not UnitExists("target") then
         est, lastGUID = nil, nil
         ns.Display.hide()
