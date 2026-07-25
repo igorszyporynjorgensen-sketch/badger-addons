@@ -1,0 +1,29 @@
+{
+  "name": "badger-ttk",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "projects/badger-ttk/src",
+  "tags": ["type:addon", "flavor:vanilla"],
+  "targets": {
+    "format": {
+      "executor": "nx:run-commands",
+      "options": { "command": "stylua projects/badger-ttk" }
+    },
+    "format-check": {
+      "executor": "nx:run-commands",
+      "options": { "command": "stylua --check projects/badger-ttk" }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": { "command": "luacheck projects/badger-ttk" }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "busted projects/badger-ttk" }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": { "command": "bash tools/build.sh badger-ttk" }
+    }
+  }
+}

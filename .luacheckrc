@@ -110,3 +110,10 @@ files["projects/badger-arena/**"] = {
 files["tools/wow-mock/**"] = {
     read_globals = arena_api,
 }
+
+-- badger-ttk is a Vanilla / Classic-Era addon (no arena API), so it inherits only the flavor-neutral
+-- base surface above. It just scopes in its own SavedVariables. A TBC-only API referenced here would
+-- fail the lint (W113), keeping the Vanilla addon honest.
+files["projects/badger-ttk/**"] = {
+    globals = { "BadgerTTKDB" },
+}
