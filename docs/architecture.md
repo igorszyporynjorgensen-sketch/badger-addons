@@ -92,8 +92,11 @@ Ace3 bootstrap with AceDB `profile` (every setting, real-typed defaults) + a res
 Estimator wired to `db.profile`; Raids/Abilities/Simulation placeholders their feature WOs fill;
 Profiles) that **persists settings but drives no gameplay yet**, plus the **pure fight-state engine**
 (WO-010 — `src/engine/` estimator + render-model) and the **sim driver** (WO-011 — `src/sim/` scenario +
-`ns.Sim`: replays a scripted fight through the engine → render model, plus a static preview) — both
-loaded but **dormant** until the display consumes `ns.Estimator` / `ns.RenderModel` / `ns.Sim`. The full design — the right-anchored time-to-kill render model, one pure engine + three
+`ns.Sim`: replays a scripted fight through the engine → render model, plus a static preview), and the
+**display** (WO-012 — `src/display/` `ns.Layout` pure geometry + `ns.Display` frame glue): **on-screen
+bars driven by the sim** (static preview + dynamic playback), draggable/scalable, styled from config.
+Live-combat data (real `UnitHealth` + tracked abilities) arrives with the ability model; the skin engine
+(open `RegisterSkin`) is next. The full design — the right-anchored time-to-kill render model, one pure engine + three
 drivers (live / sim / spec), a live-only-smart TTK estimator, a static-master-table ability model with a
 live availability/usability overlay, config-driven per-encounter gating, and an open user-authored skin
 system — lives in [WO-007](workorders/WO-007-IJ.md) and lands via its child WOs (**config first**). See

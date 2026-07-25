@@ -1,6 +1,6 @@
 ---
 wo: WO-012-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/15
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -58,19 +58,19 @@ related:
   sim/preview. Real-combat data arrives with the live driver + ability model.
 
 **Phase 1 — Layout helper**
-1. [ ] `src/display/layout.lua` (`ns.Layout`) — render-model + dims → pixel rects (right-anchored,
+1. [x] `src/display/layout.lua` (`ns.Layout`) — render-model + dims → pixel rects (right-anchored,
        time-ratio, offset, pop-lines). Colocated `_spec` (resize, anchoring, ± offset).
 
 **Phase 2 — Frames + movable container**
-1. [ ] `src/display/display.lua` (`ns.Display`) — `CreateFrame` bars applying the rects + colours + text
+1. [x] `src/display/display.lua` (`ns.Display`) — `CreateFrame` bars applying the rects + colours + text
        + pop-line markers; lock/unlock drag, reset-position, scale/anchor/opacity/strata. Load in `.toc`.
 
 **Phase 3 — Sim wiring**
-1. [ ] Wire the Simulation config node: static preview + dynamic playback ticker (`ns.Sim`); add the
+1. [x] Wire the Simulation config node: static preview + dynamic playback ticker (`ns.Sim`); add the
        Display **reset-position** button.
 
 **Phase 4 — Verify**
-1. [ ] `pnpm validate` green; `ns.Layout` spec passes; frame glue loads under the mock. In-game
+1. [x] `pnpm validate` green; `ns.Layout` spec passes; frame glue loads under the mock. In-game
        appear/drag/animate check deferred to the human.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR opened for human merge; the in-game
@@ -88,4 +88,4 @@ related:
   **reset-position** button; position/lock/scale re-apply live. Forward-compatible tweaks: render-model
   carries `duration`, `Sim.run` also returns `health`. **Gate green:** stylua · luacheck 0/0 (15 files)
   · busted 31/0 · full `pnpm validate` exit 0. **In-game appear/drag/animate check deferred (waived).**
-  **Done** once PR #15 merges and `main` is green.
+  **PR #15 merged; `main` green.** **Done** — the addon's first on-screen bars.
