@@ -9,10 +9,10 @@ local _, ns = ...
 --   xOf(v) = width · (total − v) / total    -- v = total → 0 (window start); v = 0 → width (death)
 --
 -- A planned pop-line at TTK = P opens a window [P − D, P]. An active buff is a steady coverage SEGMENT
--- [offset, offset + duration], right-anchored to its anchor (length width · duration / total) — NOT the
--- draining remaining, so it doesn't shrink; the countdown is text and the colour carries the coverage
--- verdict. Every window is clamped to [0, width]: nothing can be wider than the TTK bar (an ability longer
--- than the timeline just fills the full bar).
+-- [offset, offset + duration], right-anchored to its anchor (length width · duration / total) — the SEGMENT
+-- doesn't resize, but `bar.fill` (remaining / duration) drains WITHIN it so the bar progresses like the TTK
+-- bar. Every window is clamped to [0, width]: nothing can be wider than the TTK bar. Bars are returned
+-- sorted by duration DESCENDING, so the display stacks the longest-duration bar nearest the TTK bar.
 
 local Layout = {}
 
@@ -28,6 +28,16 @@ local function clamp(x, width)
         return 0
     elseif x > width then
         return width
+    end
+    return x
+end
+
+-- Clamp a 0..1 fraction (the bar's progress fill).
+local function clampFrac(x)
+    if x < 0 then
+        return 0
+    elseif x > 1 then
+        return 1
     end
     return x
 end
@@ -60,9 +70,13 @@ function Layout.compute(model, dims)
             bar.coverage = e.active.coverage
             -- Steady coverage SEGMENT: anchor → anchor + duration (the buff's whole window), NOT the
             -- draining remaining — so on a fixed timeline the bar holds its size/position for the buff's
-            -- whole life (the countdown is shown as text, and the colour carries the coverage verdict).
+            -- whole life. `fill` (remaining / duration) drains WITHIN that steady segment, so the bar
+            -- progresses like the TTK bar (its now-edge lands at xOf(remaining) — in lockstep with it).
             -- Falls back to remaining when no duration is supplied.
             local span = e.duration or e.active.remaining or 0
+            bar.duration = span
+            bar.remaining = e.active.remaining -- seconds left (for the optional countdown text)
+            bar.fill = span > 0 and clampFrac((e.active.remaining or 0) / span) or 1
             bar.windows[1] = {
                 left = clamp(xOf(e.offset + span, total, width), width),
                 right = clamp(xOf(e.offset, total, width), width),
@@ -70,6 +84,8 @@ function Layout.compute(model, dims)
         else
             bar.state = "planned"
             local d = e.duration or 0
+            bar.duration = d
+            bar.fill = 1 -- not yet fired: the segment shows full (dim), then drains once active
             local lines = e.planned.popLines
             for j = 1, #lines do
                 local p = lines[j]
@@ -79,8 +95,18 @@ function Layout.compute(model, dims)
                 }
             end
         end
+        bar.order = i -- original order, for a stable tiebreak in the duration sort
         bars[i] = bar
     end
+
+    -- Longest-duration nearest the TTK bar: the display stacks bars[1] closest to the main bar, so order
+    -- by duration DESCENDING (stable tiebreak by original order for deterministic output).
+    table.sort(bars, function(a, b)
+        if a.duration ~= b.duration then
+            return a.duration > b.duration
+        end
+        return a.order < b.order
+    end)
 
     return {
         width = width,

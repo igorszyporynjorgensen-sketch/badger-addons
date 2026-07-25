@@ -120,6 +120,10 @@ local function acquireBar(i)
     local bar = pool[i]
     if not bar then
         bar = CreateFrame("StatusBar", nil, container)
+        bar:SetMinMaxValues(0, 1)
+        bar:SetReverseFill(true) -- drain toward death (right edge), in step with the TTK bar
+        bar.bg = bar:CreateTexture(nil, "BACKGROUND") -- dim track so the steady segment stays visible
+        bar.bg:SetAllPoints(bar)
         bar.text = bar:CreateFontString(nil, "OVERLAY")
         bar.text:SetPoint("CENTER")
         pool[i] = bar
@@ -160,12 +164,18 @@ function Display.render(model, health)
             bar:SetSize(math.max(1, right - left), p.barHeight)
             bar:SetStatusBarTexture(tex)
             bar.text:SetFont(font, p.fontSizeOther, "OUTLINE")
-            paint(bar, STATE_COLOR[b.coverage or b.state] or "colorUtility")
-            -- Label: the entry's name (showBarNames) + remaining seconds while active (showTimers).
-            local me = model.entries[i]
+            -- Colour the fill from state; the track (bg) is the same texture at a dim tint, so the steady
+            -- segment stays visible while the fill drains within it (bar.fill = remaining / duration).
+            local c = p[STATE_COLOR[b.coverage or b.state] or "colorUtility"]
+            bar:SetStatusBarColor(c[1], c[2], c[3], c[4])
+            bar.bg:SetTexture(tex)
+            bar.bg:SetVertexColor(c[1] * 0.3, c[2] * 0.3, c[3] * 0.3, (c[4] or 1) * 0.5)
+            bar:SetValue(b.fill or 1)
+            -- Label: the entry's name (showBarNames) + remaining seconds while active (showTimers, off by
+            -- default). Read from the sorted bar, not model.entries (the layout reorders by duration).
             local label = (p.showBarNames and b.name) or ""
-            if p.showTimers and me and me.active and me.active.remaining then
-                local secs = math.floor(me.active.remaining + 0.5)
+            if p.showTimers and b.state == "active" and b.remaining then
+                local secs = math.floor(b.remaining + 0.5)
                 if secs > 0 then
                     label = (label ~= "" and (label .. "  ") or "") .. secs .. "s"
                 end
