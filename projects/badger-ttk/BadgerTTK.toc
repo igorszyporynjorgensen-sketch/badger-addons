@@ -30,7 +30,7 @@ Libs\BadgerConfigUI-1.0\BadgerConfigUI-1.0.xml
 # Locales
 Locales\enUS.lua
 
-# Source — load order matters: engine (pure) -> sim (pure) -> display -> skin -> core -> config.
+# Source — load order matters: engine -> sim -> display -> skin -> util/abilities -> core -> config.
 src\engine\estimator.lua
 src\engine\render-model.lua
 src\sim\scenario.lua
@@ -38,5 +38,8 @@ src\sim\sim.lua
 src\display\layout.lua
 src\display\display.lua
 src\skin\skin.lua
+src\util\icon.lua
+src\abilities\table.lua
+src\abilities\abilities.lua
 src\core.lua
 src\config\config.lua

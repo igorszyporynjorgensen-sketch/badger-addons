@@ -74,6 +74,30 @@ local function setterR(db, key)
     end
 end
 
+-- Per-entry ability config (db.profile.abilities[id] = { enabled, offset }; default enabled / 0).
+local function abilityGet(db, id, field, default)
+    return function()
+        local a = db.profile.abilities[id]
+        if a and a[field] ~= nil then
+            return a[field]
+        end
+        return default
+    end
+end
+
+local function abilitySet(db, id, field)
+    return function(_, value)
+        db.profile.abilities[id] = db.profile.abilities[id] or {}
+        db.profile.abilities[id][field] = value
+    end
+end
+
+-- Inline spell/item icon for an ability entry's label.
+local function abilityIcon(entry)
+    local tex = (entry.idType == "spell") and GetSpellTexture(entry.id) or GetItemIcon(entry.id)
+    return ns.iconMarkup(tex, 16)
+end
+
 -- A data-driven node not built here — its options come with the named work order.
 local function placeholder(name, order, icon, wo)
     return {
@@ -600,6 +624,46 @@ local function buildSimulation(db)
     }
 end
 
+-- Abilities node — the full static warrior list (ns.AbilityTable); a per-entry enable/disable + offset,
+-- dimmed when the character can't currently use it (WO-014). The live tracking + display is WO-015.
+local function buildAbilities(db)
+    local args = {}
+    for i = 1, #ns.AbilityTable do
+        local e = ns.AbilityTable[i]
+        local unavailable = function()
+            return not ns.Abilities.available(e, ns.Abilities.scanCharacter())
+        end
+        args["a" .. e.id] = {
+            type = "toggle",
+            name = abilityIcon(e) .. " " .. e.name,
+            order = i * 2,
+            width = "full",
+            disabled = unavailable,
+            get = abilityGet(db, e.id, "enabled", true),
+            set = abilitySet(db, e.id, "enabled"),
+        }
+        args["o" .. e.id] = {
+            type = "range",
+            name = "offset (s)",
+            desc = "Fire earlier (+) or later (−) than the exact fit.",
+            order = i * 2 + 1,
+            min = -30,
+            max = 60,
+            step = 1,
+            disabled = unavailable,
+            get = abilityGet(db, e.id, "offset", 0),
+            set = abilitySet(db, e.id, "offset"),
+        }
+    end
+    return {
+        type = "group",
+        name = "Abilities",
+        order = 7,
+        icon = ICON .. "Ability_Warrior_Trauma",
+        args = args,
+    }
+end
+
 -- Assemble the tree and register it. Left-nav order (agreed): General, Behavior, Raids, Skin, Display,
 -- Estimator, Abilities, Simulation, Profiles.
 function ns.buildOptions(addon)
@@ -619,12 +683,7 @@ function ns.buildOptions(addon)
             skin = buildSkin(db),
             display = buildDisplay(db),
             estimator = buildEstimator(db),
-            abilities = placeholder(
-                "Abilities",
-                7,
-                ICON .. "Ability_Warrior_Trauma",
-                "the ability-model work order"
-            ),
+            abilities = buildAbilities(db),
             simulation = buildSimulation(db),
         },
     }
