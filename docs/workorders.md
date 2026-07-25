@@ -89,7 +89,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 - **WO-023-IJ** — **utility-bar colour = action signal**: recolour utility bars **waiting → ready (green)
   → used (gray)** so the player sees exactly when to fire (`ready = ttk ≤ duration+offset`, pure/spec-
   tested); new `colorReady/colorUsed/colorWaiting` (retire the coverage colours); sim demos **Earthstrike
-  used 4s late** (a 4s green window). See `docs/workorders/WO-023-IJ.md`. Status: Accepted.
+  used 4s late** (a 4s green window). See `docs/workorders/WO-023-IJ.md`. Status: In progress — PR #26 opened.
 - **WO-022-IJ** — **Raids config node**: replace the WO-009 placeholder with a **sub-node per Classic-Era
   raid**, each listing its **encounters as checkboxes** (default on) + a per-raid **master toggle**; a pure
   `ns.RaidTable` registry (spec-tested) + `buildRaids` + `db.profile.raids` storage. Config surface only —

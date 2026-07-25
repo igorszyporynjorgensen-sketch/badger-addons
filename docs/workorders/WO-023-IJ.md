@@ -1,8 +1,8 @@
 ---
 wo: WO-023-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/26
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-018-IJ.md
@@ -57,22 +57,22 @@ related:
   not coverage; the sim demonstrates a late Earthstrike.
 
 **Phase 1 — Pure `ready` state + planned geometry**
-1. [ ] `render-model.lua`: add `ready = (ttk <= duration + offset)` to a planned entry. `layout.lua`: draw
+1. [x] `render-model.lua`: add `ready = (ttk <= duration + offset)` to a planned entry. `layout.lua`: draw
        the planned bar as the steady coverage segment (like active) and carry `bar.ready`. Update the
        render-model / layout specs (ready rule; planned window now duration-based).
 
 **Phase 2 — Colours + display mapping**
-1. [ ] `display.lua`: colour utility bars by state — `used → colorUsed`, planned+`ready → colorReady`, else
+1. [x] `display.lua`: colour utility bars by state — `used → colorUsed`, planned+`ready → colorReady`, else
        `→ colorWaiting`.
-2. [ ] `core.lua` defaults + `config.lua` pickers + `skin.lua` (keys + built-in skin): add
+2. [x] `core.lua` defaults + `config.lua` pickers + `skin.lua` (keys + built-in skin): add
        `colorReady/colorUsed/colorWaiting`, retire `colorPlanned/colorActive/colorOverkill/colorShortfall`.
 
 **Phase 3 — Sim demo (late Earthstrike)**
-1. [ ] `scenario.lua`: Earthstrike `fireTTK` 20 → 16 (used 4s late; optimal stays 20 via `duration`).
+1. [x] `scenario.lua`: Earthstrike `fireTTK` 20 → 16 (used 4s late; optimal stays 20 via `duration`).
        Update sim/scenario specs.
 
 **Phase 4 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.6**, rebuild `.release`.
+1. [x] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.6**, rebuild `.release`.
 2. [ ] **In-game (human, required):** utility bars go waiting → green (ready) → gray (used); the sim shows
        Earthstrike green for ~4s (late) then gray.
 
@@ -80,5 +80,5 @@ related:
 - **Constitution check:** Principles OK — `ready` is pure/spec-tested; colours are config/skin; display is
   edge; no `_G` leaks.
 - **Decisions produced:** — (candidate: utility-bar colour is an action signal, not a coverage signal.)
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** [PR #26](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/26)
+- **Outcome:** Implemented; `pnpm validate` green (67 badger-ttk specs — +3; luacheck 0/0). `ready = ttk <= duration+offset` is pure/spec-tested; planned bars unified to the steady coverage segment; colours retired->action set; Earthstrike fired 4s late in the sim. `.toc` -> v0.9.6. **In progress** pending merge of PR #26 + the human's in-game re-test.
