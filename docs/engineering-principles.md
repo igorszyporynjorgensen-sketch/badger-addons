@@ -14,7 +14,7 @@ related:
 
 How we build **Badger Addons**. These are principles, not a rulebook: each states an intent, the
 reasoning behind it, and how to apply it in this stack (Nx + pnpm orchestrating a Lua toolchain ·
-Ace3 · the WoW Classic TBC Lua 5.1 sandbox). When a principle collides with a deadline, surface it —
+Ace3 · the WoW Classic Lua 5.1 sandbox, flavor per project). When a principle collides with a deadline, surface it —
 don't quietly break it.
 
 How the human and the AI collaborate — the rule that nothing changes without human acceptance — is

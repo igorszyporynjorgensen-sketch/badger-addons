@@ -1,6 +1,6 @@
 ---
 name: badger-addons
-description: Drive WoW Classic (TBC Anniversary) addon development in this repo — Ace3 patterns, the .toc manifest & load order, SavedVariables, event/frame handling, the Lua 5.1 constraints, embedded libraries via .pkgmeta, and off-client testing with the shared WoW mock. Use when adding or changing addon code, touching a .toc/.pkgmeta, wiring Ace3, or writing specs. CANONICAL details live in docs/architecture.md, docs/engineering-principles.md, and the project files — those win on conflict.
+description: Drive WoW Classic addon development in this repo — per-project flavor targeting (badger-arena → TBC Anniversary; addons may also target Classic Era / Hardcore), Ace3 patterns, the .toc manifest & load order, SavedVariables, event/frame handling, the Lua 5.1 constraints, embedded libraries via .pkgmeta, and off-client testing with the shared WoW mock. Use when adding or changing addon code, touching a .toc/.pkgmeta, wiring Ace3, or writing specs. CANONICAL details live in docs/architecture.md, docs/engineering-principles.md, and the project files — those win on conflict.
 type: skill
 canonical:
   - docs/architecture.md
@@ -16,11 +16,16 @@ Applies the addon-specific rules in [`docs/architecture.md`](../../../docs/archi
 [`docs/engineering-principles.md`](../../../docs/engineering-principles.md). Reference, don't restate —
 the docs and project files own the facts.
 
-## Target client
+## Target client — per-project flavor
 
-- **WoW Classic — TBC Anniversary realms** (Lua 5.1 sandbox; arena exists in TBC, not Vanilla).
-- The `.toc` `## Interface:` is a **2xxxx** value. Confirm it against the live client:
-  `/run print(select(4, GetBuildInfo()))`, and update `BadgerArena.toc` if it differs.
+- The repo targets **multiple WoW Classic flavors**; each addon declares its own via a `flavor:*` tag
+  in `project.json` and its `.toc` `## Interface:`. `badger-arena` → **TBC Anniversary** (2.5.x,
+  Interface `2xxxx`, `WOW_PROJECT_BURNING_CRUSADE_CLASSIC`); a hardcore addon → **Classic Era / Vanilla**
+  (1.15.x, `1xxxx`, `WOW_PROJECT_CLASSIC`). Arena APIs exist in TBC, not Vanilla; Hardcore is a runtime
+  game-state on the Vanilla client, not a distinct flavor.
+- Guard flavor-specific code with `WOW_PROJECT_ID == WOW_PROJECT_*`; probe optional APIs with
+  `type(fn) == "function"`. Confirm the Interface against the live client:
+  `/run print(select(4, GetBuildInfo()))`, and update the `.toc` if it differs.
 
 ## Ace3 patterns
 
@@ -51,6 +56,8 @@ the docs and project files own the facts.
 - Busted + [`tools/wow-mock`](../../../tools/wow-mock). Load the unit via `mock.load(path)` so the spec
   exercises the shipped file through the real `(addonName, ns)` contract.
 - Drive state/events via the handle: `mock.install()` → `wow.state.*`, `wow.fireEvent(name, ...)`.
+  For a non-TBC addon pass a flavor: `mock.install({ flavor = "vanilla" })` installs the Classic-Era
+  surface (no arena API, `WOW_PROJECT_ID == WOW_PROJECT_CLASSIC`); `"tbc"` is the default.
   Extend the mock's API surface when a spec needs more of it — a stub that diverges from real WoW is a
   bug in the mock.
 
@@ -58,7 +65,7 @@ the docs and project files own the facts.
 
 - Gate: `pnpm validate` (stylua · luacheck · busted). **Green ≠ loads in-game.**
 - Install: `pnpm nx run badger-arena:build` → copy `projects/badger-arena/.release/BadgerArena` into
-  `Interface/AddOns/`, `/reload`, then `/badgerarena` (or `/bga`). Confirm behaviour on the real client.
+  `Interface/AddOns/`, `/reload`, then `/badgerarena` (or `/ba`). Confirm behaviour on the real client.
 
 ## On conflict
 

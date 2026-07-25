@@ -32,8 +32,8 @@ working agreement → [../CLAUDE.md](../CLAUDE.md).
 _As of 2026-07-24._
 
 - **Scaffolded and verified green.** Nx (pnpm) monorepo orchestrating a Lua toolchain — StyLua ·
-  Luacheck (LuaJIT/5.1) · Busted — behind one `pnpm validate` gate. Target client: WoW Classic TBC
-  Anniversary. Framework: Ace3. `pnpm validate` passes (stylua · luacheck 0/0 · busted 12/12).
+  Luacheck (LuaJIT/5.1) · Busted — behind one `pnpm validate` gate. Framework: Ace3. `pnpm validate`
+  passes (stylua · luacheck 0/0 · busted green).
 - **Layout.** `projects/badger-arena` (the first addon, folder `BadgerArena`) · `tools/wow-mock`
   (shared Busted harness) · `tools/build.sh` (packager wrapper) · `libs/BadgerConfigUI-1.0` (shared
   **shipped** LibStub config-UI library, embedded into each addon's `Libs/` at build). No JavaScript app.
@@ -42,6 +42,11 @@ _As of 2026-07-24._
   — never ad hoc per addon. Shipped shared libraries live under a top-level `libs/<Name-Major.Minor>/`
   (distinct from never-shipped `tools/`) and are embedded into `Libs/` by `tools/build.sh`, opt-in via
   each addon's `.toc` (see D-003-IJ).
+- **Multi-flavor.** The repo targets multiple WoW Classic flavors — `badger-arena` → **TBC Anniversary**
+  (2.5.x); addons may target **Classic Era / Hardcore** (Vanilla 1.15.x). Each project declares its
+  flavor (`project.json` `flavor:*` tag · `.toc` `## Interface:` · a scoped `.luacheckrc` API overlay, so
+  a Vanilla addon can't reference TBC-only APIs); runtime guards use `WOW_PROJECT_ID`; the shared mock is
+  flavor-aware (`install({ flavor })`). Both-flavor build machinery is deferred (see D-004-IJ).
 - **Docs/process in place.** `CLAUDE.md`, `docs/engineering-principles.md`, `docs/workorders.md` +
   `docs/workorders/WO-001-IJ.md`, this log, `docs/milestones.md`, `docs/architecture.md`.
 - **Not in scope (by design).** No company-infra registration, no ports/subdomains/Notion — this is a
@@ -49,7 +54,7 @@ _As of 2026-07-24._
 - **Inspiration assets.** `assets/` (repo root) holds internet-gathered reference material — see
   `assets/README.md`. Drops land via a lightweight lane: `chore` branch + PR (human merges), **no work
   order**; images are optimized before the first commit (see D-002-IJ).
-- **Next id:** D-004-IJ.
+- **Next id:** D-005-IJ.
 
 ---
 
@@ -57,6 +62,22 @@ _As of 2026-07-24._
 
 ### 2026-07-24
 
+- **[D-004-IJ] The monorepo targets multiple WoW Classic flavors; each addon declares its own, and
+  flavor-divergent API is scoped per project.** Not everything is TBC: `badger-arena` targets **TBC
+  Anniversary** (2.5.x, `WOW_PROJECT_BURNING_CRUSADE_CLASSIC`, arena API), while future addons target
+  **Classic Era / Hardcore** (Vanilla 1.15.x, `WOW_PROJECT_CLASSIC`, no arena; Hardcore is a runtime
+  game-state on the Vanilla client, not a distinct flavor). *Mechanism:* each project declares its flavor
+  via a `flavor:*` tag in `project.json` and its `.toc` `## Interface:`; flavor-specific API lives in a
+  scoped `.luacheckrc` overlay (`files["projects/<addon>/**"]`) so a Vanilla addon referencing a TBC-only
+  API fails the lint (W113) instead of passing silently; runtime code guards with `WOW_PROJECT_ID ==
+  WOW_PROJECT_*` and probes optional APIs with `type(fn) == "function"`; the shared `wow-mock` is
+  flavor-aware (`install({ flavor })`, `tbc` default). *Why now, and why partial:* the flat
+  monorepo-wide luacheck globals were a latent bug (a future Vanilla addon would lint TBC APIs as valid),
+  and the "TBC Anniversary" framing across `CLAUDE.md` / principles / architecture was inaccurate — both
+  fixed now. Per §1.4/§1.1 the **build machinery for one addon shipping to *multiple* flavors** (split
+  `_Suffix.toc` / multi-`## Interface` TOC + packager `-S`) is **deferred** until a both-flavor addon
+  exists; its design (Model 2) is on record here. Two targeting models: **Model 1** = one flavor per Nx
+  project (today's default); **Model 2** = one addon → multiple flavors (deferred). Recorded by WO-006-IJ.
 - **[D-003-IJ] Config windows use the shared `BadgerConfigUI-1.0` LibStub library; shipped shared
   libraries live under a new top-level `libs/<Name-Major.Minor>/`, embedded into each addon's `Libs/` by
   `tools/build.sh` (not `.pkgmeta` externals).** One branded config-window standard across every Badger

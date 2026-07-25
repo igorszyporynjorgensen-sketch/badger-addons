@@ -15,6 +15,16 @@ local saved = {} -- global name -> { present = bool, value = any }, for restore 
 local frames = {} -- every CreateFrame() result, so fireEvent() can dispatch to it
 local state = {} -- spec-controlled game state
 
+-- WoW flavor -> the API surface it exposes. `projectId` is the value the real client puts in the
+-- global WOW_PROJECT_ID; `arena = true` means the arena API globals exist (TBC and up; absent on
+-- Classic Era / Vanilla, where calling them is a nil error — exactly the surface a hardcore spec sees).
+-- Hardcore is not a distinct flavor here: it runs on the Vanilla client (WOW_PROJECT_CLASSIC) and is a
+-- runtime game-state, not a project id.
+local FLAVORS = {
+    vanilla = { projectId = 2 }, -- WOW_PROJECT_CLASSIC (Classic Era, incl. Hardcore): no arena API
+    tbc = { projectId = 5, arena = true }, -- WOW_PROJECT_BURNING_CRUSADE_CLASSIC
+}
+
 local function setGlobal(name, value)
     if saved[name] == nil then
         saved[name] = { present = G[name] ~= nil, value = G[name] }
@@ -63,22 +73,21 @@ function M.fireEvent(event, ...)
     end
 end
 
--- Install the mocked WoW API. Returns a handle for driving state and firing events.
-function M.install()
+-- Install the mocked WoW API. `opts.flavor` selects the client surface ("tbc" default, so existing
+-- specs keep the arena API); returns a handle for driving state and firing events.
+function M.install(opts)
+    local flavor = (opts and opts.flavor) or "tbc"
+    local spec = assert(FLAVORS[flavor], "wow-mock: unknown flavor '" .. tostring(flavor) .. "'")
+
     state = { activeArena = false, numArenaOpponents = 0, time = 0 }
     frames = {}
 
+    -- Common surface — present on every flavor.
     setGlobal("CreateFrame", function()
         return makeFrame()
     end)
     setGlobal("GetTime", function()
         return state.time
-    end)
-    setGlobal("IsActiveBattlefieldArena", function()
-        return state.activeArena
-    end)
-    setGlobal("GetNumArenaOpponents", function()
-        return state.numArenaOpponents
     end)
     setGlobal("C_Timer", {
         After = function(_, fn)
@@ -96,9 +105,27 @@ function M.install()
     setGlobal("format", string.format)
     setGlobal("print", function() end)
 
+    -- Flavor constants: the numbers exist on every client; only WOW_PROJECT_ID's value differs.
+    setGlobal("WOW_PROJECT_MAINLINE", 1)
+    setGlobal("WOW_PROJECT_CLASSIC", 2)
+    setGlobal("WOW_PROJECT_BURNING_CRUSADE_CLASSIC", 5)
+    setGlobal("WOW_PROJECT_ID", spec.projectId)
+
+    -- Arena surface: TBC-and-up only. Absent on Vanilla, so an addon that calls these on the wrong
+    -- flavor errors on nil — matching the real client.
+    if spec.arena then
+        setGlobal("IsActiveBattlefieldArena", function()
+            return state.activeArena
+        end)
+        setGlobal("GetNumArenaOpponents", function()
+            return state.numArenaOpponents
+        end)
+    end
+
     return {
         state = state,
         frames = frames,
+        flavor = flavor,
         fireEvent = M.fireEvent,
         advanceTime = function(seconds)
             state.time = state.time + seconds

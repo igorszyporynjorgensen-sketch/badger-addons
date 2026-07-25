@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "projects/badger-arena/src",
-  "tags": ["type:addon"],
+  "tags": ["type:addon", "flavor:tbc"],
   "targets": {
     "format": {
       "executor": "nx:run-commands",
