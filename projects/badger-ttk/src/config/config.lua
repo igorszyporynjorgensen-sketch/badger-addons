@@ -475,7 +475,9 @@ local function buildDisplay(db)
             },
             showTimers = {
                 type = "toggle",
-                name = "Show timers",
+                name = "Utility bar timers",
+                desc = "Show a countdown on each utility bar. Off by default — the bar's fill already shows"
+                    .. " how much of the buff remains.",
                 order = 22,
                 get = getter(db, "showTimers"),
                 set = setter(db, "showTimers"),

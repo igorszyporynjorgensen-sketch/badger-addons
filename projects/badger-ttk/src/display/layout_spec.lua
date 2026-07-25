@@ -105,4 +105,28 @@ describe("Layout", function()
         )
         assert.equals("Death Wish", ns.Layout.compute(model, DIMS).bars[1].name)
     end)
+
+    it("fills an active bar to remaining/duration (drains within the steady segment)", function()
+        local active = ns.RenderModel.build(
+            50,
+            { { id = "a", duration = 30, active = true, remaining = 15, offset = 0 } },
+            50
+        )
+        assert.equals(0.5, ns.Layout.compute(active, DIMS).bars[1].fill) -- 15 / 30
+    end)
+
+    it("fills a planned (not-yet-fired) bar full", function()
+        local planned = ns.RenderModel.build(50, { { id = "b", duration = 30, offset = 0 } }, 50)
+        assert.equals(1, ns.Layout.compute(planned, DIMS).bars[1].fill)
+    end)
+
+    it("sorts bars longest-duration first (nearest the TTK bar)", function()
+        local model = ns.RenderModel.build(50, {
+            { id = "short", duration = 20, offset = 0 },
+            { id = "long", duration = 30, offset = 0 },
+        }, 50)
+        local bars = ns.Layout.compute(model, DIMS).bars
+        assert.equals("long", bars[1].id) -- 30s → first row = nearest the TTK bar
+        assert.equals("short", bars[2].id)
+    end)
 end)

@@ -37,7 +37,7 @@ local DEFAULTS = {
 
         -- Display: readout.
         showBarNames = true,
-        showTimers = true,
+        showTimers = false, -- utility-bar countdown text — off by default (the bar's fill shows progress)
         showIcons = true,
         timeFormat = "mmss",
         showTrendBand = true,
