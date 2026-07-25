@@ -89,7 +89,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 - **WO-019-IJ** — `badger-ttk` **utility-bar polish**: give utility bars a draining **progress fill** (in
   lockstep with the TTK bar, steady segment + dim track), **sort** them longest-duration nearest the TTK
   bar, and make the per-bar **countdown off by default** (kept configurable). See
-  `docs/workorders/WO-019-IJ.md`. Status: Proposed.
+  `docs/workorders/WO-019-IJ.md`. Status: Accepted.
 - **WO-018-IJ** — `badger-ttk` **simulated-preview fidelity**: make the dynamic sim a deterministic warrior
   demo to spec (50s TTK countdown; Death Wish @30s-left, Earthstrike @20s-left, only those two) so it shows
   standalone (no static needed); add utility-bar **names/timers**; and make "no bar wider than the TTK bar"
