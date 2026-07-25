@@ -1,4 +1,4 @@
-## Interface: 11507
+## Interface: 11509
 ## Title: Badger TTK
 ## Notes: Time-to-kill estimate and optimal cooldown-timing bars for WoW Classic (Era / Anniversary / Hardcore).
 ## Author: Igor Szyporyn
