@@ -50,6 +50,8 @@
     "GetItemIcon",
     "UnitCanAttack",
     "UnitIsDeadOrGhost",
+    "GetAddOnMetadata",
+    "C_AddOns",
     "IsActiveBattlefieldArena",
     "GetNumArenaOpponents",
     "GetArenaOpponentSpec",

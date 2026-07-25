@@ -122,6 +122,8 @@ files["projects/badger-ttk/**"] = {
         "GetItemIcon",
         "UnitCanAttack",
         "UnitIsDeadOrGhost",
+        "GetAddOnMetadata",
+        "C_AddOns",
     },
     globals = { "BadgerTTKDB" },
 }

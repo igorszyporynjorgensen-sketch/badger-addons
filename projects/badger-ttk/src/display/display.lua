@@ -16,9 +16,20 @@ local container -- movable parent frame
 local targetBar -- the TTK / health bar
 local pool = {} -- reusable utility bar frames
 local play -- dynamic-playback state, or nil
+local simFrame -- dedicated ticker for dynamic playback — ALWAYS shown, never hidden, so its OnUpdate
+-- can't stall (a hidden frame's OnUpdate stops firing; the container gets hidden, so it must NOT host this)
 
 local function profile()
     return ns.addon.db.profile
+end
+
+-- Command the live driver directly: while a preview (static or dynamic) owns the container, the driver
+-- must not touch it. Pushed the instant a preview is toggled — synchronous, no per-tick db read.
+local function syncDriver()
+    if ns.LiveDriver then
+        local p = profile()
+        ns.LiveDriver.setSuspended(p.simStatic or p.simPlaying)
+    end
 end
 
 -- Resolve an LSM media name → path, with a safe fallback.
@@ -176,27 +187,39 @@ function Display.hide()
     end
 end
 
--- Static preview: render the frozen representative model.
+-- Static preview: render the frozen representative model. Suspends the live driver while it's up.
 function Display.showPreview(on)
     if on then
         Display.render(ns.Sim.staticPreview(), 0.6)
     elseif container then
         container:Hide()
     end
+    syncDriver()
 end
 
--- Dynamic playback: step the warrior-burst scenario over real time, animating the bars.
+-- Dynamic playback: step the warrior-burst scenario over real time, animating the bars. The OnUpdate
+-- lives on the dedicated always-shown simFrame (NOT the container) so a container hide can't stall it;
+-- render() re-shows the container each tick. Suspends the live driver while playing.
 function Display.playSim(on, speed)
+    if not simFrame then
+        simFrame = CreateFrame("Frame")
+    end
     if not on then
         play = nil
-        if container then
-            container:SetScript("OnUpdate", nil)
+        simFrame:SetScript("OnUpdate", nil)
+        if profile().simStatic then
+            Display.showPreview(true) -- hand back to the frozen static preview if it's still on
+        else
+            if container then
+                container:Hide()
+            end
+            syncDriver()
         end
         return
     end
     Display.init()
     play = { t = 0, speed = speed or 1 }
-    container:SetScript("OnUpdate", function(_, elapsed)
+    simFrame:SetScript("OnUpdate", function(_, elapsed)
         local scenario = ns.SimScenario.warriorBurst
         play.t = play.t + elapsed * play.speed
         if play.t > scenario.duration then
@@ -205,6 +228,7 @@ function Display.playSim(on, speed)
         local model, _, health = ns.Sim.run(scenario, play.t)
         Display.render(model, health)
     end)
+    syncDriver()
 end
 
 ns.Display = Display
