@@ -47,14 +47,62 @@ describe("Layout", function()
         assert.equals(150, w.right)
     end)
 
-    it("a negative offset pushes the anchor past the death line", function()
+    it("clamps a negative-offset anchor to the death line (never past width)", function()
         local model = ns.RenderModel.build(40, { { id = "a", duration = 20, offset = -5 } })
         local w = ns.Layout.compute(model, DIMS).bars[1].windows[1]
-        assert.is_true(w.right > 200) -- anchor at TTK=-5 → x > width
+        assert.equals(200, w.right) -- anchor at TTK=-5 would map to x=225 → clamped to width (the cap)
     end)
 
     it("reports not-ok when TTK is unknown/zero", function()
         local model = ns.RenderModel.build(0, { { id = "a", duration = 20, offset = 0 } })
         assert.is_false(ns.Layout.compute(model, DIMS).ok)
+    end)
+
+    it(
+        "scales by a fixed `total`, so an active coverage segment is steady as TTK shrinks",
+        function()
+            -- Same ability (D=30, offset 0) on a fixed total=50; only ttk + remaining differ. The segment is
+            -- duration-based, so both frames yield the SAME window — it does not grow or shrink.
+            local a = ns.RenderModel.build(
+                40,
+                { { id = "x", duration = 30, active = true, remaining = 40, offset = 0 } },
+                50
+            )
+            local b = ns.RenderModel.build(
+                20,
+                { { id = "x", duration = 30, active = true, remaining = 20, offset = 0 } },
+                50
+            )
+            local wa = ns.Layout.compute(a, DIMS).bars[1].windows[1]
+            local wb = ns.Layout.compute(b, DIMS).bars[1].windows[1]
+            assert.equals(80, wa.left) -- xOf(30, 50) = 200*(50-30)/50
+            assert.equals(200, wa.right) -- xOf(0, 50) = death
+            assert.equals(wa.left, wb.left)
+            assert.equals(wa.right, wb.right)
+        end
+    )
+
+    it(
+        "never draws a bar wider than the TTK bar (over-long ability fills the full width)",
+        function()
+            -- Diamond-Flask style: duration 60 > total 50 → the left edge would be negative → clamped to 0.
+            local model = ns.RenderModel.build(
+                30,
+                { { id = "df", duration = 60, active = true, remaining = 60, offset = 0 } },
+                50
+            )
+            local w = ns.Layout.compute(model, DIMS).bars[1].windows[1]
+            assert.equals(0, w.left)
+            assert.equals(200, w.right)
+        end
+    )
+
+    it("passes the entry name through to the bar", function()
+        local model = ns.RenderModel.build(
+            50,
+            { { id = "dw", name = "Death Wish", duration = 30, active = true, remaining = 30 } },
+            50
+        )
+        assert.equals("Death Wish", ns.Layout.compute(model, DIMS).bars[1].name)
     end)
 end)

@@ -54,4 +54,22 @@ describe("RenderModel", function()
             ns.RenderModel.build(30, { { id = "a", active = true, remaining = 20, offset = 10 } })
         assert.equals("fits", m.entries[1].active.coverage)
     end)
+
+    it(
+        "defaults `total` to ttk, or carries an explicit fixed total (the sim's steady scale)",
+        function()
+            local d = ns.RenderModel.build(40, { { id = "a", duration = 20, offset = 0 } })
+            assert.equals(40, d.total) -- defaults to ttk → live rescale behavior unchanged
+            local f = ns.RenderModel.build(40, { { id = "a", duration = 20, offset = 0 } }, 50)
+            assert.equals(50, f.total) -- fixed timeline scale
+        end
+    )
+
+    it("passes an entry's display name through", function()
+        local m = ns.RenderModel.build(
+            30,
+            { { id = "dw", name = "Death Wish", active = true, remaining = 30 } }
+        )
+        assert.equals("Death Wish", m.entries[1].name)
+    end)
 end)

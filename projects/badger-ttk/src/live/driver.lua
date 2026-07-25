@@ -28,8 +28,13 @@ function LiveDriver.assembleEntries(entries, config, character, states)
         local available = Abilities.available(e, character)
         local state = Abilities.deriveState(e, states[e.id] or {})
         if enabled and (available or state.active) then
-            local entry =
-                { id = e.id, duration = e.duration, cooldown = e.cooldown, offset = offset }
+            local entry = {
+                id = e.id,
+                name = e.name,
+                duration = e.duration,
+                cooldown = e.cooldown,
+                offset = offset,
+            }
             if state.active then
                 entry.active = true
                 entry.remaining = state.remaining

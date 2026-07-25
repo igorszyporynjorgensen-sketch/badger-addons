@@ -38,16 +38,21 @@ local function coverage(ttk, offset, remaining)
     return "fits"
 end
 
--- entries: array of { id, duration, cooldown, offset = 0, active = false, remaining }.
--- Returns { ttk, entries = { { id, offset, anchor, planned = { popLines } | active = { remaining,
--- endTTK, coverage } } } }.
-function RenderModel.build(ttk, entries)
-    local out = { ttk = ttk, entries = {} }
+-- entries: array of { id, name, duration, cooldown, offset = 0, active = false, remaining }.
+-- `total` is the fixed-timeline scale (the whole fight); it DEFAULTS to `ttk`, which reproduces the
+-- rescale-to-current-TTK behavior the live driver relies on. The sim passes a fixed `total` (e.g. 50) so
+-- its bars hold steady. Returns { ttk, total, entries = { { id, name, offset, anchor, duration,
+-- planned = { popLines } | active = { remaining, endTTK, coverage } } } }.
+function RenderModel.build(ttk, entries, total)
+    total = total or ttk
+    local out = { ttk = ttk, total = total, entries = {} }
     for i = 1, #entries do
         local e = entries[i]
         local offset = e.offset or 0
-        -- `duration` is carried through so the display can draw the planned window [P − D, P] per pop-line.
-        local info = { id = e.id, offset = offset, anchor = offset, duration = e.duration }
+        -- `duration` is carried through so the display can draw the planned window [P − D, P] per pop-line;
+        -- `name` is a display label passthrough (nil for unnamed entries).
+        local info =
+            { id = e.id, name = e.name, offset = offset, anchor = offset, duration = e.duration }
         if e.active then
             local r = e.remaining or 0
             info.active = { remaining = r, endTTK = ttk - r, coverage = coverage(ttk, offset, r) }
