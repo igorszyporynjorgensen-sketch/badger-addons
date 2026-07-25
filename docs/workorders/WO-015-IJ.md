@@ -1,8 +1,8 @@
 ---
 wo: WO-015-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/18
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-007-IJ.md
@@ -77,5 +77,13 @@ related:
   engine/estimator/ability model rather than duplicating; Raids gating + history split out (simplest
   thing that fits).
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/18
+- **Outcome:** Implemented on `feature/WO-015-IJ-live`; **PR #18 opened**. `ns.LiveDriver` — pure
+  `assembleEntries` (table + config + character + states → render-model entries; enabled ∩ (available OR
+  buff-active); offset/active carried) + `gate` (enable/Behavior + context) with colocated specs (7
+  cases); the edge: a per-target estimator (reset on target change, `damageable` pause when dead/immune),
+  a ~0.15s ticker sampling `UnitHealth`, `UnitAura` name-match for active buffs, → `ns.RenderModel` →
+  `ns.Display`; character cached + rescanned on bag/equip/target events. `Display.hide()`, `core:OnEnable`
+  starts it, `.toc` loads it, lint scopes `UnitCanAttack`/`UnitIsDeadOrGhost`. **Gate green:** stylua ·
+  luacheck 0/0 (25 files) · busted 53/0 · full `pnpm validate` exit 0. **Closes the v1 core loop.**
+  **In-game real-fight check deferred (waived, but recommended).** **Done** once PR #18 merges + `main` green.
