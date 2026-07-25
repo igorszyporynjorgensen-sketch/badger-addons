@@ -88,7 +88,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 - **WO-020-IJ** — `badger-ttk` media pickers show **visual previews**: embed `AceGUI-3.0-SharedMediaWidgets`
   and point the statusbar/font/border selects at the `LSM30_*` dialog controls, so the config dropdowns
-  render a preview per entry instead of just names (see `docs/workorders/WO-020-IJ.md`). Status: Proposed.
+  render a preview per entry instead of just names (see `docs/workorders/WO-020-IJ.md`). Status: Accepted.
 - **WO-019-IJ** — `badger-ttk` **utility-bar polish**: give utility bars a draining **progress fill** (in
   lockstep with the TTK bar, steady segment + dim track), **sort** them longest-duration nearest the TTK
   bar, and make the per-bar **countdown off by default** (kept configurable). See
