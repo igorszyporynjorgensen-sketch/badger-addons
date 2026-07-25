@@ -1,8 +1,8 @@
 ---
 wo: WO-020-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/23
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-013-IJ.md
@@ -44,16 +44,16 @@ related:
 - **Behavior delta:** MODIFIED (in-game) — media dropdowns render visual previews.
 
 **Phase 1 — Embed the widget lib**
-1. [ ] Confirm the wowace external path (`svn ls`), add it to `.pkgmeta`
+1. [x] Confirm the wowace external path (`svn ls`), add it to `.pkgmeta`
        (`Libs/AceGUI-3.0-SharedMediaWidgets: <trunk>`), and add the `.toc` load line after the Ace libs,
        before `src/config/config.lua`.
 
 **Phase 2 — Point the media selects at the LSM30 controls**
-1. [ ] `config.lua`: add `dialogControl = "LSM30_Statusbar" | "LSM30_Font" | "LSM30_Border"` to the three
+1. [x] `config.lua`: add `dialogControl = "LSM30_Statusbar" | "LSM30_Font" | "LSM30_Border"` to the three
        media selects in the Skin node.
 
 **Phase 3 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.3**, rebuild `.release` (embedding the new
+1. [x] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.3**, rebuild `.release` (embedding the new
        lib; verify the load graph resolves).
 2. [ ] **In-game (human, required):** the pickers show previews and still apply.
 
@@ -62,5 +62,9 @@ related:
 - **Constitution check:** Principles OK — vendored lib via `.pkgmeta` (documented divergence, like the Ace
   externals); config-only wiring; no `_G` leaks; no pure logic touched.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** [PR #23](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/23)
+- **Outcome:** Implemented; `pnpm validate` green (61 badger-ttk specs; luacheck 0/0 — config-only). External
+  path confirmed (`svn ls`): `trunk/AceGUI-3.0-SharedMediaWidgets` (widget.xml → prototypes + 5 widgets);
+  control types `LSM30_Statusbar` / `LSM30_Font` / `LSM30_Border` verified in the widget sources. Trial
+  build embedded the lib and the full `.toc`+XML load graph resolves (72 files, 0 missing). `.toc` → v0.9.3.
+  **In progress** pending merge of PR #23 + the human's in-game re-test.
