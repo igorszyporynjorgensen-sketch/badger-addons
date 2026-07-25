@@ -52,6 +52,16 @@ local function colorSetter(db, key)
     end
 end
 
+-- Setter for container-level display settings — persists, then re-applies to the live frame.
+local function setterC(db, key)
+    return function(_, value)
+        db.profile[key] = value
+        if ns.Display then
+            ns.Display.applyContainer()
+        end
+    end
+end
+
 -- A data-driven node not built here — its options come with the named work order.
 local function placeholder(name, order, icon, wo)
     return {
@@ -267,14 +277,14 @@ local function buildDisplay(db)
                 order = 2,
                 values = ANCHORS,
                 get = getter(db, "anchorPoint"),
-                set = setter(db, "anchorPoint"),
+                set = setterC(db, "anchorPoint"),
             },
             locked = {
                 type = "toggle",
                 name = "Lock position",
                 order = 3,
                 get = getter(db, "locked"),
-                set = setter(db, "locked"),
+                set = setterC(db, "locked"),
             },
             posX = {
                 type = "range",
@@ -284,7 +294,7 @@ local function buildDisplay(db)
                 max = 800,
                 step = 1,
                 get = getter(db, "posX"),
-                set = setter(db, "posX"),
+                set = setterC(db, "posX"),
             },
             posY = {
                 type = "range",
@@ -294,7 +304,7 @@ local function buildDisplay(db)
                 max = 800,
                 step = 1,
                 get = getter(db, "posY"),
-                set = setter(db, "posY"),
+                set = setterC(db, "posY"),
             },
             scale = {
                 type = "range",
@@ -304,7 +314,7 @@ local function buildDisplay(db)
                 max = 2.0,
                 step = 0.05,
                 get = getter(db, "scale"),
-                set = setter(db, "scale"),
+                set = setterC(db, "scale"),
             },
             growthDirection = {
                 type = "select",
@@ -373,6 +383,16 @@ local function buildDisplay(db)
                 values = STRATA,
                 get = getter(db, "strata"),
                 set = setter(db, "strata"),
+            },
+            resetPosition = {
+                type = "execute",
+                name = "Reset position",
+                order = 14,
+                func = function()
+                    if ns.Display then
+                        ns.Display.resetPosition()
+                    end
+                end,
             },
             readoutHeader = { type = "header", name = "Readout", order = 20 },
             showBarNames = {
@@ -481,6 +501,58 @@ local function buildEstimator(db)
     }
 end
 
+-- Simulation node — drives the display preview (WO-012): a frozen static preview + dynamic playback.
+local function buildSimulation(db)
+    return {
+        type = "group",
+        name = "Simulation",
+        order = 8,
+        icon = ICON .. "INV_Gizmo_02",
+        args = {
+            about = {
+                type = "description",
+                name = "Preview the bars with no live target — style the display or watch a scripted fight.",
+                order = 1,
+            },
+            static = {
+                type = "toggle",
+                name = "Static preview",
+                desc = "Show a frozen representative stack (planned + fits/over/short) for styling.",
+                order = 2,
+                get = getter(db, "simStatic"),
+                set = function(_, v)
+                    db.profile.simStatic = v
+                    if ns.Display then
+                        ns.Display.showPreview(v)
+                    end
+                end,
+            },
+            play = {
+                type = "execute",
+                name = "Play / stop dynamic",
+                desc = "Animate a scripted warrior-burst fight through the bars.",
+                order = 3,
+                func = function()
+                    db.profile.simPlaying = not db.profile.simPlaying
+                    if ns.Display then
+                        ns.Display.playSim(db.profile.simPlaying, db.profile.simSpeed)
+                    end
+                end,
+            },
+            speed = {
+                type = "range",
+                name = "Playback speed",
+                order = 4,
+                min = 0.25,
+                max = 4,
+                step = 0.25,
+                get = getter(db, "simSpeed"),
+                set = setter(db, "simSpeed"),
+            },
+        },
+    }
+end
+
 -- Assemble the tree and register it. Left-nav order (agreed): General, Behavior, Raids, Skin, Display,
 -- Estimator, Abilities, Simulation, Profiles.
 function ns.buildOptions(addon)
@@ -506,12 +578,7 @@ function ns.buildOptions(addon)
                 ICON .. "Ability_Warrior_Trauma",
                 "the ability-model work order"
             ),
-            simulation = placeholder(
-                "Simulation",
-                8,
-                ICON .. "INV_Gizmo_02",
-                "the simulation work order"
-            ),
+            simulation = buildSimulation(db),
         },
     }
 

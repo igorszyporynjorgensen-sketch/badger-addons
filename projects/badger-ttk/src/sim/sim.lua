@@ -12,16 +12,18 @@ local Scenario = ns.SimScenario
 local Sim = {}
 
 -- Replay `scenario` up to time `t`: feed samples (honouring immune windows) into a fresh estimator, then
--- assemble each pop's planned/active state and build the render model. Returns (renderModel, ttk).
+-- assemble each pop's planned/active state and build the render model. Returns (renderModel, ttk, health).
 function Sim.run(scenario, t)
     local est = Estimator.new(scenario.estimatorOpts or { reactivity = 0.5 })
     local samples = scenario.samples
+    local health = (samples[1] and samples[1].h) or 1.0
     for i = 1, #samples do
         local s = samples[i]
         if s.t > t then
             break
         end
         est:sample(s.t, s.h, not Scenario.inImmune(scenario.immune, s.t))
+        health = s.h
     end
     local ttk = est:ttk()
 
@@ -38,7 +40,7 @@ function Sim.run(scenario, t)
         entries[#entries + 1] = entry
     end
 
-    return RenderModel.build(ttk or 0, entries), ttk
+    return RenderModel.build(ttk or 0, entries), ttk, health
 end
 
 -- A frozen, representative render model for styling: a planned pop-line plus active bars that fit,
