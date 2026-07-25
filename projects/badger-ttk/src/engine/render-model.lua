@@ -46,7 +46,8 @@ function RenderModel.build(ttk, entries)
     for i = 1, #entries do
         local e = entries[i]
         local offset = e.offset or 0
-        local info = { id = e.id, offset = offset, anchor = offset }
+        -- `duration` is carried through so the display can draw the planned window [P − D, P] per pop-line.
+        local info = { id = e.id, offset = offset, anchor = offset, duration = e.duration }
         if e.active then
             local r = e.remaining or 0
             info.active = { remaining = r, endTTK = ttk - r, coverage = coverage(ttk, offset, r) }

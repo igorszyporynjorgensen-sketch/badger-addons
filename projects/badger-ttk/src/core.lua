@@ -60,6 +60,11 @@ local DEFAULTS = {
         leadTime = 1.5,
         executeThreshold = 0.20,
         executeModifier = 1.2,
+
+        -- Simulation preview (WO-012).
+        simStatic = false,
+        simPlaying = false,
+        simSpeed = 1.0,
     },
     -- Account-wide namespace reserved for imported/recorded kill history (see WO-007). History is
     -- observational data, not a per-settings-profile value, so it lives in `global`, never `profile`.
