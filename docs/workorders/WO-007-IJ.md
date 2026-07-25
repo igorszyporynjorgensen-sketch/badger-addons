@@ -238,9 +238,12 @@ AceDB, embeds) that config must attach to; that is plumbing, not functionality.
 4. **Simulation driver.** Static preview **[v1]**; dynamic scripted-timeline playback **[v1.1]**.
 5. **Display layer (frames) + skin engine.** `CreateFrame` stacked bars (target bottom, grow UP),
    right-anchored, drain animation, `m:ss`, per-state colouring, pop-line comb + trend/confidence
-   rendering, anchoring/drag. **The skin system: the documented skin-table format (a public contract),
-   the `RegisterSkin` API, built-in skins, and rendering from the selected skin + overrides.** Fills the
-   `display` subtree; validated vs the sim.
+   rendering. A **movable container**: lock/unlock **drag-to-place** (`EnableMouse`/`RegisterForDrag`;
+   `OnDragStop` persists `posX`/`posY`) + a **reset-position** action, with **`scale`** / anchor /
+   opacity / strata applied to the frame. *(The lock / posX/posY / scale **settings** already exist from
+   WO-009; this WO wires the actual drag + applies them, and adds the reset button.)* **The skin system:
+   the documented skin-table format (a public contract), the `RegisterSkin` API, built-in skins, and
+   rendering from the selected skin + overrides.** Fills the `display` subtree; validated vs the sim.
 6. **Show-gating — Behavior + Raids nodes + encounter registry.** `behavior` general rules; the
    **Raids** node (per-raid master toggle + **per-encounter checkboxes**, default on) + a **World
    Bosses** grouping, backed by an **authored Vanilla raid/encounter registry** (mob/encounter ids);
