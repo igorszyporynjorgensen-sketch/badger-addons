@@ -104,5 +104,6 @@ related:
 - **Outcome:** Implemented; `pnpm validate` green (58 badger-ttk specs + 16/9/4; luacheck 0/0). `.toc` →
   v0.9.1. One deviation from the plan text: the main bar keeps filling to `health` (= `ttk/total` in the
   sim, real health live) rather than a separate `ttk/total` path — equivalent for the sim, correct for
-  live. **In progress** pending merge of PR #21 + the human's in-game re-test (dynamic Play with static
-  off → steady named Death Wish / Earthstrike bars on the 50s countdown).
+  live. **PR #21 merged**; rebuilt `.release/BadgerTTK` at v0.9.1 (load graph resolves 65/0, source parity
+  clean, all fix markers present). **In progress** pending the human's in-game re-test (dynamic Play with
+  static off → steady named Death Wish / Earthstrike bars on the 50s countdown; config shows v0.9.1).
