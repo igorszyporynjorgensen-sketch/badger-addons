@@ -2,7 +2,7 @@
 ## Title: Badger TTK
 ## Notes: Time-to-kill estimate and optimal cooldown-timing bars for WoW Classic (Era / Anniversary / Hardcore).
 ## Author: Igor Szyporyn
-## Version: 0.9.4
+## Version: 0.9.5
 ## SavedVariables: BadgerTTKDB
 ## X-Category: Combat
 ## X-License: MIT
@@ -42,6 +42,7 @@ src\skin\skin.lua
 src\util\icon.lua
 src\abilities\table.lua
 src\abilities\abilities.lua
+src\raids\table.lua
 src\live\driver.lua
 src\core.lua
 src\config\config.lua
