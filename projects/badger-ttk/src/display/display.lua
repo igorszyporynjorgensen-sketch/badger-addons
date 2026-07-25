@@ -161,6 +161,16 @@ function Display.render(model, health)
             bar:SetStatusBarTexture(tex)
             bar.text:SetFont(font, p.fontSizeOther, "OUTLINE")
             paint(bar, STATE_COLOR[b.coverage or b.state] or "colorUtility")
+            -- Label: the entry's name (showBarNames) + remaining seconds while active (showTimers).
+            local me = model.entries[i]
+            local label = (p.showBarNames and b.name) or ""
+            if p.showTimers and me and me.active and me.active.remaining then
+                local secs = math.floor(me.active.remaining + 0.5)
+                if secs > 0 then
+                    label = (label ~= "" and (label .. "  ") or "") .. secs .. "s"
+                end
+            end
+            bar.text:SetText(label)
             bar:Show()
         else
             bar:Hide()
@@ -222,8 +232,8 @@ function Display.playSim(on, speed)
     simFrame:SetScript("OnUpdate", function(_, elapsed)
         local scenario = ns.SimScenario.warriorBurst
         play.t = play.t + elapsed * play.speed
-        if play.t > scenario.duration then
-            play.t = 0
+        if play.t >= scenario.total then
+            play.t = 0 -- loop the fight (reset before TTK hits 0 so it never blanks)
         end
         local model, _, health = ns.Sim.run(scenario, play.t)
         Display.render(model, health)

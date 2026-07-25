@@ -1,55 +1,54 @@
 local mock = require("tools.wow-mock.init")
 
--- The sim composes the engine + scenario, so load all four onto one ns.
+-- The deterministic sim composes only the render model + scenario (no estimator).
 describe("Sim", function()
     local ns
 
     before_each(function()
         ns = {}
-        mock.load("projects/badger-ttk/src/engine/estimator.lua", ns)
         mock.load("projects/badger-ttk/src/engine/render-model.lua", ns)
         mock.load("projects/badger-ttk/src/sim/scenario.lua", ns)
         mock.load("projects/badger-ttk/src/sim/sim.lua", ns)
     end)
 
-    it("produces a render model with one entry per pop", function()
+    it("counts TTK down linearly from the scenario total", function()
         local s = ns.SimScenario.warriorBurst
-        local model = ns.Sim.run(s, 16)
-        assert.is_not_nil(model)
-        assert.equals(#s.pops, #model.entries)
+        local _, ttk0 = ns.Sim.run(s, 0)
+        local _, ttk10 = ns.Sim.run(s, 10)
+        assert.equals(50, ttk0)
+        assert.equals(40, ttk10)
     end)
 
-    it("marks a popped cooldown active with its remaining duration", function()
-        local s = ns.SimScenario.warriorBurst
-        -- Death Wish popped at t=5, D=30 → at t=10 it is active with 25s left
-        local model = ns.Sim.run(s, 10)
-        local dw
-        for i = 1, #model.entries do
-            if model.entries[i].id == "deathwish" then
-                dw = model.entries[i]
-            end
-        end
-        assert.is_not_nil(dw.active)
-        assert.equals(25, dw.active.remaining)
+    it("carries the fixed total onto the model (the steady scale)", function()
+        assert.equals(50, ns.Sim.run(ns.SimScenario.warriorBurst, 12).total)
     end)
 
-    it("TTK decreases as the fight progresses", function()
+    it("produces one named entry per pop", function()
         local s = ns.SimScenario.warriorBurst
-        local _, ttk1 = ns.Sim.run(s, 8)
-        local _, ttk2 = ns.Sim.run(s, 14)
-        assert.is_true(ttk1 > ttk2)
+        local m = ns.Sim.run(s, 25)
+        assert.equals(#s.pops, #m.entries)
+        assert.equals("Death Wish", m.entries[1].name)
+        assert.equals("Earthstrike", m.entries[2].name)
     end)
 
-    it("does not blow up across the immune window", function()
+    it("shows Death Wish planned before its fire moment, active after", function()
         local s = ns.SimScenario.warriorBurst
-        local _, before = ns.Sim.run(s, 17) -- just before the immune phase
-        local _, after = ns.Sim.run(s, 24) -- just after it (damage resumed)
-        assert.is_not_nil(before)
-        assert.is_not_nil(after)
-        assert.is_true(after < before + 30) -- the 5s frozen phase never inflates the estimate wildly
+        -- Death Wish fires at 30s-left → t = total - 30 = 20
+        local before = ns.Sim.run(s, 15)
+        assert.is_nil(before.entries[1].active)
+        assert.is_not_nil(before.entries[1].planned)
+        local after = ns.Sim.run(s, 20)
+        assert.is_not_nil(after.entries[1].active)
+        assert.equals(30, after.entries[1].active.remaining) -- just fired → full 30s
     end)
 
-    it("static preview covers planned + fits/over/short", function()
+    it("drains a fired buff's remaining as the fight continues", function()
+        -- 15s after Death Wish fired at t=20
+        local m = ns.Sim.run(ns.SimScenario.warriorBurst, 35)
+        assert.equals(15, m.entries[1].active.remaining)
+    end)
+
+    it("static preview covers planned + fits/over/short, with names", function()
         local m = ns.Sim.staticPreview()
         local byId = {}
         for i = 1, #m.entries do
@@ -59,5 +58,6 @@ describe("Sim", function()
         assert.equals("fits", byId.fits.active.coverage)
         assert.equals("over", byId.over.active.coverage)
         assert.equals("short", byId.short.active.coverage)
+        assert.equals("Death Wish", byId.fits.name)
     end)
 end)

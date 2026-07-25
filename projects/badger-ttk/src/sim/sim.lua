@@ -1,58 +1,61 @@
 local _, ns = ...
 
--- Pure sim driver: replay a scripted scenario through the WO-010 engine to produce the render model the
--- display draws — no live target, no frames. Also ships a frozen static preview for styling. Composes
--- ns.Estimator + ns.RenderModel + ns.SimScenario; adds no estimation/geometry math of its own. (Loaded
--- after the engine + scenario, so these upvalues are populated.)
+-- Pure sim driver: produce the render model the display draws from a scripted scenario — no live target,
+-- no frames, no estimator. The dynamic preview is a DETERMINISTIC countdown (TTK = total − t) so the bars
+-- are steady on a fixed timeline (WO-018); the estimator's live / immune-pause behavior is covered by the
+-- engine specs, not here. Composes ns.RenderModel + ns.SimScenario. (Loaded after the engine + scenario.)
 
-local Estimator = ns.Estimator
 local RenderModel = ns.RenderModel
-local Scenario = ns.SimScenario
 
 local Sim = {}
 
--- Replay `scenario` up to time `t`: feed samples (honouring immune windows) into a fresh estimator, then
--- assemble each pop's planned/active state and build the render model. Returns (renderModel, ttk, health).
+-- Replay `scenario` at time `t` (seconds into the fight). Returns (renderModel, ttk, health). TTK counts
+-- down linearly from `total` to 0; each pop is active once the countdown has passed its fire moment
+-- (t ≥ total − fireTTK) with its remaining duration, else planned. `total` is passed to RenderModel.build
+-- as the fixed-timeline scale, which is what makes the bars hold steady.
 function Sim.run(scenario, t)
-    local est = Estimator.new(scenario.estimatorOpts or { reactivity = 0.5 })
-    local samples = scenario.samples
-    local health = (samples[1] and samples[1].h) or 1.0
-    for i = 1, #samples do
-        local s = samples[i]
-        if s.t > t then
-            break
-        end
-        est:sample(s.t, s.h, not Scenario.inImmune(scenario.immune, s.t))
-        health = s.h
+    local total = scenario.total
+    local ttk = total - t
+    if ttk < 0 then
+        ttk = 0
     end
-    local ttk = est:ttk()
+    local health = (total > 0) and (ttk / total) or 0
 
     local entries = {}
     local pops = scenario.pops
     for i = 1, #pops do
         local p = pops[i]
-        local entry =
-            { id = p.id, duration = p.duration, cooldown = p.cooldown, offset = p.offset or 0 }
-        if t >= p.at and t < p.at + p.duration then
+        local entry = {
+            id = p.id,
+            name = p.name,
+            duration = p.duration,
+            cooldown = p.cooldown,
+            offset = p.offset or 0,
+        }
+        local fireT = total - p.fireTTK -- seconds into the fight when the pop is used
+        if t >= fireT then
             entry.active = true
-            entry.remaining = (p.at + p.duration) - t
+            entry.remaining = math.max(0, (fireT + p.duration) - t)
         end
         entries[#entries + 1] = entry
     end
 
-    return RenderModel.build(ttk or 0, entries), ttk, health
+    return RenderModel.build(ttk, entries, total), ttk, health
 end
 
--- A frozen, representative render model for styling: a planned pop-line plus active bars that fit,
--- over-cover, and fall short. The dimmed not-usable / immune-paused visuals are display-side (WO #5).
+-- A frozen, representative model for styling: a planned pop-line plus active bars that fit, over-cover
+-- (Diamond Flask 60s outlasts the 50s kill → clamped to full width, demonstrating the width cap), and fall
+-- short — on the same fixed 50s timeline as the dynamic sim so the preview matches its scale.
 function Sim.staticPreview()
+    local total = 50
+    local ttk = 30
     local entries = {
-        { id = "planned", duration = 20, cooldown = 180, offset = 0 },
-        { id = "fits", active = true, remaining = 30, offset = 0 },
-        { id = "over", active = true, remaining = 45, offset = 0 },
-        { id = "short", active = true, remaining = 12, offset = 0 },
+        { id = "planned", name = "Recklessness", duration = 20, cooldown = 180, offset = 0 },
+        { id = "fits", name = "Death Wish", active = true, remaining = 30, offset = 0 },
+        { id = "over", name = "Diamond Flask", active = true, remaining = 60, offset = 0 },
+        { id = "short", name = "Earthstrike", active = true, remaining = 12, offset = 0 },
     }
-    return RenderModel.build(30, entries)
+    return RenderModel.build(ttk, entries, total)
 end
 
 ns.Sim = Sim
