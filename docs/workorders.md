@@ -88,7 +88,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 - **WO-006-IJ** — Make the monorepo honestly multi-flavor (framing + lint) and record the standard
   (D-004) + flavor-aware mock; defer split-TOC/packager machinery (see
-  `docs/workorders/WO-006-IJ.md`). Status: Accepted.
+  `docs/workorders/WO-006-IJ.md`). Status: In progress.
 - **WO-005-IJ** — `.luarc.json` so the lua-language-server LSP understands the repo (Lua 5.1 · WoW
   globals · busted) (see `docs/workorders/WO-005-IJ.md`). Status: Done.
 - **WO-004-IJ** — Normalized Ace3 config window — shared embeddable `BadgerConfigUI` + retrofit

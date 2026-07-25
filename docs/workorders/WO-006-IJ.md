@@ -1,9 +1,9 @@
 ---
 wo: WO-006-IJ
-status: Accepted         # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress      # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ             # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                    # pull-request URL once opened, else ~
-decision: ~              # D-0xx-II once a decision is produced, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/10
+decision: D-004-IJ       # D-0xx-II once a decision is produced, else ~
 depends_on:
   - CLAUDE.md
   - docs/workorders.md
@@ -84,5 +84,11 @@ related:
   consumer is real, not speculatively) — fix the latent bug + set the framing now, defer speculative
   infra; the deferred design is recorded in D-004, not lost.
 - **Decisions produced:** D-004-IJ (per-project flavor-targeting standard) — recorded in Phase 3.
-- **MR:** — (added once the PR is opened)
-- **Outcome:** — (running notes; final result on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/10
+- **Outcome:** implemented on `feature/WO-006-IJ-multiflavor`. `.luacheckrc` scopes the TBC arena APIs +
+  `BadgerArenaDB` to badger-arena (and the mock) — proven: a TBC arena API is rejected (W113) outside
+  badger-arena, accepted inside. `project.json` gains `flavor:tbc`; `tools/wow-mock` is flavor-aware
+  (`install({ flavor })`, tbc default, + `WOW_PROJECT_*` stubs + a vanilla-surface spec). Docs broadened
+  (CLAUDE.md / principles / architecture / badger-addons skill); **D-004** recorded; Next id → D-005.
+  Gate green: stylua · luacheck 0/0 · busted 29/0. No in-game behavior change (Model 1, TBC-only
+  `badger-arena` unchanged). PR #10 opened for human merge. Flips to `Done` once merged and `main` green.
