@@ -66,10 +66,14 @@ related:
   in the config **skin picker**, over which per-element overrides still apply. **Data-driven (no code) in
   v1** for safety; an optional post-layout hook can come later. *(If a second Badger addon wants
   skinning, the registry graduates to a shared `BadgerSkin-1.0` lib per §1.1 — not yet.)*
-- **Tracked set is character-derived (auto-detect, prune to taste).** A master data table
-  (`spellID|itemID → {duration, cooldown, category}`); a per-character scan (**known/talented abilities +
-  equipped on-use items + racials**) **auto-populates** the active set; config lets the user **untick**
-  unwanted entries (+ free-form add/override for scan misses). Warrior table first; engine/display class-agnostic.
+- **Tracked set = a static complete master table + a live availability overlay.** A master data table
+  lists **everything a warrior can ever use** (`spellID|itemID → {duration, cooldown, category}`) — it
+  does **not** shrink to the current character. Config shows the **full list**, each entry
+  enable/disable-able. A live character scan (**talents/known abilities + equipped on-use items + race +
+  profession**) marks each entry **available or not-currently-available** (dimmed + icon) rather than
+  hiding it, so the user can pre-configure for gear/specs they don't have yet. **Runtime shows a bar only
+  for entries that are enabled AND currently available.** Free-form add/override covers table misses.
+  Warrior table first; engine/display class-agnostic.
 - **Estimator — v1 is live-only but not naive.** v1 = health-fraction **EWMA of `UnitHealth` sampling**
   (no combat-log damage-summing — keeps the math pure/testable), surfaced as a **"Reactivity ↔ Stability"
   slider**. v1 **includes** an **execute-phase correction** (below ~20% HP a plain model over-estimates)
@@ -100,7 +104,7 @@ Simulation · Profiles. **Skin** and **Raids** are their own nodes; **General** 
 | **Skin** *(own node)* | ✅ | skin picker (built-in + registered) · one font family + two sizes (main TTK · other bars) · texture · border · 6 state colours. Skin paste-import → **v1.1** |
 | **Display** | ✅ | *Layout* — anchor/position/scale/growth **UP**/width/height/spacing/opacity/strata/max-bars · *Readout* — names/timers/icons · `m:ss` · `showTrendBand`/`showConfidence` |
 | **Estimator** | ✅ | Reactivity↔Stability slider · `leadTime` · `executeThreshold`/`executeModifier` · `minConfidenceToShow`. History-blend/min-sample → **post-v1** |
-| **Abilities** | ✅ | auto-detected list; per-entry enable/disable + add/override/reset. Pack import/export → **v1.1** |
+| **Abilities** | ✅ | full **static** master list (everything a warrior can use), enable/disable per entry; **availability overlay** (dim + icon for not-currently-available) from the live scan; add/override/reset. Runtime shows enabled ∩ available. Pack import/export → **v1.1** |
 | **Simulation** | ◑ | static preview ✅ v1; dynamic playback → **v1.1** |
 | **Profiles** | ✅ | drop-in `AceDBOptions-3.0` child node (needs embedding) |
 | **History** | ⛔ | whole node is **WO #8** — absent from the v1 tree |
@@ -126,7 +130,9 @@ To be recorded as D-005 … in `docs/decisions.md` when the first child WO lands
 - **Flavor:** Vanilla / normal Classic Era 1.15 **only**, not TBC (Model 1).
 - **Estimator:** live-only v1 = health-fraction EWMA (Reactivity↔Stability slider) **+ execute-correction
   + confidence gate**, no combat-log damage-summing; WarcraftLogs blend deferred; history in `db.global`.
-- **Tracked-ability model:** master table × character scan, **auto-detect then prune** in config.
+- **Tracked-ability model:** a **static, complete** master table shown in full in config (enable/disable
+  per entry) + a **live availability overlay** (dim/icon for not-currently-available); runtime shows
+  **enabled ∩ available**. Not auto-pruned to the current character.
 - **Skinnable UI:** display is skin-driven; **user-authored, addable skins** via a public data-driven
   registry API; built-in skins; fonts + sizes global and per-element.
 - **Config gets its own child WO;** config precedes functionality.
@@ -177,9 +183,11 @@ AceDB, embeds) that config must attach to; that is plumbing, not functionality.
    Bosses** grouping, backed by an **authored Vanilla raid/encounter registry** (mob/encounter ids);
    raid/instance detection + **verify `ENCOUNTER_START` on Era 1.15** to map the target to a registry
    entry; any-target testing option. **Per-encounter gating is v1** (not v1.1).
-7. **Tracked-ability model.** Master table + character scan → **auto-detected active set**; per-entry
-   enable/disable + add/override/reset; planned/active + cooldown state via `UnitAura` /
-   `GetSpellCooldown` / `GetItemCooldown`. Warrior first; pack import/export → v1.1.
+7. **Tracked-ability model.** The **static complete** master table; the config list shown in **full**
+   (enable/disable per entry) with a **live availability overlay** (talents/known + equipped on-use +
+   race + profession → available vs dimmed + icon); add/override/reset; planned/active + cooldown state
+   via `UnitAura` / `GetSpellCooldown` / `GetItemCooldown`; **runtime shows enabled ∩ available**.
+   Warrior table first; pack import/export → v1.1.
 8. **(POST-v1) Historical kill-data model + WarcraftLogs importer.** `E(h)` recompute, weighted
    percentiles + baseline ranges ("usually 2:37–4:21 · best 2:14"), the live×history blend, the
    `history` config group, paste/SV import (LibSerialize+LibDeflate), + an off-client Nx `tools/wcl-import`
