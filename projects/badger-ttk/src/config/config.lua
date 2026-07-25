@@ -92,27 +92,42 @@ local function abilitySet(db, id, field)
     end
 end
 
+-- Per-raid / per-encounter show-gating config (db.profile.raids[raidId] = { enabled, encounters }).
+-- Absent = ON, so a fresh profile shows everything without pre-seeding.
+local function raidEnabledGet(db, raidId)
+    return function()
+        local r = db.profile.raids[raidId]
+        return not r or r.enabled ~= false
+    end
+end
+
+local function raidEnabledSet(db, raidId)
+    return function(_, value)
+        db.profile.raids[raidId] = db.profile.raids[raidId] or {}
+        db.profile.raids[raidId].enabled = value
+    end
+end
+
+local function encounterGet(db, raidId, encId)
+    return function()
+        local r = db.profile.raids[raidId]
+        return not (r and r.encounters and r.encounters[encId] == false)
+    end
+end
+
+local function encounterSet(db, raidId, encId)
+    return function(_, value)
+        local r = db.profile.raids[raidId] or {}
+        db.profile.raids[raidId] = r
+        r.encounters = r.encounters or {}
+        r.encounters[encId] = value
+    end
+end
+
 -- Inline spell/item icon for an ability entry's label.
 local function abilityIcon(entry)
     local tex = (entry.idType == "spell") and GetSpellTexture(entry.id) or GetItemIcon(entry.id)
     return ns.iconMarkup(tex, 16)
-end
-
--- A data-driven node not built here — its options come with the named work order.
-local function placeholder(name, order, icon, wo)
-    return {
-        type = "group",
-        name = name,
-        order = order,
-        icon = icon,
-        args = {
-            soon = {
-                type = "description",
-                name = name .. " options arrive with " .. wo .. ".",
-                order = 1,
-            },
-        },
-    }
 end
 
 local function buildGeneral(db)
@@ -632,6 +647,56 @@ local function buildSimulation(db)
     }
 end
 
+-- Raids node — the show-gating surface (WO-022): one sub-node per raid (ns.RaidTable), each a master
+-- enable toggle + an encounter checkbox list (default on; encounters greyed when the raid master is off).
+-- Live gating enforcement (zone/boss detection → show/hide) and boss icons are later WOs.
+local function buildRaids(db)
+    local raidArgs = {}
+    for i = 1, #ns.RaidTable do
+        local raid = ns.RaidTable[i]
+        local masterOff = function()
+            return not raidEnabledGet(db, raid.id)()
+        end
+        local args = {
+            master = {
+                type = "toggle",
+                name = "Enable " .. raid.name,
+                desc = "Show the bars on encounters in " .. raid.name .. ".",
+                order = 1,
+                get = raidEnabledGet(db, raid.id),
+                set = raidEnabledSet(db, raid.id),
+            },
+            header = { type = "header", name = "Encounters", order = 2 },
+        }
+        for j = 1, #raid.encounters do
+            local enc = raid.encounters[j]
+            args["e" .. enc.id] = {
+                type = "toggle",
+                name = enc.name,
+                order = 2 + j,
+                width = "full",
+                disabled = masterOff,
+                get = encounterGet(db, raid.id, enc.id),
+                set = encounterSet(db, raid.id, enc.id),
+            }
+        end
+        raidArgs["r" .. raid.id] = {
+            type = "group",
+            name = raid.name,
+            order = i,
+            icon = ICON .. "INV_Misc_Head_Dragon_01",
+            args = args,
+        }
+    end
+    return {
+        type = "group",
+        name = "Raids",
+        order = 3,
+        icon = ICON .. "INV_Misc_Head_Dragon_01",
+        args = raidArgs,
+    }
+end
+
 -- Abilities node — the full static warrior list (ns.AbilityTable); a per-entry enable/disable + offset,
 -- dimmed when the character can't currently use it (WO-014). The live tracking + display is WO-015.
 local function buildAbilities(db)
@@ -682,12 +747,7 @@ function ns.buildOptions(addon)
         args = {
             general = buildGeneral(db),
             behavior = buildBehavior(db),
-            raids = placeholder(
-                "Raids",
-                3,
-                ICON .. "INV_Misc_Head_Dragon_01",
-                "the show-gating work order"
-            ),
+            raids = buildRaids(db),
             skin = buildSkin(db),
             display = buildDisplay(db),
             estimator = buildEstimator(db),

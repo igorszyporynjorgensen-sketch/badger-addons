@@ -71,6 +71,10 @@ local DEFAULTS = {
 
         -- Per-entry ability config: [id] = { enabled, offset }. Filled on demand by the Abilities node.
         abilities = {},
+
+        -- Show-gating config: raids[raidId] = { enabled, encounters = { [encId] = bool } }. Filled on
+        -- demand by the Raids node; an absent raid/encounter defaults to ON (see config.lua getters).
+        raids = {},
     },
     -- Account-wide namespace reserved for imported/recorded kill history (see WO-007). History is
     -- observational data, not a per-settings-profile value, so it lives in `global`, never `profile`.
