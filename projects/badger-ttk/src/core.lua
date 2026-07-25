@@ -43,9 +43,12 @@ local DEFAULTS = {
         showTrendBand = true,
         showConfidence = true,
 
-        -- Skin (LSM-backed font family / texture / border land with the skin engine WO; sizes + the six
-        -- state colours are here). Colours are { r, g, b, a }.
+        -- Skin: the selected skin (a preset applied onto these), LSM media names, sizes, and the six
+        -- state colours. Colours are { r, g, b, a }. Media default to the built-in Badger skin.
         skin = "Badger",
+        statusbar = "Blizzard",
+        font = "Friz Quadrata TT",
+        border = "None",
         fontSizeMain = 16,
         fontSizeOther = 12,
         colorTarget = { 0.85, 0.15, 0.15, 1 },
@@ -82,4 +85,12 @@ end
 
 function BadgerTTK:OpenOptions()
     LibStub("BadgerConfigUI-1.0"):Toggle(ADDON_NAME)
+end
+
+-- Public: other addons add a bar skin with
+--   local BadgerTTK = LibStub("AceAddon-3.0"):GetAddon("BadgerTTK", true)
+--   if BadgerTTK then BadgerTTK:RegisterSkin("MySkin", { ... }) end
+-- See src/skin/skin.lua for the skin format.
+function BadgerTTK:RegisterSkin(name, skin)
+    ns.Skin.RegisterSkin(name, skin)
 end
