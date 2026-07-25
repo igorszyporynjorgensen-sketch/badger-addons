@@ -70,5 +70,11 @@ related:
 - **Constitution check:** Principles OK — edge-only frame/driver coordination; no `_G` leaks; pure logic and
   its specs untouched; house-style module boundaries preserved.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** [PR #20](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/20) — merged.
+- **Outcome:** Code merged; `pnpm validate` green (luacheck 0/0; 53+16 specs). Rebuilt `.release/BadgerTTK`
+  at **v0.9.0** — verified: version 0.9.0 shipped, `LiveDriver.setSuspended` + `suspended`-first guard
+  present, display `simFrame`/`syncDriver` present, config version-stamp present, full load graph resolves
+  (65 files, 0 missing), source parity clean. **Staying `In progress` pending the human's in-game
+  confirmation** — the `/reload` waiver was lifted 2026-07-25, so this WO (which changes in-game behavior)
+  is Done only once the human tests the live client: config shows v0.9.0, static + dynamic previews persist,
+  a real target still drives the bars.
