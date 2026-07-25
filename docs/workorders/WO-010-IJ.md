@@ -1,8 +1,8 @@
 ---
 wo: WO-010-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/13
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-007-IJ.md
@@ -84,5 +84,13 @@ related:
   (live-only estimator, history seam prepared not built).
 - **Decisions produced:** — (likely none — implements WO-007's accepted engine design; a decision only
   if the estimator/render-model public API shape is worth pinning).
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/13
+- **Outcome:** Implemented on `feature/WO-010-IJ-engine`; **PR #13 opened**. `src/engine/estimator.lua`
+  (EWMA loss-rate, reactivity→λ, heal clamp, warm-up/unknown, reset, execute-correction, confidence, the
+  `opts.history` seam) + `src/engine/render-model.lua` (offset anchor, pop-line comb, planned/active
+  shapes, coverage in TTK-seconds space) + colocated specs (15 cases). **Human-requested scope add:** the
+  estimator's `sample(t, h, damageable)` **pauses through immune/hardened phases** (C'Thun etc.) so
+  zero-damage stretches don't corrupt the rate — a weakened/hardened modifier is a noted future hook.
+  Engine modules loaded (dormant) in the `.toc`; `types/busted.lua` LSP stub completed with `is_not_nil`.
+  **Gate green:** stylua · luacheck 0/0 (8 files) · busted 16/0 · full `pnpm validate` exit 0. No frames
+  → no in-game check applies. **Done** once PR #13 merges and `main` is green.

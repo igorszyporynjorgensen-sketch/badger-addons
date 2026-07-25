@@ -88,8 +88,11 @@ related:
 - **Estimator — v1 is live-only but not naive.** v1 = health-fraction **EWMA of `UnitHealth` sampling**
   (no combat-log damage-summing — keeps the math pure/testable), surfaced as a **"Reactivity ↔ Stability"
   slider**. v1 **includes** an **execute-phase correction** (below ~20% HP a plain model over-estimates)
-  and a **confidence gate + indicator**. The **historical WarcraftLogs blend** is **deferred (WO #8)** —
-  the engine only *prepares* the seam.
+  and a **confidence gate + indicator**. **Prepared for boss phase/state:** an **immune/hardened
+  `damageable` pause** (e.g. C'Thun between "Weakened" windows, a submerge) so zero-damage phases don't
+  corrupt the rate; a per-encounter **weakened/hardened damage-taken modifier** is a future hook fed the
+  same way (from the encounter registry / boss profiles). The **historical WarcraftLogs blend** is
+  **deferred (WO #8)** — the engine only *prepares* the seam.
 - **History storage seam.** Account-wide observational data → **`db.global`/`BadgerTTKData`, NEVER
   `db.profile`** (AceDB reserves `.profiles`). Source-of-truth curve `E(h)` (elapsed-time-fraction by
   health, K=100), packed as a byte string; seam defined in the engine WO, filled in WO #8.
@@ -238,7 +241,9 @@ AceDB, embeds) that config must attach to; that is plumbing, not functionality.
 4. **Simulation driver.** Static preview **[v1]**; dynamic scripted-timeline playback **[v1.1]**.
 5. **Display layer (frames) + skin engine.** `CreateFrame` stacked bars (target bottom, grow UP),
    right-anchored, drain animation, `m:ss`, per-state colouring, pop-line comb + trend/confidence
-   rendering. A **movable container**: lock/unlock **drag-to-place** (`EnableMouse`/`RegisterForDrag`;
+   rendering. **Utility bars are re-sized every update from the live (smoothed) TTK** (the engine emits
+   TTK-seconds coords; the display maps seconds→pixels) so their start points / pop-lines stay aligned
+   with the target bar **as TTK fluctuates** — optionally interpolate to avoid jitter. A **movable container**: lock/unlock **drag-to-place** (`EnableMouse`/`RegisterForDrag`;
    `OnDragStop` persists `posX`/`posY`) + a **reset-position** action, with **`scale`** / anchor /
    opacity / strata applied to the frame. *(The lock / posX/posY / scale **settings** already exist from
    WO-009; this WO wires the actual drag + applies them, and adds the reset button.)* **The skin system:

@@ -89,7 +89,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 - **WO-010-IJ** — `badger-ttk` pure fight-state engine + TTK estimator (spec-first): the API-light core
   (EWMA estimator · execute-correction · confidence · render-model geometry — pop-line comb, per-entry
   offset, coverage) unit-tested under the mock; no frames/behavior. First functionality WO; child #3 of
-  WO-007 (see `docs/workorders/WO-010-IJ.md`). Status: Accepted.
+  WO-007 (see `docs/workorders/WO-010-IJ.md`). Status: In progress — PR #13 opened.
 - **WO-009-IJ** — `badger-ttk` config skeleton — the full options tree (framework + AceDB defaults +
   icons + the General/Behavior/Skin/Display/Estimator/Profiles nodes; Raids/Abilities/Simulation as
   placeholders for their feature WOs). No behavior yet. Child #2 of WO-007 (see
