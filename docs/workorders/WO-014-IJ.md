@@ -1,8 +1,8 @@
 ---
 wo: WO-014-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/17
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-007-IJ.md
@@ -77,5 +77,12 @@ related:
   live driver + add/override split out (simplest thing that fits). Realises the D-006 static-list +
   availability-overlay decision.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/17
+- **Outcome:** Implemented on `feature/WO-014-IJ-abilities`; **PR #17 opened**. `ns.AbilityTable` (14
+  curated warrior entries) + `ns.Abilities` (pure `available`/`deriveState`/`shouldShow` + the
+  `scanCharacter` edge) + `ns.iconMarkup` (label-escape helper, deferred from WO-009) — all spec-tested
+  (table 2 · abilities 6 · icon 3). Config: the real **Abilities** node from the table (per-entry
+  enable/disable + bi-directional offset, availability dim, spell/item icon); `db.profile.abilities`
+  default; `.luacheckrc`/`.luarc.json` scope in the scan/icon APIs. **Gate green:** stylua · luacheck 0/0
+  (23 files) · busted 46/0 · full `pnpm validate` exit 0. **In-game list/dim check deferred (waived).**
+  **Done** once PR #17 merges and `main` is green.
