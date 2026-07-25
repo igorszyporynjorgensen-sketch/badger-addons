@@ -126,15 +126,17 @@ short-orange).
   - *Class* — class icon from the class atlas — v1 (warrior only for now).
   - *Raids* — a curated texture per raid — v1 (small fixed set).
   - *Bosses / encounters* — a portrait per encounter. **Classic Era has no per-boss icon API** (no
-    Encounter Journal), so this needs **curated assets** with a generic-boss **fallback** — ship the
-    fallback in v1, enrich over time.
+    Encounter Journal), so this needs **curated assets** with a generic-boss **fallback**. **The human
+    will procure boss icons later** — v1 ships the fallback, enrich when assets arrive.
 - **Entry display states (beyond planned/active):**
   - *Not-currently-available* (talents/gear/race/profession) → **dimmed in the config list**; no runtime
     bar (runtime = enabled ∩ available).
-  - *Shared-CD lockout* — an enabled+available entry whose **shared-CD sibling is on cooldown** (popped
-    Mighty Rage → other potions locked; the on-use-trinket group **iff** Classic Era enforces it —
-    live-verify) → its bar renders **dimmed + a lock icon**. Groups come from the master table's
-    `sharedCooldownGroup` (see the reference data).
+  - *Not usable now (incl. shared-CD lockout)* — rather than model shared-CD **relations**, the addon
+    reads each entry's **live usability** (`GetItemCooldown` / `GetSpellCooldown` effective CD,
+    `IsUsableItem` / `IsUsableSpell`); if it isn't usable right now (own **or** shared cooldown, rage,
+    range…) its bar renders **dimmed + a lock icon**. This means the *"does Classic enforce a shared
+    on-use-trinket CD"* question **needs no answer** — the API reflects reality. `sharedCooldownGroup` in
+    the master table stays **informational** (planning hints), not load-bearing.
   - *Consumable stock* (consumables only) — a consumable with **none in bags** is **hidden from the bars
     entirely** (not dimmed) **unless its buff is currently active** (used the last one) — then the
     draining active bar still shows. Watch `BAG_UPDATE`.
@@ -177,9 +179,10 @@ To be recorded as D-005 … in `docs/decisions.md` when the first child WO lands
   gating is v1** (needs an authored Vanilla raid/encounter registry).
 - **Warrior ability table:** curated + Wowhead-verified (14 keep entries), persisted in
   [docs/reference/warrior-ttk-cooldowns.md](../reference/warrior-ttk-cooldowns.md); the ability WO
-  consumes it. **Shared-CD lockout:** an entry locked out by a shared-CD sibling renders **dimmed + a
-  lock icon** (groups from the table's `sharedCooldownGroup`; potion group live, trinket group pending
-  live verification).
+  consumes it. **Not-usable / lockout is read from the game's live usability** (`GetItemCooldown` /
+  `IsUsableItem` / `IsUsableSpell`) — no shared-CD relations modeled; a not-usable entry dims + shows a
+  lock icon. (Closes the trinket shared-CD question — the API reflects reality either way;
+  `sharedCooldownGroup` is informational.)
 - **High-end, icon-rich config:** the options window targets a polished, high-end look with icons
   wherever feasible (abilities/items via API · class via atlas · raids curated · bosses curated +
   fallback — Classic has no per-boss icon API); may extend `BadgerConfigUI-1.0` with icon support.
@@ -235,8 +238,9 @@ AceDB, embeds) that config must attach to; that is plumbing, not functionality.
    [docs/reference/warrior-ttk-cooldowns.md](../reference/warrior-ttk-cooldowns.md) (as a Lua data
    table); the config list shown in **full** (enable/disable per entry, **spell/item icon each**) with a
    **live availability overlay** (talents/known + equipped on-use + race + profession → available vs
-   dimmed); **shared-CD group modeling** → the **lockout state** (dim + lock icon) when a sibling is on
-   cooldown; add/override/reset; planned/active + cooldown state via `UnitAura` / `GetSpellCooldown` /
+   dimmed); **not-usable/lockout read from live usability** (`GetItemCooldown` / `IsUsableItem` /
+   `IsUsableSpell`) → dim + lock icon (no relations modeled); add/override/reset; planned/active +
+   cooldown state via `UnitAura` / `GetSpellCooldown` /
    `GetItemCooldown`; **runtime visibility = enabled ∩ (usable-now OR buff-active)** — usable = known
    (abilities/racials) · equipped (items; `GetInventoryItemID` + `PLAYER_EQUIPMENT_CHANGED`) · in-bags
    (consumables; `GetItemCount` + `BAG_UPDATE`). Warrior table first; pack import/export → v1.1.

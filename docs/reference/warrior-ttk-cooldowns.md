@@ -54,6 +54,11 @@ locked-out sibling **dimmed + a lock icon** (it can't be popped until the shared
 - **Independent (no lockout):** Badge of the Swarmguard, Goblin Sapper Charge, all racials (Blood
   Fury/Berserking), and the class abilities (Death Wish, Recklessness).
 
+**Implementation:** the addon does **not** model these relations. It reads each entry's **live
+usability** (`GetItemCooldown` / `GetSpellCooldown` effective CD, `IsUsableItem` / `IsUsableSpell`) and
+dims + lock-icons anything not usable now — so the on-use-trinket question below is **moot at runtime**
+(the API reflects whatever the client enforces). `sharedCooldownGroup` above is informational only.
+
 ## Runtime visibility (per kind)
 
 A bar renders only when the entry is **usable right now** — or its buff is already active:
@@ -68,7 +73,8 @@ The config list always shows the **full static** set; not-currently-usable entri
 
 ## Live `/reload` verification items
 
-- On-use-trinket shared cooldown on Classic Era 1.15 — exists or not? (gates the trinket lockout.)
+- ~~On-use-trinket shared cooldown on Classic Era 1.15~~ — **moot**: the addon reads live usability, so
+  it reflects whatever the client enforces without needing to know.
 - Buff **durations** rendered `n/a` by the tooltip API: Blood Fury (15s), Berserking (10s), Diamond
   Flask window, Last Stand — confirm via a live aura check.
 - Berserking warrior detection: key on base `20554` and/or the 5-rage warrior buff `26296`; never the
