@@ -62,7 +62,7 @@ _As of 2026-07-25._
 - **Inspiration assets.** `assets/` (repo root) holds internet-gathered reference material — see
   `assets/README.md`. Drops land via a lightweight lane: `chore` branch + PR (human merges), **no work
   order**; images are optimized before the first commit (see D-002-IJ).
-- **Next id:** D-007-IJ.
+- **Next id:** D-008-IJ.
 
 ---
 
@@ -70,6 +70,22 @@ _As of 2026-07-25._
 
 ### 2026-07-25
 
+- **[D-007-IJ] `badger-ttk` render geometry — the display timeline is scaled by a `total`, and the sim
+  uses a FIXED `total` for steady bars (live keeps rescaling to the current TTK).** The render model /
+  layout scale the x-axis by a `total` value (`xOf(v) = width·(total−v)/total`, right edge = death) that
+  **defaults to the current `ttk`** — so the **live** driver is unchanged (its window is always "now →
+  death" and legitimately rescales as the estimate fluctuates). The **sim preview passes a fixed `total`**
+  (50s), so a utility bar is placed by its **absolute time-from-death and holds the same size/position its
+  whole life** — planned *and* active — because on a linear countdown a fixed scale doesn't grow/shrink.
+  Two more geometry rules landed with it: **(a)** a utility bar is a **coverage SEGMENT** `[anchor, anchor
+  + duration]` (colour = coverage verdict, countdown = text), NOT the draining remaining, so it doesn't
+  shrink as the buff ticks; **(b)** every window is **clamped to `[0, width]`** in the pure layout — the
+  TTK bar's width is the hard maximum, so an ability longer than the timeline (e.g. Diamond Flask 60s vs a
+  50s kill) fills the full bar and can never overflow. *Why:* the human's first dynamic-preview test showed
+  bars growing/jittering; the human chose steady bars for the sim (a clean demonstration) while keeping the
+  live estimate honest. The sim is thereby a **deterministic visual demo** (TTK = total − t), not an
+  estimator harness — the estimator's live/immune behavior stays covered by the engine specs. Recorded by
+  WO-018-IJ.
 - **[D-005-IJ] `badger-ttk` — a second addon: a time-to-kill / optimal-cooldown-timing bar UI for
   Classic Era 1.15 (Vanilla, Model 1), the repo's first Vanilla addon.** A right-anchored bar shows the
   estimated *time until the current target dies*; utility bars sit against it to show **when to fire each
