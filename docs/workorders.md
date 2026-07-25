@@ -87,8 +87,8 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
 - **WO-007-IJ** — `badger-ttk` time-to-kill / optimal-cooldown-timing addon — **umbrella/epic** plan
-  (design + child-WO breakdown; no code). Repo's first Classic-Era/Vanilla addon (see
-  `docs/workorders/WO-007-IJ.md`). Status: Proposed.
+  (design + child-WO breakdown; no code). Repo's first Classic-Era/Vanilla addon; skinnable UI, config
+  before functionality (see `docs/workorders/WO-007-IJ.md`). Status: Accepted.
 - **WO-006-IJ** — Make the monorepo honestly multi-flavor (framing + lint) and record the standard
   (D-004) + flavor-aware mock; defer split-TOC/packager machinery (see
   `docs/workorders/WO-006-IJ.md`). Status: Done.
