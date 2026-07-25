@@ -97,8 +97,11 @@ Profiles) that **persists settings but drives no gameplay yet**, plus the **pure
 bars driven by the sim** (static preview + dynamic playback), draggable/scalable, and **skinnable**
 (WO-013 — `src/skin/` an open `RegisterSkin` format + built-in Badger skin + LibSharedMedia
 texture/font/border). The **warrior ability model** (WO-014 — `src/abilities/` static master table + pure
-availability/usability rules + the Abilities config node) is in; the **live driver** (WO-015 — sampling
-real `UnitHealth` + auras/cooldowns → the display in combat) is next to close the v1 loop. The full design — the right-anchored time-to-kill render model, one pure engine + three
+availability/usability rules + the Abilities config node) and the **live driver** (WO-015 — `src/live/`
+`ns.LiveDriver`: samples real `UnitHealth` + auras/cooldowns → assembles the render-model → feeds the
+display **in combat**, gated by Behavior) are in — **the v1 core loop is closed (M-002): the addon works
+in a real fight.** Remaining: config-driven per-encounter show-gating (the Raids node) + the deferred
+WarcraftLogs history blend. The full design — the right-anchored time-to-kill render model, one pure engine + three
 drivers (live / sim / spec), a live-only-smart TTK estimator, a static-master-table ability model with a
 live availability/usability overlay, config-driven per-encounter gating, and an open user-authored skin
 system — lives in [WO-007](workorders/WO-007-IJ.md) and lands via its child WOs (**config first**). See

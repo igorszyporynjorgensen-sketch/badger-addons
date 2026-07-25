@@ -1,6 +1,6 @@
 ---
 wo: WO-015-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/18
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -58,16 +58,16 @@ related:
   live combat and gated by the Behavior settings. (Raid/encounter gating still pending.)
 
 **Phase 1 — Pure helpers**
-1. [ ] `src/live/driver.lua` — `assembleEntries` + `gate` (pure) with colocated specs (enabled∩available
+1. [x] `src/live/driver.lua` — `assembleEntries` + `gate` (pure) with colocated specs (enabled∩available
        filtering · offset/state carry-through · each gate toggle).
 
 **Phase 2 — The driver (edge)**
-1. [ ] Same module: the estimator lifecycle (reset/pause), the sampling ticker, live aura/cooldown/stock
+1. [x] Same module: the estimator lifecycle (reset/pause), the sampling ticker, live aura/cooldown/stock
        reads, assemble → `ns.RenderModel` → `ns.Display`; event wiring + gate; started from `core`/enable.
        Load in the `.toc`; scope the new globals.
 
 **Phase 3 — Verify**
-1. [ ] `pnpm validate` green; pure helpers pass; driver loads under the mock. In-game end-to-end check
+1. [x] `pnpm validate` green; pure helpers pass; driver loads under the mock. In-game end-to-end check
        is the human's (waived, but recommended — first real fight test).
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR opened for human merge; the in-game
@@ -86,4 +86,5 @@ related:
   `ns.Display`; character cached + rescanned on bag/equip/target events. `Display.hide()`, `core:OnEnable`
   starts it, `.toc` loads it, lint scopes `UnitCanAttack`/`UnitIsDeadOrGhost`. **Gate green:** stylua ·
   luacheck 0/0 (25 files) · busted 53/0 · full `pnpm validate` exit 0. **Closes the v1 core loop.**
-  **In-game real-fight check deferred (waived, but recommended).** **Done** once PR #18 merges + `main` green.
+  **In-game real-fight check deferred (waived, but recommended).** **PR #18 merged; `main` green.**
+  **Done** — badger-ttk works in a real fight (milestone M-002).
