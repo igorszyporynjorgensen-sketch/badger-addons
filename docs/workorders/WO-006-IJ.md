@@ -1,6 +1,6 @@
 ---
 wo: WO-006-IJ
-status: In progress      # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done             # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ             # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/10
 decision: D-004-IJ       # D-0xx-II once a decision is produced, else ~
@@ -91,4 +91,5 @@ related:
   (`install({ flavor })`, tbc default, + `WOW_PROJECT_*` stubs + a vanilla-surface spec). Docs broadened
   (CLAUDE.md / principles / architecture / badger-addons skill); **D-004** recorded; Next id → D-005.
   Gate green: stylua · luacheck 0/0 · busted 29/0. No in-game behavior change (Model 1, TBC-only
-  `badger-arena` unchanged). PR #10 opened for human merge. Flips to `Done` once merged and `main` green.
+  `badger-arena` unchanged). **PR #10 merged; `main` green.** No in-game change, so Done needs only
+  merge + green — both met. **Done.**
