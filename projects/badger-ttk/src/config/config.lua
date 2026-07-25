@@ -230,8 +230,12 @@ local function buildSkin(db)
                 end,
             },
             mediaHeader = { type = "header", name = "Media", order = 4 },
+            -- The LSM30_* dialogControls (from AceGUI-3.0-SharedMediaWidgets, embedded via the .toc) render
+            -- a visual preview per entry instead of a plain name list. If the widget is ever missing,
+            -- AceConfigDialog falls back to an ordinary dropdown, so the option still works.
             statusbar = {
                 type = "select",
+                dialogControl = "LSM30_Statusbar",
                 name = "Bar texture",
                 order = 5,
                 values = function()
@@ -242,6 +246,7 @@ local function buildSkin(db)
             },
             font = {
                 type = "select",
+                dialogControl = "LSM30_Font",
                 name = "Font",
                 order = 6,
                 values = function()
@@ -252,6 +257,7 @@ local function buildSkin(db)
             },
             border = {
                 type = "select",
+                dialogControl = "LSM30_Border",
                 name = "Border",
                 order = 7,
                 values = function()
