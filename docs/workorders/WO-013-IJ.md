@@ -1,6 +1,6 @@
 ---
 wo: WO-013-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/16
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -56,19 +56,19 @@ related:
   chosen skin + LSM), and third parties can add skins.
 
 **Phase 1 — Skin registry + resolve**
-1. [ ] `src/skin/skin.lua` (`ns.Skin`) — registry + built-in Badger skin + `resolve(profile)`. Colocated
+1. [x] `src/skin/skin.lua` (`ns.Skin`) — registry + built-in Badger skin + `resolve(profile)`. Colocated
        `_spec` (register/list · resolve precedence · unknown-skin fallback).
 
 **Phase 2 — LSM + display**
-1. [ ] Add `LibSharedMedia-3.0` to the `.toc`; `display.lua` renders from `ns.Skin.resolve` (LSM-fetched
+1. [x] Add `LibSharedMedia-3.0` to the `.toc`; `display.lua` renders from `ns.Skin.resolve` (LSM-fetched
        texture/font/border + resolved colours). Expose `BadgerTTK:RegisterSkin` on the addon.
 
 **Phase 3 — Config**
-1. [ ] Skin node: picker from `ns.Skin.ListSkins()`; LSM font/texture/border `select`s replacing the WO-009
+1. [x] Skin node: picker from `ns.Skin.ListSkins()`; LSM font/texture/border `select`s replacing the WO-009
        stubs.
 
 **Phase 4 — Verify**
-1. [ ] `pnpm validate` green; `ns.Skin` spec passes; frame glue loads under the mock. In-game skin-switch
+1. [x] `pnpm validate` green; `ns.Skin` spec passes; frame glue loads under the mock. In-game skin-switch
        check deferred to the human.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR opened for human merge; in-game
@@ -87,4 +87,4 @@ related:
   picker + **LSM** texture/font/border selects (replacing the WO-009 stubs), colour/media changes refresh
   the preview; `LibSharedMedia-3.0` added to the `.toc`. **Gate green:** stylua · luacheck 0/0 (17 files)
   · busted 35/0 · full `pnpm validate` exit 0. Paste import/export deferred to v1.1. **In-game
-  skin-switch check deferred (waived).** **Done** once PR #16 merges and `main` is green.
+  skin-switch check deferred (waived).** **PR #16 merged; `main` green.** **Done.**
