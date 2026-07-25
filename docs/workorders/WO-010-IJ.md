@@ -1,6 +1,6 @@
 ---
 wo: WO-010-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/13
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -62,19 +62,19 @@ related:
   display consume the engine.
 
 **Phase 1 — Estimator core**
-1. [ ] `src/engine/estimator.lua` — EWMA rate (variable-Δt α; reactivity→λ), rate-clamp, warm-up/unknown,
+1. [x] `src/engine/estimator.lua` — EWMA rate (variable-Δt α; reactivity→λ), rate-clamp, warm-up/unknown,
        target reset → TTK. Colocated `_spec` for the base + heal + reset cases.
 
 **Phase 2 — Estimator extras + history seam**
-1. [ ] Add execute-correction + confidence to `estimator.lua`; add the **optional history-profile
+1. [x] Add execute-correction + confidence to `estimator.lua`; add the **optional history-profile
        argument** as a documented stub (v1 passes nil). Spec the execute + confidence + warm-up paths.
 
 **Phase 3 — Render-model geometry**
-1. [ ] `src/engine/render-model.lua` — anchor at TTK=offset, the pop-line comb, planned/active lengths,
+1. [x] `src/engine/render-model.lua` — anchor at TTK=offset, the pop-line comb, planned/active lengths,
        coverage classification. Colocated `_spec` for offset ±, comb, and each coverage class.
 
 **Phase 4 — Verify**
-1. [ ] `pnpm validate` green; confirm the modules are pure (no WoW API / frames). No in-game check
+1. [x] `pnpm validate` green; confirm the modules are pure (no WoW API / frames). No in-game check
        applies (no frames yet).
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR opened for human merge. No in-game
@@ -93,4 +93,4 @@ related:
   zero-damage stretches don't corrupt the rate — a weakened/hardened modifier is a noted future hook.
   Engine modules loaded (dormant) in the `.toc`; `types/busted.lua` LSP stub completed with `is_not_nil`.
   **Gate green:** stylua · luacheck 0/0 (8 files) · busted 16/0 · full `pnpm validate` exit 0. No frames
-  → no in-game check applies. **Done** once PR #13 merges and `main` is green.
+  → no in-game check applies. **PR #13 merged; `main` green.** **Done.**

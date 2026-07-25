@@ -89,10 +89,13 @@ related:
   (no combat-log damage-summing — keeps the math pure/testable), surfaced as a **"Reactivity ↔ Stability"
   slider**. v1 **includes** an **execute-phase correction** (below ~20% HP a plain model over-estimates)
   and a **confidence gate + indicator**. **Prepared for boss phase/state:** an **immune/hardened
-  `damageable` pause** (e.g. C'Thun between "Weakened" windows, a submerge) so zero-damage phases don't
-  corrupt the rate; a per-encounter **weakened/hardened damage-taken modifier** is a future hook fed the
-  same way (from the encounter registry / boss profiles). The **historical WarcraftLogs blend** is
-  **deferred (WO #8)** — the engine only *prepares* the seam.
+  `damageable` pause** (e.g. C'Thun between "Weakened" windows, a **Ragnaros submerge**) so zero-damage
+  phases don't corrupt the rate; a per-encounter **weakened/hardened damage-taken modifier** is a future
+  hook fed the same way (from the encounter registry / boss profiles). **Conditional phases** (a submerge
+  that a fast kill *skips* — most Ragnaros kills never see it) are safe on the live path (it *reacts*,
+  never *predicts*, so a skipped phase is a no-op); the **history model (WO #8) must not bake optional-phase
+  time into its curve** — a slow, submerged kill shouldn't inflate a fast kill's estimate. The
+  **historical WarcraftLogs blend** is **deferred (WO #8)** — the engine only *prepares* the seam.
 - **History storage seam.** Account-wide observational data → **`db.global`/`BadgerTTKData`, NEVER
   `db.profile`** (AceDB reserves `.profiles`). Source-of-truth curve `E(h)` (elapsed-time-fraction by
   health, K=100), packed as a byte string; seam defined in the engine WO, filled in WO #8.
