@@ -89,15 +89,21 @@ ad-hoc AceConfig, never raw SV), `childGroups='tree'`. **Gets its own dedicated 
 *(Note: `BadgerConfigUI-1.0` skins the **config window**; skinning the **addon bars** is the separate
 skin layer above.)*
 
-| Group | v1? | Notes |
+**Tree (agreed order):** General · Behavior · Raids · Skin · Display · Estimator · Abilities ·
+Simulation · Profiles. **Skin** and **Raids** are their own nodes; **General** is the landing node.
+
+| Node | v1? | Contents |
 |---|---|---|
-| **Display / Skin** | ✅ | **skin picker** (built-in + registered skins) · one font family + two sizes (main TTK · other bars) · LSM texture/border · six state colours · `m:ss` · growth **UP** · opacity/scale/strata · `showTrendBand`/`showConfidence`. Skin paste-import → **v1.1** |
-| **Behavior / show-gating** | ✅ | `showRaidEncounters` · `showWorldBosses` · `showAnyTarget` · `inCombatOnly` · `hideOnTargetDead` · `requireHostile` · `minTTK`. Per-encounter grid → **v1.1** |
+| **General** | ✅ | master `Enable` + a short status/help blurb (landing node) |
+| **Behavior** | ✅ | general rules — `inCombatOnly` · `hideOnTargetDead` · `requireHostile` · `minTTK` · `showAnyTarget` (testing). Detailed where-it-shows → **Raids** |
+| **Raids** *(own node)* | ✅ | per-raid sub-nodes: a **raid master toggle** + **per-encounter checkboxes** (default all on); a **World Bosses** grouping. Backed by an authored Vanilla raid/encounter registry (mob/encounter ids). *Per-encounter gating: v1.1 → **v1**.* |
+| **Skin** *(own node)* | ✅ | skin picker (built-in + registered) · one font family + two sizes (main TTK · other bars) · texture · border · 6 state colours. Skin paste-import → **v1.1** |
+| **Display** | ✅ | *Layout* — anchor/position/scale/growth **UP**/width/height/spacing/opacity/strata/max-bars · *Readout* — names/timers/icons · `m:ss` · `showTrendBand`/`showConfidence` |
 | **Estimator** | ✅ | Reactivity↔Stability slider · `leadTime` · `executeThreshold`/`executeModifier` · `minConfidenceToShow`. History-blend/min-sample → **post-v1** |
-| **Ability pack** | ✅ | auto-detected list; per-entry enable/disable + add/override/reset. Pack import/export → **v1.1** |
-| **History data** | ⛔ | whole group is **WO #8** — absent from v1 config |
+| **Abilities** | ✅ | auto-detected list; per-entry enable/disable + add/override/reset. Pack import/export → **v1.1** |
 | **Simulation** | ◑ | static preview ✅ v1; dynamic playback → **v1.1** |
 | **Profiles** | ✅ | drop-in `AceDBOptions-3.0` child node (needs embedding) |
+| **History** | ⛔ | whole node is **WO #8** — absent from the v1 tree |
 
 **Proposed defaults (adopted unless changed):** growth UP · `m:ss` · anchor RIGHT · locked · `minTTK`
 10s · `leadTime` 1.5s · execute 20% / ×1.2 · opacity+scale 1.0 · a shipped **"Badger" default skin**
@@ -124,6 +130,10 @@ To be recorded as D-005 … in `docs/decisions.md` when the first child WO lands
 - **Skinnable UI:** display is skin-driven; **user-authored, addable skins** via a public data-driven
   registry API; built-in skins; fonts + sizes global and per-element.
 - **Config gets its own child WO;** config precedes functionality.
+- **Config tree:** landing **General** node; order General → Behavior → Raids → Skin → Display →
+  Estimator → Abilities → Simulation → Profiles; **Skin** and **Raids** are their own nodes. The
+  **Raids** node = per-raid master toggle + **per-encounter checkboxes** (default on) → **per-encounter
+  gating is v1** (needs an authored Vanilla raid/encounter registry).
 
 ## Delegated to owning child WOs (resolved when that child is drafted)
 
@@ -162,8 +172,11 @@ AceDB, embeds) that config must attach to; that is plumbing, not functionality.
    rendering, anchoring/drag. **The skin system: the documented skin-table format (a public contract),
    the `RegisterSkin` API, built-in skins, and rendering from the selected skin + overrides.** Fills the
    `display` subtree; validated vs the sim.
-6. **Show-gating + encounter/world-boss registry.** `behavior` group; raid/instance detection; **verify
-   `ENCOUNTER_START` on Era 1.15**; mob-id registry; any-target option; per-encounter grid → v1.1.
+6. **Show-gating — Behavior + Raids nodes + encounter registry.** `behavior` general rules; the
+   **Raids** node (per-raid master toggle + **per-encounter checkboxes**, default on) + a **World
+   Bosses** grouping, backed by an **authored Vanilla raid/encounter registry** (mob/encounter ids);
+   raid/instance detection + **verify `ENCOUNTER_START` on Era 1.15** to map the target to a registry
+   entry; any-target testing option. **Per-encounter gating is v1** (not v1.1).
 7. **Tracked-ability model.** Master table + character scan → **auto-detected active set**; per-entry
    enable/disable + add/override/reset; planned/active + cooldown state via `UnitAura` /
    `GetSpellCooldown` / `GetItemCooldown`. Warrior first; pack import/export → v1.1.
