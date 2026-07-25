@@ -1,14 +1,16 @@
 local _, ns = ...
 
 -- Frame glue for the bar display — the thin, off-client-untestable edge (an in-game /reload check, not a
--- spec). ALL x-geometry comes from the spec-tested ns.Layout; this file only creates frames and applies
--- the rects / colours / text / fill, and drives the sim preview. Frames are built lazily in init(), so the
--- module loads clean (nothing happens at load).
+-- spec). ALL x-geometry comes from the spec-tested ns.Layout; the look (texture / font / border / colours)
+-- comes from the selected skin, applied onto db.profile by ns.Skin and fetched here via LibSharedMedia.
+-- This file only creates frames and applies the rects / media / colours / text / fill, and drives the sim
+-- preview. Frames are built lazily in init(), so the module loads clean (nothing happens at load).
 
 local Display = {}
 
-local BAR_TEXTURE = "Interface\\TargetingFrame\\UI-StatusBar"
-local FONT = "Fonts\\FRIZQT__.TTF"
+local LSM = LibStub("LibSharedMedia-3.0")
+local FALLBACK_TEX = "Interface\\TargetingFrame\\UI-StatusBar"
+local FALLBACK_FONT = "Fonts\\FRIZQT__.TTF"
 
 local container -- movable parent frame
 local targetBar -- the TTK / health bar
@@ -17,6 +19,11 @@ local play -- dynamic-playback state, or nil
 
 local function profile()
     return ns.addon.db.profile
+end
+
+-- Resolve an LSM media name → path, with a safe fallback.
+local function media(mtype, name, fallback)
+    return (name and LSM:Fetch(mtype, name)) or fallback
 end
 
 local function paint(bar, key)
@@ -43,7 +50,7 @@ function Display.formatTime(ttk)
     return string.format("%d:%02d", math.floor(ttk / 60), math.floor(ttk % 60))
 end
 
--- Container-level settings (scale / opacity / strata / size / position / lock).
+-- Container-level settings (scale / opacity / strata / size / position / lock / border).
 function Display.applyContainer()
     if not container then
         return
@@ -56,6 +63,10 @@ function Display.applyContainer()
     container:ClearAllPoints()
     container:SetPoint(p.anchorPoint, UIParent, p.anchorPoint, p.posX, p.posY)
     container:EnableMouse(not p.locked)
+    if container.SetBackdrop then
+        local edge = (p.border and p.border ~= "None") and media("border", p.border, nil) or nil
+        container:SetBackdrop(edge and { edgeFile = edge, edgeSize = 12 } or nil)
+    end
 end
 
 function Display.resetPosition()
@@ -69,7 +80,7 @@ function Display.init()
     if container then
         return
     end
-    container = CreateFrame("Frame", "BadgerTTKFrame", UIParent)
+    container = CreateFrame("Frame", "BadgerTTKFrame", UIParent, "BackdropTemplate")
     container:SetMovable(true)
     container:RegisterForDrag("LeftButton")
     container:SetScript("OnDragStart", function(self)
@@ -85,7 +96,6 @@ function Display.init()
     end)
 
     targetBar = CreateFrame("StatusBar", nil, container)
-    targetBar:SetStatusBarTexture(BAR_TEXTURE)
     targetBar:SetReverseFill(true) -- fills from the right (death); empties on the left as health drops
     targetBar:SetMinMaxValues(0, 1)
     targetBar:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", 0, 0)
@@ -99,7 +109,6 @@ local function acquireBar(i)
     local bar = pool[i]
     if not bar then
         bar = CreateFrame("StatusBar", nil, container)
-        bar:SetStatusBarTexture(BAR_TEXTURE)
         bar.text = bar:CreateFontString(nil, "OVERLAY")
         bar.text:SetPoint("CENTER")
         pool[i] = bar
@@ -107,17 +116,20 @@ local function acquireBar(i)
     return bar
 end
 
--- Render a render-model + the current health fraction (0..1) into the frames.
+-- Render a render-model + the current health fraction (0..1) into the frames, using the resolved skin.
 function Display.render(model, health)
     Display.init()
     local p = profile()
+    local tex = media("statusbar", p.statusbar, FALLBACK_TEX)
+    local font = media("font", p.font, FALLBACK_FONT)
     local layout = ns.Layout.compute(
         model,
         { width = p.barWidth, height = p.barHeight, spacing = p.barSpacing }
     )
 
     targetBar:SetSize(p.barWidth, p.barHeight)
-    targetBar.text:SetFont(FONT, p.fontSizeMain, "OUTLINE")
+    targetBar:SetStatusBarTexture(tex)
+    targetBar.text:SetFont(font, p.fontSizeMain, "OUTLINE")
     paint(targetBar, "colorTarget")
     targetBar:SetValue(health or 0)
     targetBar.text:SetText(Display.formatTime(model.ttk))
@@ -135,7 +147,8 @@ function Display.render(model, health)
             bar:ClearAllPoints()
             bar:SetPoint("BOTTOMLEFT", container, "BOTTOMLEFT", left, shown * step)
             bar:SetSize(math.max(1, right - left), p.barHeight)
-            bar.text:SetFont(FONT, p.fontSizeOther, "OUTLINE")
+            bar:SetStatusBarTexture(tex)
+            bar.text:SetFont(font, p.fontSizeOther, "OUTLINE")
             paint(bar, STATE_COLOR[b.coverage or b.state] or "colorUtility")
             bar:Show()
         else
@@ -146,6 +159,14 @@ function Display.render(model, health)
         pool[i]:Hide()
     end
     container:Show()
+end
+
+-- Re-apply container settings and re-render the static preview if it is on (called from the config UI).
+function Display.refresh()
+    Display.applyContainer()
+    if profile().simStatic then
+        Display.showPreview(true)
+    end
 end
 
 -- Static preview: render the frozen representative model.

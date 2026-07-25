@@ -10,6 +10,7 @@ local ADDON_NAME, ns = ...
 -- spell/item label-icons (a `|T...|t` helper) arrive with the ability/raid work orders that need them.
 
 local ICON = "Interface\\ICONS\\"
+local LSM = LibStub("LibSharedMedia-3.0")
 
 local ANCHORS = {
     TOPRIGHT = "Top-right",
@@ -22,8 +23,6 @@ local GROWTH = { UP = "Up", DOWN = "Down" }
 local STRATA =
     { BACKGROUND = "Background", LOW = "Low", MEDIUM = "Medium", HIGH = "High", DIALOG = "Dialog" }
 local TIMEFMT = { mmss = "m:ss", seconds = "Seconds" }
--- Only the shipped default for now; the RegisterSkin registry (skin engine WO) repopulates this list.
-local SKINS = { Badger = "Badger (default)" }
 
 -- Bind an option to db.profile.<key> in one line.
 local function getter(db, key)
@@ -49,6 +48,9 @@ local function colorSetter(db, key)
     return function(_, r, g, b, a)
         local c = db.profile[key]
         c[1], c[2], c[3], c[4] = r, g, b, a
+        if ns.Display then
+            ns.Display.refresh()
+        end
     end
 end
 
@@ -58,6 +60,16 @@ local function setterC(db, key)
         db.profile[key] = value
         if ns.Display then
             ns.Display.applyContainer()
+        end
+    end
+end
+
+-- Setter that persists, then refreshes the display (re-applies + re-renders the preview if active).
+local function setterR(db, key)
+    return function(_, value)
+        db.profile[key] = value
+        if ns.Display then
+            ns.Display.refresh()
         end
     end
 end
@@ -178,16 +190,51 @@ local function buildSkin(db)
             skin = {
                 type = "select",
                 name = "Skin",
-                desc = "Choose a bar skin. Add your own with the RegisterSkin API (arrives with the skin engine).",
+                desc = "Choose a bar skin (a preset applied onto the settings below). Add your own with"
+                    .. " BadgerTTK:RegisterSkin — see src/skin/skin.lua.",
                 order = 1,
-                values = SKINS,
+                values = function()
+                    return ns.Skin.ListSkins()
+                end,
                 get = getter(db, "skin"),
-                set = setter(db, "skin"),
+                set = function(_, v)
+                    db.profile.skin = v
+                    ns.Skin.apply(db.profile, v)
+                    if ns.Display then
+                        ns.Display.refresh()
+                    end
+                end,
             },
-            mediaNote = {
-                type = "description",
-                name = "Font, texture and border pickers arrive with the skin engine (they use LibSharedMedia).",
-                order = 2,
+            mediaHeader = { type = "header", name = "Media", order = 4 },
+            statusbar = {
+                type = "select",
+                name = "Bar texture",
+                order = 5,
+                values = function()
+                    return LSM:HashTable("statusbar")
+                end,
+                get = getter(db, "statusbar"),
+                set = setterR(db, "statusbar"),
+            },
+            font = {
+                type = "select",
+                name = "Font",
+                order = 6,
+                values = function()
+                    return LSM:HashTable("font")
+                end,
+                get = getter(db, "font"),
+                set = setterR(db, "font"),
+            },
+            border = {
+                type = "select",
+                name = "Border",
+                order = 7,
+                values = function()
+                    return LSM:HashTable("border")
+                end,
+                get = getter(db, "border"),
+                set = setterR(db, "border"),
             },
             sizeHeader = { type = "header", name = "Font sizes", order = 10 },
             fontSizeMain = {
