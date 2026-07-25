@@ -67,4 +67,5 @@ related:
   path confirmed (`svn ls`): `trunk/AceGUI-3.0-SharedMediaWidgets` (widget.xml → prototypes + 5 widgets);
   control types `LSM30_Statusbar` / `LSM30_Font` / `LSM30_Border` verified in the widget sources. Trial
   build embedded the lib and the full `.toc`+XML load graph resolves (72 files, 0 missing). `.toc` → v0.9.3.
-  **In progress** pending merge of PR #23 + the human's in-game re-test.
+  **PR #23 merged**; rebuilt `.release/BadgerTTK` at v0.9.3 (svn-exported the widget lib; load graph resolves
+  72/0, 3 LSM30 controls wired, source parity clean). **In progress** pending the human's in-game re-test.
