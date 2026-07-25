@@ -86,6 +86,10 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-015-IJ** — `badger-ttk` live driver **(b)**: samples real `UnitHealth` + tracks auras/cooldowns
+  → assembles the render-model → feeds the display in combat (gated by Behavior). Pure `assembleEntries`
+  + `gate` helpers + the event/ticker edge. **Closes the v1 loop.** Child #7b of WO-007 (see
+  `docs/workorders/WO-015-IJ.md`). Status: Proposed.
 - **WO-014-IJ** — `badger-ttk` warrior ability model **(a)**: the static master table + pure
   availability/usability/active logic + the Abilities config node (full list · enable/disable · offset ·
   availability dim). Live driver is WO-015. Child #7 of WO-007 (see `docs/workorders/WO-014-IJ.md`).
