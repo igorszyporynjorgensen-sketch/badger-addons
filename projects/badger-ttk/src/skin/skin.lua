@@ -1,6 +1,6 @@
 local _, ns = ...
 
--- Open skin engine. A skin is a DATA-ONLY preset: media (LibSharedMedia names) + the six state colours.
+-- Open skin engine. A skin is a DATA-ONLY preset: media (LibSharedMedia names) + the state colours.
 -- Anyone adds one with BadgerTTK:RegisterSkin(name, skin) (exposed on the addon, reachable via
 -- LibStub("AceAddon-3.0"):GetAddon("BadgerTTK", true)); it then appears in the picker. Selecting a skin
 -- applies its values onto the profile (which the user can then tweak per-setting). The registry + apply
@@ -11,7 +11,7 @@ local _, ns = ...
 --     statusbar = "<LSM statusbar name>",   -- e.g. "Blizzard"
 --     font      = "<LSM font name>",        -- e.g. "Friz Quadrata TT"
 --     border    = "<LSM border name>",      -- e.g. "None"
---     colors    = { target=, utility=, planned=, active=, over=, short= },  -- each { r, g, b, a }
+--     colors    = { target=, utility=, waiting=, ready=, used= },  -- each { r, g, b, a }
 --   }
 
 local Skin = {}
@@ -22,10 +22,9 @@ local registry = {}
 local COLOR_FIELD = {
     target = "colorTarget",
     utility = "colorUtility",
-    planned = "colorPlanned",
-    active = "colorActive",
-    over = "colorOverkill",
-    short = "colorShortfall",
+    waiting = "colorWaiting",
+    ready = "colorReady",
+    used = "colorUsed",
 }
 
 function Skin.RegisterSkin(name, skin)
@@ -70,10 +69,9 @@ Skin.RegisterSkin("Badger", {
     colors = {
         target = { 0.85, 0.15, 0.15, 1 },
         utility = { 0.25, 0.50, 0.90, 1 },
-        planned = { 0.96, 0.77, 0.26, 1 },
-        active = { 0.20, 0.80, 0.30, 1 },
-        over = { 0.55, 0.55, 0.55, 1 },
-        short = { 0.95, 0.55, 0.15, 1 },
+        waiting = { 0.30, 0.50, 0.80, 1 },
+        ready = { 0.15, 0.85, 0.25, 1 },
+        used = { 0.55, 0.55, 0.55, 1 },
     },
 })
 

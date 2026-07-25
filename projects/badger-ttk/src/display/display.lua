@@ -42,13 +42,16 @@ local function paint(bar, key)
     bar:SetStatusBarColor(c[1], c[2], c[3], c[4])
 end
 
--- coverage / state → the db.profile colour key.
-local STATE_COLOR = {
-    planned = "colorPlanned",
-    fits = "colorActive",
-    over = "colorOverkill",
-    short = "colorShortfall",
-}
+-- Utility-bar colour is an ACTION signal: waiting (fire moment ahead) → ready (fire now, green) → used
+-- (fired + draining, gray). Maps a layout bar to its db.profile colour key.
+local function utilityColorKey(bar)
+    if bar.state == "active" then
+        return "colorUsed"
+    elseif bar.ready then
+        return "colorReady"
+    end
+    return "colorWaiting"
+end
 
 -- m:ss (or raw seconds) per the config; "" when TTK is unknown.
 function Display.formatTime(ttk)
@@ -165,9 +168,9 @@ function Display.render(model, health)
             bar:SetSize(math.max(1, right - left), p.barHeight)
             bar:SetStatusBarTexture(tex)
             bar.text:SetFont(font, p.fontSizeOther, "OUTLINE")
-            -- Colour the fill from state; the track (bg) is the same texture at a dim tint, so the steady
-            -- segment stays visible while the fill drains within it (bar.fill = remaining / duration).
-            local c = p[STATE_COLOR[b.coverage or b.state] or "colorUtility"]
+            -- Colour by action state (waiting/ready/used); the track (bg) is the same texture at a dim
+            -- tint, so the steady segment stays visible while the fill drains within it once used.
+            local c = p[utilityColorKey(b)] or p.colorUtility
             bar:SetStatusBarColor(c[1], c[2], c[3], c[4])
             bar.bg:SetTexture(tex)
             bar.bg:SetVertexColor(c[1] * 0.3, c[2] * 0.3, c[3] * 0.3, (c[4] or 1) * 0.5)

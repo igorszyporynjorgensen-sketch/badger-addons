@@ -57,7 +57,14 @@ function RenderModel.build(ttk, entries, total)
             local r = e.remaining or 0
             info.active = { remaining = r, endTTK = ttk - r, coverage = coverage(ttk, offset, r) }
         else
-            info.planned = { popLines = popLines(ttk, e.duration, e.cooldown, offset) }
+            -- `ready`: the optimal fire moment (TTK = duration + offset, where the buff exactly spans the
+            -- kill) has arrived — and stays true while overdue (until used), so the display can turn the
+            -- bar green ("fire now") from that moment on.
+            local optimal = (e.duration or 0) + offset
+            info.planned = {
+                popLines = popLines(ttk, e.duration, e.cooldown, offset),
+                ready = ttk <= optimal,
+            }
         end
         out.entries[i] = info
     end

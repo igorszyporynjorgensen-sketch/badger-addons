@@ -72,4 +72,20 @@ describe("RenderModel", function()
         )
         assert.equals("Death Wish", m.entries[1].name)
     end)
+
+    it(
+        "marks a planned entry ready once TTK reaches its optimal fire moment (duration + offset)",
+        function()
+            -- optimal = duration + offset = 20; ready flips at/below it and stays true while overdue
+            assert.is_false(
+                ns.RenderModel.build(30, { { id = "a", duration = 20, offset = 0 } }).entries[1].planned.ready
+            )
+            assert.is_true(
+                ns.RenderModel.build(20, { { id = "a", duration = 20, offset = 0 } }).entries[1].planned.ready
+            )
+            assert.is_true(
+                ns.RenderModel.build(12, { { id = "a", duration = 20, offset = 0 } }).entries[1].planned.ready
+            )
+        end
+    )
 end)

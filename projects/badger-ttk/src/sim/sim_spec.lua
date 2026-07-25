@@ -48,6 +48,16 @@ describe("Sim", function()
         assert.equals(15, m.entries[1].active.remaining)
     end)
 
+    it("shows Earthstrike waiting → ready → used (fired 4s late)", function()
+        local s = ns.SimScenario.warriorBurst
+        -- Earthstrike: optimal 20s-left (t=30), used at 16s-left (t=34)
+        assert.is_false(ns.Sim.run(s, 25).entries[2].planned.ready) -- TTK 25 → waiting
+        local ready = ns.Sim.run(s, 32) -- TTK 18 → past optimal, not yet used → ready (green)
+        assert.is_nil(ready.entries[2].active)
+        assert.is_true(ready.entries[2].planned.ready)
+        assert.is_not_nil(ns.Sim.run(s, 36).entries[2].active) -- TTK 14 → used
+    end)
+
     it("static preview covers planned + fits/over/short, with names", function()
         local m = ns.Sim.staticPreview()
         local byId = {}
