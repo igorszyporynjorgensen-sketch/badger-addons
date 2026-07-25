@@ -89,7 +89,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 - **WO-009-IJ** — `badger-ttk` config skeleton — the full options tree (framework + AceDB defaults +
   icons + the General/Behavior/Skin/Display/Estimator/Profiles nodes; Raids/Abilities/Simulation as
   placeholders for their feature WOs). No behavior yet. Child #2 of WO-007 (see
-  `docs/workorders/WO-009-IJ.md`). Status: Proposed.
+  `docs/workorders/WO-009-IJ.md`). Status: Accepted.
 - **WO-008-IJ** — Scaffold `badger-ttk` (Vanilla/Era, Model 1) — the empty vessel: `.toc`, flavor tag,
   scoped lint, `.pkgmeta` embeds, Ace3 bootstrap (AceDB profile+global), skeleton config window. Child
   #1 of WO-007 (see `docs/workorders/WO-008-IJ.md`). Status: Done — PR #11 merged.
