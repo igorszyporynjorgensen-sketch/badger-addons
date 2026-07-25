@@ -1,8 +1,8 @@
 ---
 wo: WO-016-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/19
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-012-IJ.md
@@ -36,15 +36,17 @@ related:
   the live build.
 
 **Phase 1 — Fix**
-1. [ ] `BadgerTTK.toc` Interface → 11509; `driver.lua` `update()` early-returns while `simStatic`/
+1. [x] `BadgerTTK.toc` Interface → 11509; `driver.lua` `update()` early-returns while `simStatic`/
        `simPlaying` is set.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green; rebuild the `.release` for the human to re-test in-game.
+1. [x] `pnpm validate` green (`format-check, lint, test` for 4 projects; luacheck 0/0). PR #19 opened.
+2. [ ] After merge: rebuild the `.release` for the human to re-test in-game.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR opened for human merge; the human
   re-tests the preview + a real target.
 - **Constitution check:** Principles OK — a targeted edge fix; no `_G` leaks; pure logic untouched.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** [PR #19](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/19)
+- **Outcome:** Both edits made; `pnpm validate` green; PR #19 open for human merge. On merge → rebuild
+  `.release` and hand back for the in-game re-test.
