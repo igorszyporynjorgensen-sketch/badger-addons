@@ -75,4 +75,4 @@ related:
   (house style, like `ns.AbilityTable`); config building is declarative; no `_G` leaks.
 - **Decisions produced:** —
 - **MR:** [PR #25](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/25)
-- **Outcome:** Implemented; `pnpm validate` green (64 badger-ttk specs — +3 for the registry; luacheck 0/0). 7 raids / 49 encounters. `.toc` -> v0.9.5. **In progress** pending merge of PR #25 + the human's in-game re-test.
+- **Outcome:** Implemented; `pnpm validate` green (64 badger-ttk specs — +3 for the registry; luacheck 0/0). 7 raids / 49 encounters. `.toc` -> v0.9.5. **PR #25 merged**; rebuilt `.release/BadgerTTK` at v0.9.5 (load graph resolves 73/0, raids/table.lua loads, buildRaids shipped, source parity clean). **In progress** pending the human's in-game re-test.
