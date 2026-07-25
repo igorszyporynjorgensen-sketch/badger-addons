@@ -86,6 +86,10 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-022-IJ** — **Raids config node**: replace the WO-009 placeholder with a **sub-node per Classic-Era
+  raid**, each listing its **encounters as checkboxes** (default on) + a per-raid **master toggle**; a pure
+  `ns.RaidTable` registry (spec-tested) + `buildRaids` + `db.profile.raids` storage. Config surface only —
+  live gating enforcement + boss icons deferred (see `docs/workorders/WO-022-IJ.md`). Status: Proposed.
 - **WO-021-IJ** — **UI polish**: (1) config left-nav — a small gap between each node's icon and name +
   vertical centring, via re-anchoring the AceGUI TreeGroup buttons in the shared `BadgerConfigUI` lib
   (guarded `hooksecurefunc`, no vendored-lib edits, so all Badger addons get it); (2) **right-align** the
