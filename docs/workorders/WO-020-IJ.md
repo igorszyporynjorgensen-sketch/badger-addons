@@ -1,6 +1,6 @@
 ---
 wo: WO-020-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/23
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -55,7 +55,7 @@ related:
 **Phase 3 — Verify**
 1. [x] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.3**, rebuild `.release` (embedding the new
        lib; verify the load graph resolves).
-2. [ ] **In-game (human, required):** the pickers show previews and still apply.
+2. [x] **In-game (human, required):** (approved by the human) the pickers show previews and still apply.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; a rebuilt package whose load graph
   resolves with the new lib; PR for human merge; in-game re-test.
@@ -68,4 +68,5 @@ related:
   control types `LSM30_Statusbar` / `LSM30_Font` / `LSM30_Border` verified in the widget sources. Trial
   build embedded the lib and the full `.toc`+XML load graph resolves (72 files, 0 missing). `.toc` → v0.9.3.
   **PR #23 merged**; rebuilt `.release/BadgerTTK` at v0.9.3 (svn-exported the widget lib; load graph resolves
-  72/0, 3 LSM30 controls wired, source parity clean). **In progress** pending the human's in-game re-test.
+  72/0, 3 LSM30 controls wired, source parity clean). **In-game approved by the human** (tested in the
+  bundled v0.9.4 build) → **Done**.

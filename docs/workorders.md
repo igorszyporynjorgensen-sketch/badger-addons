@@ -92,12 +92,11 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
   utility-bar text (badger-ttk). See `docs/workorders/WO-021-IJ.md`. Status: In progress — PR #24 opened.
 - **WO-020-IJ** — `badger-ttk` media pickers show **visual previews**: embed `AceGUI-3.0-SharedMediaWidgets`
   and point the statusbar/font/border selects at the `LSM30_*` dialog controls, so the config dropdowns
-  render a preview per entry instead of just names (see `docs/workorders/WO-020-IJ.md`). Status: In
-  progress — PR #23 opened.
+  render a preview per entry instead of just names (see `docs/workorders/WO-020-IJ.md`). Status: Done — PR #23 merged; in-game approved.
 - **WO-019-IJ** — `badger-ttk` **utility-bar polish**: give utility bars a draining **progress fill** (in
   lockstep with the TTK bar, steady segment + dim track), **sort** them longest-duration nearest the TTK
   bar, and make the per-bar **countdown off by default** (kept configurable). See
-  `docs/workorders/WO-019-IJ.md`. Status: In progress — PR #22 opened.
+  `docs/workorders/WO-019-IJ.md`. Status: Done — PR #22 merged; in-game approved.
 - **WO-018-IJ** — `badger-ttk` **simulated-preview fidelity**: make the dynamic sim a deterministic warrior
   demo to spec (50s TTK countdown; Death Wish @30s-left, Earthstrike @20s-left, only those two) so it shows
   standalone (no static needed); add utility-bar **names/timers**; and make "no bar wider than the TTK bar"
