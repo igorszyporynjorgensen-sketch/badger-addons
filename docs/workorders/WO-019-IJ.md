@@ -1,8 +1,8 @@
 ---
 wo: WO-019-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/22
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-018-IJ.md
@@ -50,18 +50,18 @@ related:
   the TTK bar, and hide their countdown by default.
 
 **Phase 1 — Pure layout (fill + sort)**
-1. [ ] `display/layout.lua`: add `bar.fill` (active → `clamp(remaining/duration, 0, 1)`; planned → 1) and
+1. [x] `display/layout.lua`: add `bar.fill` (active → `clamp(remaining/duration, 0, 1)`; planned → 1) and
        sort the returned bars by **duration desc** (stable tiebreak). Specs in `layout_spec.lua`.
 
 **Phase 2 — Display + config**
-1. [ ] `display/display.lua` `render`: give each utility bar a dim background track + a reverse-filled
+1. [x] `display/display.lua` `render`: give each utility bar a dim background track + a reverse-filled
        status bar set to `bar.fill`; gate the countdown text on `showTimers` (unchanged gate, now off by
        default).
-2. [ ] `core.lua`: `showTimers` default → `false`. `config.lua`: clarify the toggle label to
+2. [x] `core.lua`: `showTimers` default → `false`. `config.lua`: clarify the toggle label to
        "Utility bar timers".
 
 **Phase 3 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.2**, rebuild `.release`.
+1. [x] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.2**, rebuild `.release`.
 2. [ ] **In-game (human, required):** utility bars drain in step with the TTK bar, sorted longest-nearest,
        no countdown by default (toggle restores it).
 
@@ -69,5 +69,6 @@ related:
 - **Constitution check:** Principles OK — fill + sort are pure/spec-tested; the track + reverse-fill are
   edge; default/label are config; no `_G` leaks.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** [PR #22](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/22)
+- **Outcome:** Implemented; `pnpm validate` green (61 badger-ttk specs — +3 for fill + sort; luacheck 0/0).
+  `.toc` → v0.9.2. **In progress** pending merge of PR #22 + the human's in-game re-test.
