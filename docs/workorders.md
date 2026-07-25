@@ -86,10 +86,10 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
-- **WO-021-IJ** — config **left-nav polish**: add a small gap between each node's icon and name and
-  vertically centre the text on the icon, done in the shared `BadgerConfigUI` lib by re-anchoring the
-  AceGUI TreeGroup buttons (guarded `hooksecurefunc`; no vendored-lib edits) — so all Badger addons get it
-  (see `docs/workorders/WO-021-IJ.md`). Status: Proposed.
+- **WO-021-IJ** — **UI polish**: (1) config left-nav — a small gap between each node's icon and name +
+  vertical centring, via re-anchoring the AceGUI TreeGroup buttons in the shared `BadgerConfigUI` lib
+  (guarded `hooksecurefunc`, no vendored-lib edits, so all Badger addons get it); (2) **right-align** the
+  utility-bar text (badger-ttk). See `docs/workorders/WO-021-IJ.md`. Status: Accepted.
 - **WO-020-IJ** — `badger-ttk` media pickers show **visual previews**: embed `AceGUI-3.0-SharedMediaWidgets`
   and point the statusbar/font/border selects at the `LSM30_*` dialog controls, so the config dropdowns
   render a preview per entry instead of just names (see `docs/workorders/WO-020-IJ.md`). Status: In
