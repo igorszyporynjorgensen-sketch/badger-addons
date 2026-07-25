@@ -51,6 +51,12 @@ related:
 - **Stack orientation matches the sketch:** target bar at the **bottom**, utility bars grow **UP**; `m:ss`.
 - **Worked example:** Bloodlust (D=30) popped at TTK=30, 5s in → R=25, TTK≈25, aligned. Earthstrike
   (D=20) still **planned**, left edge at TTK=20. The number means the same on every bar: seconds of runway.
+- **Per-entry pop offset (user, config slider — default 0s).** The offset shifts *that entry's* right
+  anchor left from death (TTK = 0) to **TTK = offset**: its pop-line moves to **TTK = D + offset** (comb
+  at D+offset, D+offset+C, …), its active bar drains to TTK = offset (not 0), and its coverage colouring
+  reckons against the shifted anchor. Visually the entry's right edge moves left by
+  `offset × pixels-per-second`. Lets a player deliberately fire earlier than the exact fit (e.g. Death
+  Wish at TTK 40 rather than 30). Distinct from the global `leadTime` GCD/latency nudge — they compose.
 
 ## Architecture spine (informs the child-WO split)
 
@@ -106,7 +112,7 @@ Simulation · Profiles. **Skin** and **Raids** are their own nodes; **General** 
 | **Skin** *(own node)* | ✅ | skin picker (built-in + registered) · one font family + two sizes (main TTK · other bars) · texture · border · 6 state colours. Skin paste-import → **v1.1** |
 | **Display** | ✅ | *Layout* — anchor/position/scale/growth **UP**/width/height/spacing/opacity/strata/max-bars · *Readout* — names/timers/icons · `m:ss` · `showTrendBand`/`showConfidence` |
 | **Estimator** | ✅ | Reactivity↔Stability slider · `leadTime` · `executeThreshold`/`executeModifier` · `minConfidenceToShow`. History-blend/min-sample → **post-v1** |
-| **Abilities** | ✅ | full **static** master list, enable/disable per entry **each with its spell/item icon**; **availability overlay** (dim for not-currently-available) from the live scan; add/override/reset. Runtime shows enabled ∩ available; shared-CD lockout dims + lock-icons a bar. Pack import/export → **v1.1** |
+| **Abilities** | ✅ | full **static** master list, enable/disable per entry **each with its spell/item icon**; **availability overlay** (dim for not-currently-available); **per-entry pop-offset slider** (0–60s, default 0); add/override/reset. Runtime shows enabled ∩ available; shared-CD lockout dims + lock-icons a bar. Pack import/export → **v1.1** |
 | **Simulation** | ◑ | static preview ✅ v1; dynamic playback → **v1.1** |
 | **Profiles** | ✅ | drop-in `AceDBOptions-3.0` child node (needs embedding) |
 | **History** | ⛔ | whole node is **WO #8** — absent from the v1 tree |
@@ -220,9 +226,9 @@ AceDB, embeds) that config must attach to; that is plumbing, not functionality.
    skeleton + `display`(incl. the **skin picker + font/size controls**)/`behavior`/`estimator` tables;
    feature WOs fill their subtrees.
 3. **Pure fight-state engine + estimator (spec-first).** Health-fraction EWMA (reactivity→λ);
-   **execute-correction + confidence gate**; geometry (pop-line comb) + **coverage decision logic**
-   (fits/over/short); the **prepared-but-unused history seam** (`E(h)` K=100 in `db.global`). Pure, no
-   frames, Busted-tested under `tools/wow-mock`.
+   **execute-correction + confidence gate**; geometry (pop-line comb, **per-entry offset** shifting the
+   entry anchor to TTK=offset) + **coverage decision logic** (fits/over/short); the **prepared-but-unused
+   history seam** (`E(h)` K=100 in `db.global`). Pure, no frames, Busted-tested under `tools/wow-mock`.
 4. **Simulation driver.** Static preview **[v1]**; dynamic scripted-timeline playback **[v1.1]**.
 5. **Display layer (frames) + skin engine.** `CreateFrame` stacked bars (target bottom, grow UP),
    right-anchored, drain animation, `m:ss`, per-state colouring, pop-line comb + trend/confidence
@@ -239,7 +245,8 @@ AceDB, embeds) that config must attach to; that is plumbing, not functionality.
    table); the config list shown in **full** (enable/disable per entry, **spell/item icon each**) with a
    **live availability overlay** (talents/known + equipped on-use + race + profession → available vs
    dimmed); **not-usable/lockout read from live usability** (`GetItemCooldown` / `IsUsableItem` /
-   `IsUsableSpell`) → dim + lock icon (no relations modeled); add/override/reset; planned/active +
+   `IsUsableSpell`) → dim + lock icon (no relations modeled); add/override/reset + a **per-entry
+   pop-offset** (default 0, shifts the entry anchor to TTK=offset); planned/active +
    cooldown state via `UnitAura` / `GetSpellCooldown` /
    `GetItemCooldown`; **runtime visibility = enabled ∩ (usable-now OR buff-active)** — usable = known
    (abilities/racials) · equipped (items; `GetInventoryItemID` + `PLAYER_EQUIPMENT_CHANGED`) · in-bags
