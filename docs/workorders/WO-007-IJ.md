@@ -12,6 +12,7 @@ related:
   - docs/architecture.md
   - docs/engineering-principles.md
   - docs/workorders/WO-006-IJ.md
+  - docs/reference/warrior-ttk-cooldowns.md
   - assets/images/time-to-kill-idea.webp
 ---
 
@@ -101,11 +102,11 @@ Simulation · Profiles. **Skin** and **Raids** are their own nodes; **General** 
 |---|---|---|
 | **General** | ✅ | master `Enable` + a short status/help blurb (landing node) |
 | **Behavior** | ✅ | general rules — `inCombatOnly` · `hideOnTargetDead` · `requireHostile` · `minTTK` · `showAnyTarget` (testing). Detailed where-it-shows → **Raids** |
-| **Raids** *(own node)* | ✅ | per-raid sub-nodes: a **raid master toggle** + **per-encounter checkboxes** (default all on); a **World Bosses** grouping. Backed by an authored Vanilla raid/encounter registry (mob/encounter ids). *Per-encounter gating: v1.1 → **v1**.* |
+| **Raids** *(own node)* | ✅ | per-raid sub-nodes (**raid icon**): a **raid master toggle** + **per-encounter checkboxes each with a boss icon** (default all on); a **World Bosses** grouping. Authored Vanilla raid/encounter registry (mob/encounter ids + icons; boss icon = curated + fallback). *Per-encounter gating: v1.1 → **v1**.* |
 | **Skin** *(own node)* | ✅ | skin picker (built-in + registered) · one font family + two sizes (main TTK · other bars) · texture · border · 6 state colours. Skin paste-import → **v1.1** |
 | **Display** | ✅ | *Layout* — anchor/position/scale/growth **UP**/width/height/spacing/opacity/strata/max-bars · *Readout* — names/timers/icons · `m:ss` · `showTrendBand`/`showConfidence` |
 | **Estimator** | ✅ | Reactivity↔Stability slider · `leadTime` · `executeThreshold`/`executeModifier` · `minConfidenceToShow`. History-blend/min-sample → **post-v1** |
-| **Abilities** | ✅ | full **static** master list (everything a warrior can use), enable/disable per entry; **availability overlay** (dim + icon for not-currently-available) from the live scan; add/override/reset. Runtime shows enabled ∩ available. Pack import/export → **v1.1** |
+| **Abilities** | ✅ | full **static** master list, enable/disable per entry **each with its spell/item icon**; **availability overlay** (dim for not-currently-available) from the live scan; add/override/reset. Runtime shows enabled ∩ available; shared-CD lockout dims + lock-icons a bar. Pack import/export → **v1.1** |
 | **Simulation** | ◑ | static preview ✅ v1; dynamic playback → **v1.1** |
 | **Profiles** | ✅ | drop-in `AceDBOptions-3.0` child node (needs embedding) |
 | **History** | ⛔ | whole node is **WO #8** — absent from the v1 tree |
@@ -114,6 +115,35 @@ Simulation · Profiles. **Skin** and **Raids** are their own nodes; **General** 
 10s · `leadTime` 1.5s · execute 20% / ×1.2 · opacity+scale 1.0 · a shipped **"Badger" default skin**
 (brand texture/font, palette target-red / utility-blue / planned-amber / active-green / over-grey /
 short-orange).
+
+## Config quality, iconography & entry states
+
+- **Quality bar — the options window must read as a high-end, polished addon:** icon-rich, well-grouped,
+  consistent spacing. This may **extend `BadgerConfigUI-1.0`** (shared lib) with native icon support —
+  which then benefits every Badger addon.
+- **Icons wherever feasible:**
+  - *Abilities / items* — the spell/item icon per entry (`GetSpellTexture` / `GetItemIcon`) — trivial, v1.
+  - *Class* — class icon from the class atlas — v1 (warrior only for now).
+  - *Raids* — a curated texture per raid — v1 (small fixed set).
+  - *Bosses / encounters* — a portrait per encounter. **Classic Era has no per-boss icon API** (no
+    Encounter Journal), so this needs **curated assets** with a generic-boss **fallback** — ship the
+    fallback in v1, enrich over time.
+- **Entry display states (beyond planned/active):**
+  - *Not-currently-available* (talents/gear/race/profession) → **dimmed in the config list**; no runtime
+    bar (runtime = enabled ∩ available).
+  - *Shared-CD lockout* — an enabled+available entry whose **shared-CD sibling is on cooldown** (popped
+    Mighty Rage → other potions locked; the on-use-trinket group **iff** Classic Era enforces it —
+    live-verify) → its bar renders **dimmed + a lock icon**. Groups come from the master table's
+    `sharedCooldownGroup` (see the reference data).
+  - *Consumable stock* (consumables only) — a consumable with **none in bags** is **hidden from the bars
+    entirely** (not dimmed) **unless its buff is currently active** (used the last one) — then the
+    draining active bar still shows. Watch `BAG_UPDATE`.
+  - *Equipped items* (trinkets & other on-use gear) — a bar shows **only while the item is equipped**
+    (config still lists it statically, dimmed when unequipped). Watch `PLAYER_EQUIPMENT_CHANGED`.
+  - **Unifying visibility rule:** an **active buff always renders** its draining bar (regardless of
+    equip/stock); otherwise a bar needs the entry **usable right now** — *known* (abilities/racials) ·
+    *equipped* (items) · *in bags* (consumables). Config always shows the full static list; the overlay
+    just dims what isn't usable now.
 
 ## Acceptance criteria (for THIS epic) — MET
 
@@ -145,13 +175,24 @@ To be recorded as D-005 … in `docs/decisions.md` when the first child WO lands
   Estimator → Abilities → Simulation → Profiles; **Skin** and **Raids** are their own nodes. The
   **Raids** node = per-raid master toggle + **per-encounter checkboxes** (default on) → **per-encounter
   gating is v1** (needs an authored Vanilla raid/encounter registry).
+- **Warrior ability table:** curated + Wowhead-verified (14 keep entries), persisted in
+  [docs/reference/warrior-ttk-cooldowns.md](../reference/warrior-ttk-cooldowns.md); the ability WO
+  consumes it. **Shared-CD lockout:** an entry locked out by a shared-CD sibling renders **dimmed + a
+  lock icon** (groups from the table's `sharedCooldownGroup`; potion group live, trinket group pending
+  live verification).
+- **High-end, icon-rich config:** the options window targets a polished, high-end look with icons
+  wherever feasible (abilities/items via API · class via atlas · raids curated · bosses curated +
+  fallback — Classic has no per-boss icon API); may extend `BadgerConfigUI-1.0` with icon support.
 
 ## Delegated to owning child WOs (resolved when that child is drafted)
 
 - **[Classic 1.15 detection APIs]** — web-verify `ENCOUNTER_START/END` / boss frames / `C_…` vs. mob-id
   registry → **show-gating WO (#6)**.
 - **[target scope]** — current target only for v1 (focus/boss later)? Lean yes → **display/engine (#3/#5)**.
-- **[ability-table contents]** — the concrete warrior spellIDs/itemIDs + racials → **ability WO (#7)**.
+- **[ability-table contents] — RESOLVED:** curated + Wowhead-verified (14 keep entries + shared-CD
+  groups + live-verify items) in
+  [docs/reference/warrior-ttk-cooldowns.md](../reference/warrior-ttk-cooldowns.md); consumed by the
+  ability WO (#7).
 - **[idle/unknown rendering]** — bars when TTK unknown (pre-combat, rate ≤ 0, swap, phase) vs. the
   confidence gate → **display WO (#5)**.
 
@@ -171,8 +212,10 @@ AceDB, embeds) that config must attach to; that is plumbing, not functionality.
    `core.lua` Ace3 bootstrap with **`db.profile` + `db.global`/`BadgerTTKData`**; `Locales/enUS`.
    Exercises the mock's `vanilla` surface. **Milestone: repo's first Vanilla addon.**
 2. **Config skeleton (dedicated config WO).** The options tree via `BadgerConfigUI-1.0`; profile/global
-   split; `profiles` via `AceDBOptions-3.0`; real-typed defaults. Builds skeleton + `display`(incl. the
-   **skin picker + font/size controls**)/`behavior`/`estimator` tables; feature WOs fill their subtrees.
+   split; `profiles` via `AceDBOptions-3.0`; real-typed defaults; the **high-end / icon-rich** quality
+   bar (may **extend `BadgerConfigUI-1.0` with icon support** — spell/item/class/raid/boss icons). Builds
+   skeleton + `display`(incl. the **skin picker + font/size controls**)/`behavior`/`estimator` tables;
+   feature WOs fill their subtrees.
 3. **Pure fight-state engine + estimator (spec-first).** Health-fraction EWMA (reactivity→λ);
    **execute-correction + confidence gate**; geometry (pop-line comb) + **coverage decision logic**
    (fits/over/short); the **prepared-but-unused history seam** (`E(h)` K=100 in `db.global`). Pure, no
@@ -188,11 +231,15 @@ AceDB, embeds) that config must attach to; that is plumbing, not functionality.
    Bosses** grouping, backed by an **authored Vanilla raid/encounter registry** (mob/encounter ids);
    raid/instance detection + **verify `ENCOUNTER_START` on Era 1.15** to map the target to a registry
    entry; any-target testing option. **Per-encounter gating is v1** (not v1.1).
-7. **Tracked-ability model.** The **static complete** master table; the config list shown in **full**
-   (enable/disable per entry) with a **live availability overlay** (talents/known + equipped on-use +
-   race + profession → available vs dimmed + icon); add/override/reset; planned/active + cooldown state
-   via `UnitAura` / `GetSpellCooldown` / `GetItemCooldown`; **runtime shows enabled ∩ available**.
-   Warrior table first; pack import/export → v1.1.
+7. **Tracked-ability model.** Load the **static complete** master table from
+   [docs/reference/warrior-ttk-cooldowns.md](../reference/warrior-ttk-cooldowns.md) (as a Lua data
+   table); the config list shown in **full** (enable/disable per entry, **spell/item icon each**) with a
+   **live availability overlay** (talents/known + equipped on-use + race + profession → available vs
+   dimmed); **shared-CD group modeling** → the **lockout state** (dim + lock icon) when a sibling is on
+   cooldown; add/override/reset; planned/active + cooldown state via `UnitAura` / `GetSpellCooldown` /
+   `GetItemCooldown`; **runtime visibility = enabled ∩ (usable-now OR buff-active)** — usable = known
+   (abilities/racials) · equipped (items; `GetInventoryItemID` + `PLAYER_EQUIPMENT_CHANGED`) · in-bags
+   (consumables; `GetItemCount` + `BAG_UPDATE`). Warrior table first; pack import/export → v1.1.
 8. **(POST-v1) Historical kill-data model + WarcraftLogs importer.** `E(h)` recompute, weighted
    percentiles + baseline ranges ("usually 2:37–4:21 · best 2:14"), the live×history blend, the
    `history` config group, paste/SV import (LibSerialize+LibDeflate), + an off-client Nx `tools/wcl-import`
