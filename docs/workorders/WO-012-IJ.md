@@ -1,8 +1,8 @@
 ---
 wo: WO-012-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/15
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-007-IJ.md
@@ -80,5 +80,12 @@ related:
   driver are split out so this PR stays reviewable (simplest thing that fits).
 - **Decisions produced:** — (a decision only if the `ns.Layout` public shape or the frame structure is
   worth pinning).
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/15
+- **Outcome:** Implemented on `feature/WO-012-IJ-display`; **PR #15 opened**. `ns.Layout` (pure,
+  spec-tested — render-model → pixel windows, right-anchored/time-ratio/± offset/resize) + `ns.Display`
+  (frame glue: statusbar pool, per-state colours, `m:ss`, reverse-fill target, movable container with
+  drag/reset/scale, static preview + dynamic playback). Config gains the real **Simulation** node + a
+  **reset-position** button; position/lock/scale re-apply live. Forward-compatible tweaks: render-model
+  carries `duration`, `Sim.run` also returns `health`. **Gate green:** stylua · luacheck 0/0 (15 files)
+  · busted 31/0 · full `pnpm validate` exit 0. **In-game appear/drag/animate check deferred (waived).**
+  **Done** once PR #15 merges and `main` is green.

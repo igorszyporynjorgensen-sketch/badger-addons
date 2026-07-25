@@ -89,7 +89,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 - **WO-012-IJ** — `badger-ttk` display **(a)**: frames + a pure layout helper (render-model → pixel
   rects) + movable container (drag/scale), **sim-driven** (static preview + dynamic playback) — the
   first visible feature. Skin engine split to WO-013. Child #5a of WO-007 (see
-  `docs/workorders/WO-012-IJ.md`). Status: Accepted.
+  `docs/workorders/WO-012-IJ.md`). Status: In progress — PR #15 opened.
 - **WO-011-IJ** — `badger-ttk` simulation driver: feeds the engine a scripted fight (health curve +
   pop events + immune windows) → render model; ships the **static preview** as pure data. Dev harness
   for the display; no frames. Child #4 of WO-007 (see `docs/workorders/WO-011-IJ.md`). Status: Done — PR #14 merged.
