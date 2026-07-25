@@ -41,6 +41,13 @@ architecture, note it here (ADDED / MODIFIED / REMOVED) on Done.
 ## Boundaries & contracts
 
 - **Lua 5.1 target** (no 5.2+ syntax). The local gate runs Luacheck/Busted under LuaJIT (5.1).
+- **Per-project flavor targeting** — the repo spans multiple WoW Classic flavors; each addon declares
+  its own via a `flavor:*` tag in `project.json`, its `.toc` `## Interface:`, and a scoped `.luacheckrc`
+  API overlay. `badger-arena` → TBC (2.5.x, `WOW_PROJECT_BURNING_CRUSADE_CLASSIC`, arena API); a hardcore
+  addon → Classic Era / Vanilla (1.15.x, `WOW_PROJECT_CLASSIC`, no arena). Guard flavor-specific code
+  with `WOW_PROJECT_ID`; probe optional APIs with `type(fn) == "function"`; the shared mock is
+  flavor-aware (`install({ flavor })`). One addon shipping to *both* flavors (split `_Suffix.toc` or a
+  multi-`## Interface` TOC + packager `-S`) is deferred until needed (see D-004-IJ).
 - **`.toc` load order is load-bearing** — a module must be listed after whatever `ns` fields it reads.
 - **Embedded libraries** — most `Libs/` come from `.pkgmeta` externals (Ace3, LibStub, …), fetched at
   build time into `Libs/` — gitignored, never committed, moved as a lockstep set. Monorepo-internal
@@ -69,8 +76,9 @@ architecture, note it here (ADDED / MODIFIED / REMOVED) on Done.
 - `Locales/enUS.lua` — AceLocale base locale.
 
 **Open product decisions (future WOs):** unit-frame approach (custom `CreateFrame` vs an oUF-style
-layer), whether to adopt DRList-1.0 for real DR data, trinket/cooldown tracking, and multi-flavor
-support if the Anniversary realms progress past TBC.
+layer), whether to adopt DRList-1.0 for real DR data, and trinket/cooldown tracking. *(Per-project
+flavor targeting is established — see D-004-IJ; the both-flavor build machinery is deferred until a
+both-flavor addon exists.)*
 
 ## Diagram
 <!-- Add a component/flow diagram when the shape is worth a picture. -->

@@ -14,9 +14,10 @@ related:
 Operational guidance for AI agents (Claude Code) working in this repository. Engineering
 principles for the code itself live in [docs/engineering-principles.md](docs/engineering-principles.md).
 
-**What this repo is:** an Nx + pnpm monorepo of lightweight **WoW Classic (TBC Anniversary)**
-unit-frame / on-screen-info UI addons under the *Badger* brand. Each addon is an Nx project under
-`projects/`; the first is `badger-arena`. The code is Lua (the WoW client's Lua 5.1 sandbox); Nx and
+**What this repo is:** an Nx + pnpm monorepo of lightweight **WoW Classic** unit-frame / on-screen-info
+UI addons under the *Badger* brand, each targeting its own client **flavor** per project (`badger-arena`
+→ TBC Anniversary 2.5.x; addons may also target Classic Era / Hardcore, Vanilla 1.15.x). Each addon is
+an Nx project under `projects/`; the first is `badger-arena`. The code is Lua (the WoW client's Lua 5.1 sandbox); Nx and
 pnpm exist only to orchestrate the Lua tooling (StyLua · Luacheck · Busted) — there is no JavaScript
 application here.
 
