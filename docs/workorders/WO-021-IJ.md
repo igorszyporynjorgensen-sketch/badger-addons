@@ -1,8 +1,8 @@
 ---
 wo: WO-021-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/24
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-004-IJ.md
@@ -51,15 +51,15 @@ related:
   Badger addons); utility-bar text is right-aligned (badger-ttk).
 
 **Phase 1 — Config left-nav (BadgerConfigUI)**
-1. [ ] `BadgerConfigUI-1.0.lua`: add a guarded `reanchorTreeButtons(tree)` + a one-time
+1. [x] `BadgerConfigUI-1.0.lua`: add a guarded `reanchorTreeButtons(tree)` + a one-time
        `hooksecurefunc(tree, "RefreshTree", …)`; call both from `lib:Open` after locating the `TreeGroup`
        child of `OpenFrames[appName]`. Bump `MINOR → 2`.
 
 **Phase 2 — Utility-bar text (display)**
-1. [ ] `display.lua` `acquireBar`: anchor the bar text `RIGHT` (`SetJustifyH("RIGHT")`) instead of `CENTER`.
+1. [x] `display.lua` `acquireBar`: anchor the bar text `RIGHT` (`SetJustifyH("RIGHT")`) instead of `CENTER`.
 
 **Phase 3 — Verify**
-1. [ ] `pnpm validate` green. Bump badger-ttk `.toc` `## Version` → **0.9.4**, rebuild `.release`
+1. [x] `pnpm validate` green. Bump badger-ttk `.toc` `## Version` → **0.9.4**, rebuild `.release`
        (re-embedding the updated `BadgerConfigUI`), load graph resolves.
 2. [ ] **In-game (human, required):** node icons have a gap before the name and the name is vertically
        centred; nodes still work.
@@ -70,5 +70,7 @@ related:
   guarded/defensive, frame-edge (no spec, matching the file's role); `hooksecurefunc` is an allowed global;
   no `_G` leaks.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** [PR #24](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/24)
+- **Outcome:** Implemented both parts; `pnpm validate` green (61 badger-ttk + 16 BadgerConfigUI specs;
+  luacheck 0/0). BadgerConfigUI `MINOR` 1→2. `.toc` → v0.9.4. **In progress** pending merge of PR #24 +
+  the human's in-game re-test.
