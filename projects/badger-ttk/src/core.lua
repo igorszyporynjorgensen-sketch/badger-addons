@@ -68,6 +68,9 @@ local DEFAULTS = {
         simStatic = false,
         simPlaying = false,
         simSpeed = 1.0,
+
+        -- Per-entry ability config: [id] = { enabled, offset }. Filled on demand by the Abilities node.
+        abilities = {},
     },
     -- Account-wide namespace reserved for imported/recorded kill history (see WO-007). History is
     -- observational data, not a per-settings-profile value, so it lives in `global`, never `profile`.
