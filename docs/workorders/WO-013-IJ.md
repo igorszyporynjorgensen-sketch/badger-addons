@@ -1,8 +1,8 @@
 ---
 wo: WO-013-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/16
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-007-IJ.md
@@ -79,5 +79,12 @@ related:
   decision realised.
 - **Decisions produced:** — (possibly a short decision pinning the **skin-table format** as a public
   contract, if worth recording in `docs/decisions.md`).
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/16
+- **Outcome:** Implemented on `feature/WO-013-IJ-skin`; **PR #16 opened**. `ns.Skin` (pure — registry +
+  built-in Badger skin + `apply(profile, name)`; spec-tested) + `BadgerTTK:RegisterSkin` exposed for
+  other addons; `display.lua` renders from the resolved skin via `LSM:Fetch` (texture/font/border +
+  fallbacks, BackdropTemplate) with a `refresh()` for the config; the Skin node gets the registry-driven
+  picker + **LSM** texture/font/border selects (replacing the WO-009 stubs), colour/media changes refresh
+  the preview; `LibSharedMedia-3.0` added to the `.toc`. **Gate green:** stylua · luacheck 0/0 (17 files)
+  · busted 35/0 · full `pnpm validate` exit 0. Paste import/export deferred to v1.1. **In-game
+  skin-switch check deferred (waived).** **Done** once PR #16 merges and `main` is green.
