@@ -89,7 +89,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 - **WO-021-IJ** — **UI polish**: (1) config left-nav — a small gap between each node's icon and name +
   vertical centring, via re-anchoring the AceGUI TreeGroup buttons in the shared `BadgerConfigUI` lib
   (guarded `hooksecurefunc`, no vendored-lib edits, so all Badger addons get it); (2) **right-align** the
-  utility-bar text (badger-ttk). See `docs/workorders/WO-021-IJ.md`. Status: In progress — PR #24 opened.
+  utility-bar text (badger-ttk). See `docs/workorders/WO-021-IJ.md`. Status: In progress — PR #24 merged; .release rebuilt (v0.9.4).
 - **WO-020-IJ** — `badger-ttk` media pickers show **visual previews**: embed `AceGUI-3.0-SharedMediaWidgets`
   and point the statusbar/font/border selects at the `LSM30_*` dialog controls, so the config dropdowns
   render a preview per entry instead of just names (see `docs/workorders/WO-020-IJ.md`). Status: Done — PR #23 merged; in-game approved.

@@ -72,5 +72,6 @@ related:
 - **Decisions produced:** —
 - **MR:** [PR #24](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/24)
 - **Outcome:** Implemented both parts; `pnpm validate` green (61 badger-ttk + 16 BadgerConfigUI specs;
-  luacheck 0/0). BadgerConfigUI `MINOR` 1→2. `.toc` → v0.9.4. **In progress** pending merge of PR #24 +
-  the human's in-game re-test.
+  luacheck 0/0). BadgerConfigUI `MINOR` 1→2. `.toc` → v0.9.4. **PR #24 merged**; rebuilt `.release/BadgerTTK`
+  at v0.9.4 (load graph resolves 72/0, the updated BadgerConfigUI is embedded byte-identical incl.
+  `polishTree`, source parity clean). **In progress** pending the human's in-game re-test.
