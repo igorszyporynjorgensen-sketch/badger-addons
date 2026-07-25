@@ -1,8 +1,8 @@
 ---
 wo: WO-009-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/12
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-007-IJ.md
@@ -88,5 +88,14 @@ related:
   badger-arena impact) is forced now.
 - **Decisions produced:** — (none expected — implements WO-007's accepted config design; a decision
   only if the node-ownership split or an icon-approach change warrants recording).
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/12
+- **Outcome:** Implemented on `feature/WO-009-IJ-config`; **PR #12 opened**. `core.lua` gains real-typed
+  `DEFAULTS.profile` for every setting; `config/config.lua` builds the full tree via `BadgerConfigUI` —
+  **General / Behavior / Skin / Display / Estimator** fully wired to `db.profile`, **Raids / Abilities /
+  Simulation** as placeholders (their feature WOs fill them), and the `AceDBOptions` **Profiles** node.
+  Node icons via AceConfig's native `icon` field (**no BadgerConfigUI change**); the per-entry
+  label-icon helper is **deferred to the first feature WO that needs it** (avoids unused code). Skin
+  node ships the picker + font sizes + the six state colours; **LSM-backed font/texture/border pickers
+  deferred to the skin-engine WO** (which adds LibSharedMedia to the `.toc`). **Gate green:** stylua ·
+  luacheck 0/0 (5 files) · busted 2/0 · full `pnpm validate` exit 0. Awaiting human PR review/merge + an
+  in-game `/reload` persistence check. **Done** once PR #12 merges and `main` is green.
