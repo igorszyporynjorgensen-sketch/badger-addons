@@ -1,6 +1,6 @@
 ---
 wo: WO-014-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/17
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -55,20 +55,20 @@ related:
   offsets · availability dim); nothing tracks or shows live yet (that's WO-015).
 
 **Phase 1 — Table + pure logic**
-1. [ ] `src/abilities/table.lua` (`ns.AbilityTable`) + `src/abilities/abilities.lua` (`ns.Abilities`:
+1. [x] `src/abilities/table.lua` (`ns.AbilityTable`) + `src/abilities/abilities.lua` (`ns.Abilities`:
        `available` / `deriveState` / the visibility rule). Colocated specs (well-formed table · available
        by known/equipped/race · state active/usable/locked · the buff-active override).
 
 **Phase 2 — Character scan + icons**
-1. [ ] `ns.Abilities.scanCharacter` (the API edge) + a pure `iconMarkup(texture, size)` label-escape
+1. [x] `ns.Abilities.scanCharacter` (the API edge) + a pure `iconMarkup(texture, size)` label-escape
        helper (with its spec) for per-entry icons.
 
 **Phase 3 — Abilities config node**
-1. [ ] Build the Abilities node from the table: per-entry enable/disable + offset slider + availability
+1. [x] Build the Abilities node from the table: per-entry enable/disable + offset slider + availability
        dim; persist under `db.profile.abilities[id]`.
 
 **Phase 4 — Verify**
-1. [ ] `pnpm validate` green; specs pass. In-game list/toggle/dim check deferred to the human.
+1. [x] `pnpm validate` green; specs pass. In-game list/toggle/dim check deferred to the human.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR opened for human merge; in-game
   list/dim check is the human's (waived).
@@ -85,4 +85,4 @@ related:
   enable/disable + bi-directional offset, availability dim, spell/item icon); `db.profile.abilities`
   default; `.luacheckrc`/`.luarc.json` scope in the scan/icon APIs. **Gate green:** stylua · luacheck 0/0
   (23 files) · busted 46/0 · full `pnpm validate` exit 0. **In-game list/dim check deferred (waived).**
-  **Done** once PR #17 merges and `main` is green.
+  **PR #17 merged; `main` green.** **Done.**

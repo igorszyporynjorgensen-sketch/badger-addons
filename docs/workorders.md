@@ -89,7 +89,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 - **WO-014-IJ** — `badger-ttk` warrior ability model **(a)**: the static master table + pure
   availability/usability/active logic + the Abilities config node (full list · enable/disable · offset ·
   availability dim). Live driver is WO-015. Child #7 of WO-007 (see `docs/workorders/WO-014-IJ.md`).
-  Status: In progress — PR #17 opened.
+  Status: Done — PR #17 merged.
 - **WO-013-IJ** — `badger-ttk` skin engine **(b)**: an open data-only skin format + public
   `RegisterSkin` API + built-in Badger skin + LibSharedMedia font/texture/border pickers; the display
   renders a resolved look (skin + config overrides). Child #5b of WO-007 (see
