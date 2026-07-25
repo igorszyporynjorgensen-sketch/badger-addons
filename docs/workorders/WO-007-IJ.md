@@ -58,9 +58,10 @@ related:
   direct WoW API**, fed by **live** / **sim** / **spec** (Busted under `tools/wow-mock`). Off-client
   testability + the simulation feature from one seam. The engine computes the **pop-line comb** per ability.
 - **Display is skin-driven, and skins are open/addable.** The display never hardcodes looks — it renders
-  from a **skin table** `{ media (statusbar texture + border via LibSharedMedia), fonts + font-sizes
-  (global + per-element: target/name/timer/baseline), state colours, bar metrics (height/spacing/inset),
-  spark }`. A public **`RegisterSkin(name, skinTable)` API** lets **anyone** ship a skin (a tiny addon or
+  from a **skin table** `{ media (statusbar texture + border via LibSharedMedia), one font family + two
+  font-sizes (the main TTK number · all other bars), state colours, bar metrics (height/spacing/inset),
+  spark }`. A skin owns *look only* — **placement & size** (anchor, position, scale, growth, width,
+  opacity) stay user-config outside the skin, so a shared skin looks right wherever it's dropped. A public **`RegisterSkin(name, skinTable)` API** lets **anyone** ship a skin (a tiny addon or
   a pasted file that registers on load); built-in skins ship with the addon; all registered skins appear
   in the config **skin picker**, over which per-element overrides still apply. **Data-driven (no code) in
   v1** for safety; an optional post-layout hook can come later. *(If a second Badger addon wants
@@ -90,7 +91,7 @@ skin layer above.)*
 
 | Group | v1? | Notes |
 |---|---|---|
-| **Display / Skin** | ✅ | **skin picker** (built-in + registered skins) · font + font-size (global + per-element overrides) · LSM texture/border · six state colours · `m:ss` · growth **UP** · opacity/scale/strata · `showTrendBand`/`showConfidence` |
+| **Display / Skin** | ✅ | **skin picker** (built-in + registered skins) · one font family + two sizes (main TTK · other bars) · LSM texture/border · six state colours · `m:ss` · growth **UP** · opacity/scale/strata · `showTrendBand`/`showConfidence`. Skin paste-import → **v1.1** |
 | **Behavior / show-gating** | ✅ | `showRaidEncounters` · `showWorldBosses` · `showAnyTarget` · `inCombatOnly` · `hideOnTargetDead` · `requireHostile` · `minTTK`. Per-encounter grid → **v1.1** |
 | **Estimator** | ✅ | Reactivity↔Stability slider · `leadTime` · `executeThreshold`/`executeModifier` · `minConfidenceToShow`. History-blend/min-sample → **post-v1** |
 | **Ability pack** | ✅ | auto-detected list; per-entry enable/disable + add/override/reset. Pack import/export → **v1.1** |
