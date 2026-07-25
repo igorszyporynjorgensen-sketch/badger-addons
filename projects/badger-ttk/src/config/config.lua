@@ -691,9 +691,17 @@ function ns.buildOptions(addon)
     options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(db)
     options.args.profiles.order = 9
 
+    -- Single-source the version from the .toc (`## Version`), so what the window shows can never drift from
+    -- the packaged build. Surfacing it lets a tester confirm they're on the latest .release every time.
+    local getMeta = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
+    local version = (getMeta and getMeta(ADDON_NAME, "Version")) or "?"
+
     LibStub("BadgerConfigUI-1.0"):Register(ADDON_NAME, options, {
-        title = "Badger TTK",
-        banner = { title = "Badger TTK", subtitle = "Time-to-kill and optimal cooldown timing" },
+        title = "Badger TTK  v" .. version,
+        banner = {
+            title = "Badger TTK",
+            subtitle = "Time-to-kill and optimal cooldown timing  —  v" .. version,
+        },
         blizzard = true,
         status = "Reopen with /bttk or /badgerttk",
     })

@@ -67,6 +67,14 @@ local character = { knownSpells = {}, equippedTrinkets = {}, bagCounts = {} }
 local nameIndex -- buff name → entry (for aura matching)
 local accum = 0
 local INTERVAL = 0.15
+local suspended = false -- pushed true by the display while a sim preview owns the container
+
+-- The display commands this directly the instant a preview is toggled (see Display.showPreview/playSim),
+-- so the driver never has to read db.profile on a tick to know a preview is up. Belt-and-suspenders: the
+-- update() guard ALSO checks the db flags, so a real target is never blocked even if this desynced.
+function LiveDriver.setSuspended(v)
+    suspended = v and true or false
+end
 
 local function rescan()
     character = Abilities.scanCharacter()
@@ -98,8 +106,9 @@ end
 
 local function update()
     local p = ns.addon.db.profile
-    -- A sim preview (static or dynamic playback) owns the display; don't clobber/hide it.
-    if p.simStatic or p.simPlaying then
+    -- A sim preview (static or dynamic playback) owns the display; don't clobber/hide it. `suspended` is
+    -- the display's explicit command; the db flags are the backstop (see LiveDriver.setSuspended).
+    if suspended or p.simStatic or p.simPlaying then
         return
     end
     if not UnitExists("target") then
