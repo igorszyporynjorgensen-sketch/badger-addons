@@ -88,7 +88,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 - **WO-016-IJ** — `badger-ttk` fix (from the first in-game test): `.toc` Interface → 11509; the live
   driver yields while a sim preview is active so it stops clobbering/hiding it (see
-  `docs/workorders/WO-016-IJ.md`). Status: Accepted.
+  `docs/workorders/WO-016-IJ.md`). Status: Done — PR #19 merged; `.release` rebuilt.
 - **WO-015-IJ** — `badger-ttk` live driver **(b)**: samples real `UnitHealth` + tracks auras/cooldowns
   → assembles the render-model → feeds the display in combat (gated by Behavior). Pure `assembleEntries`
   + `gate` helpers + the event/ticker edge. **Closes the v1 loop.** Child #7b of WO-007 (see

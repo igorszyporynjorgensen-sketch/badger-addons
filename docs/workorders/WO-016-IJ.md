@@ -1,6 +1,6 @@
 ---
 wo: WO-016-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/19
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -41,12 +41,17 @@ related:
 
 **Phase 2 — Verify**
 1. [x] `pnpm validate` green (`format-check, lint, test` for 4 projects; luacheck 0/0). PR #19 opened.
-2. [ ] After merge: rebuild the `.release` for the human to re-test in-game.
+2. [x] PR #19 merged; rebuilt the `.release/BadgerTTK` package for the in-game re-test.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR opened for human merge; the human
   re-tests the preview + a real target.
 - **Constitution check:** Principles OK — a targeted edge fix; no `_G` leaks; pure logic untouched.
 - **Decisions produced:** —
 - **MR:** [PR #19](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/19)
-- **Outcome:** Both edits made; `pnpm validate` green; PR #19 open for human merge. On merge → rebuild
-  `.release` and hand back for the in-game re-test.
+- **Outcome:** Both edits made; `pnpm validate` green; **PR #19 merged**. Rebuilt the `.release/BadgerTTK`
+  package (macOS ships bash 3.2, so the BigWigs packager can't run — the addon-own tree was refreshed in
+  place over the proven-good, unchanged `Libs/`). Verified: Interface **11509**; the `simStatic`/`simPlaying`
+  yield present in the shipped `driver.lua`; the full `.toc` + nested-XML **load graph resolves (65 files,
+  0 missing)**; shipped `src`/`Locales` byte-identical to the repo; no `_spec`/`project.json`/`.pkgmeta`
+  leak. Package: `projects/badger-ttk/.release/BadgerTTK/` (73 files) + `BadgerTTK.zip`. Awaiting the
+  human's in-game re-test of the preview fix.
