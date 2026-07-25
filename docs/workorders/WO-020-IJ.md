@@ -15,9 +15,12 @@ related:
 # WO-020-IJ — `badger-ttk` media pickers show visual previews (LSM30 dialog controls)
 
 - **Created / Updated:** 2026-07-25
-- **Objective:** the config's **statusbar texture / font / border** dropdowns currently list media by
-  **name** only. Make them show a **visual preview** of each option (the texture drawn as a bar, the font
-  rendered in its face, the border shown) — so picking a look is by eye, not by guessing a name.
+- **Objective:** the config's media dropdowns currently list media by **name** only. Make **all three** show
+  a **visual preview** of each option — so picking a look is by eye, not by guessing a name:
+  - **statusbar texture** → the texture drawn as a bar,
+  - **font** → each name rendered in its own face,
+  - **border ("frame")** → the border texture shown. **Confirmed possible** — the widget lib ships an
+    `LSM30_Border` control, so frames get previews just like textures and fonts.
 - **Approach:** embed the standard **`AceGUI-3.0-SharedMediaWidgets`** library, which registers AceConfig
   dialog controls that render LibSharedMedia previews, and point each media select at the matching control:
   - statusbar select → `dialogControl = "LSM30_Statusbar"`
