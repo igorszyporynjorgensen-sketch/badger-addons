@@ -8,11 +8,12 @@ local _, ns = ...
 --
 --   xOf(v) = width · (total − v) / total    -- v = total → 0 (window start); v = 0 → width (death)
 --
--- A planned pop-line at TTK = P opens a window [P − D, P]. An active buff is a steady coverage SEGMENT
--- [offset, offset + duration], right-anchored to its anchor (length width · duration / total) — the SEGMENT
--- doesn't resize, but `bar.fill` (remaining / duration) drains WITHIN it so the bar progresses like the TTK
--- bar. Every window is clamped to [0, width]: nothing can be wider than the TTK bar. Bars are returned
--- sorted by duration DESCENDING, so the display stacks the longest-duration bar nearest the TTK bar.
+-- Both planned and active utility bars are the same steady coverage SEGMENT [offset, offset + duration],
+-- right-anchored to the anchor (length width · duration / total) — the SEGMENT doesn't resize, so a bar
+-- holds its place (and doesn't vanish when overdue); it just changes colour (waiting → ready → used) and,
+-- once used, `bar.fill` (remaining / duration) drains WITHIN it so it progresses like the TTK bar. Every
+-- window is clamped to [0, width]: nothing can be wider than the TTK bar. Bars are returned sorted by
+-- duration DESCENDING, so the display stacks the longest-duration bar nearest the TTK bar.
 
 local Layout = {}
 
@@ -83,17 +84,16 @@ function Layout.compute(model, dims)
             }
         else
             bar.state = "planned"
+            bar.ready = e.planned.ready -- optimal fire moment reached (→ display colours it green)
             local d = e.duration or 0
             bar.duration = d
-            bar.fill = 1 -- not yet fired: the segment shows full (dim), then drains once active
-            local lines = e.planned.popLines
-            for j = 1, #lines do
-                local p = lines[j]
-                bar.windows[j] = {
-                    left = clamp(xOf(p, total, width), width),
-                    right = clamp(xOf(p - d, total, width), width),
-                }
-            end
+            bar.fill = 1 -- not yet fired: full segment; it drains once used
+            -- Same steady coverage segment as an active buff ([anchor, anchor+duration]), so a planned bar
+            -- holds its place (and doesn't vanish when overdue) — it just changes colour, then drains.
+            bar.windows[1] = {
+                left = clamp(xOf(e.offset + d, total, width), width),
+                right = clamp(xOf(e.offset, total, width), width),
+            }
         end
         bar.order = i -- original order, for a stable tiebreak in the duration sort
         bars[i] = bar

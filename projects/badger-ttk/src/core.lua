@@ -52,11 +52,11 @@ local DEFAULTS = {
         fontSizeMain = 16,
         fontSizeOther = 12,
         colorTarget = { 0.85, 0.15, 0.15, 1 },
-        colorUtility = { 0.25, 0.50, 0.90, 1 },
-        colorPlanned = { 0.96, 0.77, 0.26, 1 },
-        colorActive = { 0.20, 0.80, 0.30, 1 },
-        colorOverkill = { 0.55, 0.55, 0.55, 1 },
-        colorShortfall = { 0.95, 0.55, 0.15, 1 },
+        colorUtility = { 0.25, 0.50, 0.90, 1 }, -- fallback tint
+        -- Utility-bar action signal: waiting (fire moment ahead) → ready (fire now) → used (draining).
+        colorWaiting = { 0.30, 0.50, 0.80, 1 },
+        colorReady = { 0.15, 0.85, 0.25, 1 },
+        colorUsed = { 0.55, 0.55, 0.55, 1 },
 
         -- Estimator (v1 live-only; the math lands in the engine WO).
         reactivity = 0.5,

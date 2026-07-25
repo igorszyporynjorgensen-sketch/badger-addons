@@ -12,6 +12,9 @@ local _, ns = ...
 local warriorBurst = {
     name = "Warrior burst",
     total = 50,
+    -- Death Wish is fired ON TIME (fireTTK == its optimal 30s-left) → waiting → used, no green window.
+    -- Earthstrike is fired 4s LATE (optimal is 20s-left via duration, but used at 16s-left) → its bar shows
+    -- ~4s of green ("ready, fire now!") before it turns used — a picture of being late.
     pops = {
         {
             id = "deathwish",
@@ -25,7 +28,7 @@ local warriorBurst = {
             id = "earthstrike",
             name = "Earthstrike",
             duration = 20,
-            fireTTK = 20,
+            fireTTK = 16,
             cooldown = 120,
             offset = 0,
         },

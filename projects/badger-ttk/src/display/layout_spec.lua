@@ -120,6 +120,21 @@ describe("Layout", function()
         assert.equals(1, ns.Layout.compute(planned, DIMS).bars[1].fill)
     end)
 
+    it("carries the planned `ready` flag onto the bar", function()
+        assert.is_false(
+            ns.Layout.compute(
+                ns.RenderModel.build(30, { { id = "a", duration = 20, offset = 0 } }),
+                DIMS
+            ).bars[1].ready
+        )
+        assert.is_true(
+            ns.Layout.compute(
+                ns.RenderModel.build(20, { { id = "a", duration = 20, offset = 0 } }),
+                DIMS
+            ).bars[1].ready
+        )
+    end)
+
     it("sorts bars longest-duration first (nearest the TTK bar)", function()
         local model = ns.RenderModel.build(50, {
             { id = "short", duration = 20, offset = 0 },
