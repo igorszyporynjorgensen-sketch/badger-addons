@@ -67,8 +67,9 @@ related:
   v1** for safety; an optional post-layout hook can come later. *(If a second Badger addon wants
   skinning, the registry graduates to a shared `BadgerSkin-1.0` lib per §1.1 — not yet.)*
 - **Tracked set = a static complete master table + a live availability overlay.** A master data table
-  lists **everything a warrior can ever use** (`spellID|itemID → {duration, cooldown, category}`) — it
-  does **not** shrink to the current character. Config shows the **full list**, each entry
+  lists **every DPS-relevant, finite, timed on-use effect a warrior can pop**
+  (`spellID|itemID → {duration, cooldown, category}`) — **not** defensives, passives, or long-duration
+  maintained buffs — and it does **not** shrink to the current character. Config shows the **full list**, each entry
   enable/disable-able. A live character scan (**talents/known abilities + equipped on-use items + race +
   profession**) marks each entry **available or not-currently-available** (dimmed + icon) rather than
   hiding it, so the user can pre-configure for gear/specs they don't have yet. **Runtime shows a bar only
@@ -132,7 +133,11 @@ To be recorded as D-005 … in `docs/decisions.md` when the first child WO lands
   + confidence gate**, no combat-log damage-summing; WarcraftLogs blend deferred; history in `db.global`.
 - **Tracked-ability model:** a **static, complete** master table shown in full in config (enable/disable
   per entry) + a **live availability overlay** (dim/icon for not-currently-available); runtime shows
-  **enabled ∩ available**. Not auto-pruned to the current character.
+  **enabled ∩ available**. Not auto-pruned to the current character. **Table scope = offensive, finite,
+  timed burst effects** (AP/haste/crit/str/damage on-use) worth timing to a kill — **excludes**
+  defensives (Shield Wall/Stoneform…), passives (Perception/procs/on-equip), and long-duration
+  maintained buffs (Winterfall Firewater, elixirs/flasks). *(Defensives may return with the deferred
+  "your TTK vs the mob's" mode.)*
 - **Skinnable UI:** display is skin-driven; **user-authored, addable skins** via a public data-driven
   registry API; built-in skins; fonts + sizes global and per-element.
 - **Config gets its own child WO;** config precedes functionality.
