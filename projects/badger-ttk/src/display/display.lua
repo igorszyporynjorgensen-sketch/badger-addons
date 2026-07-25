@@ -125,7 +125,8 @@ local function acquireBar(i)
         bar.bg = bar:CreateTexture(nil, "BACKGROUND") -- dim track so the steady segment stays visible
         bar.bg:SetAllPoints(bar)
         bar.text = bar:CreateFontString(nil, "OVERLAY")
-        bar.text:SetPoint("CENTER")
+        bar.text:SetPoint("RIGHT", bar, "RIGHT", -3, 0) -- right-aligned at the death edge
+        bar.text:SetJustifyH("RIGHT")
         pool[i] = bar
     end
     return bar

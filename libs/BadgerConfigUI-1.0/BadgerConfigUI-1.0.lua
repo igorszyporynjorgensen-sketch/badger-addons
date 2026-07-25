@@ -9,7 +9,7 @@ local _, ns = ...
 -- Obtain the shared instance with:  local BCUI = LibStub("BadgerConfigUI-1.0")
 -- Consumers register a UNIQUE appName (their ADDON_NAME) so status/registry tables never collide.
 
-local MAJOR, MINOR = "BadgerConfigUI-1.0", 1
+local MAJOR, MINOR = "BadgerConfigUI-1.0", 2
 assert(LibStub, MAJOR .. " requires LibStub")
 
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
@@ -25,6 +25,46 @@ local FrameSize = ns.BadgerConfigUIFrameSize
 
 -- Per-appName state (title, status bar text, Blizzard category). Survives an in-place MINOR upgrade.
 lib.apps = lib.apps or {}
+
+-- ── Left-nav polish ──────────────────────────────────────────────────────────────────────────────
+-- The AceGUI TreeGroup widget (vendored — never edited here) anchors each node's text tight against the
+-- icon (~2px) and ~2px above it. We re-anchor the text to the icon's RIGHT edge + a gap at y-offset 0,
+-- which both adds space AND vertically centres the name on the icon. Defensive: no-ops if the AceGUI
+-- internals aren't as expected, and only touches buttons that actually have an icon.
+local ICON_TEXT_GAP = 6
+
+local function reanchorTreeButtons(tree)
+    if not (tree and tree.buttons) then
+        return
+    end
+    for _, button in ipairs(tree.buttons) do
+        local icon, text = button.icon, button.text
+        if icon and text and icon.GetTexture and icon:GetTexture() then
+            text:ClearAllPoints()
+            text:SetPoint("LEFT", icon, "RIGHT", ICON_TEXT_GAP, 0)
+        end
+    end
+end
+
+-- Find the left-nav TreeGroup child of the opened frame and keep its buttons re-anchored (RefreshTree
+-- runs on every expand/collapse/select). Hook once per tree instance; re-anchor immediately.
+local function polishTree(frame)
+    if not (frame and frame.children) then
+        return
+    end
+    for _, child in ipairs(frame.children) do
+        if child.type == "TreeGroup" then
+            if not child.__badgerTreePolished and type(child.RefreshTree) == "function" then
+                child.__badgerTreePolished = true
+                hooksecurefunc(child, "RefreshTree", function()
+                    reanchorTreeButtons(child)
+                end)
+            end
+            reanchorTreeButtons(child)
+            return
+        end
+    end
+end
 
 -- Register an addon's options table, seed its dialog size, and optionally add a Blizzard-panel stub.
 -- opts = {banner, width, height, title, status, blizzard}. Returns the normalized options table.
@@ -78,6 +118,7 @@ function lib:Open(appName)
     if frame and app and app.status then
         frame:SetStatusText(app.status)
     end
+    polishTree(frame)
 end
 
 function lib:Close(appName)
