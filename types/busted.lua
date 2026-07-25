@@ -29,6 +29,7 @@ function luassert.is_false(value, message) end
 function luassert.is_truthy(value, message) end
 function luassert.is_falsy(value, message) end
 function luassert.is_nil(value, message) end
+function luassert.is_not_nil(value, message) end
 function luassert.is_table(value, message) end
 function luassert.is_function(value, message) end
 function luassert.is_string(value, message) end
