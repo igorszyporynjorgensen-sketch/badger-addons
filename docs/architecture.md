@@ -86,9 +86,11 @@ both-flavor addon exists.)*
 
 The repo's **first Vanilla (Classic Era 1.15) addon** and the first exercise of the D-004 multi-flavor
 setup in a *non-TBC* project (`flavor:vanilla` tag · scoped `.luacheckrc` overlay with no arena API ·
-the mock's `vanilla` surface). Currently a **scaffold** (WO-008): `core.lua` Ace3 bootstrap with AceDB
-`profile` + a reserved `global` (the kill-history seam), and a skeleton `BadgerConfigUI` window (General
-+ Profiles). The full design — the right-anchored time-to-kill render model, one pure engine + three
+the mock's `vanilla` surface). Currently **scaffold + the full config tree** (WO-008/WO-009): `core.lua`
+Ace3 bootstrap with AceDB `profile` (every setting, real-typed defaults) + a reserved `global`
+(kill-history seam), and a complete `BadgerConfigUI` options window (General/Behavior/Skin/Display/
+Estimator wired to `db.profile`; Raids/Abilities/Simulation placeholders their feature WOs fill;
+Profiles) that **persists settings but drives no gameplay yet**. The full design — the right-anchored time-to-kill render model, one pure engine + three
 drivers (live / sim / spec), a live-only-smart TTK estimator, a static-master-table ability model with a
 live availability/usability overlay, config-driven per-encounter gating, and an open user-authored skin
 system — lives in [WO-007](workorders/WO-007-IJ.md) and lands via its child WOs (**config first**). See

@@ -1,6 +1,6 @@
 ---
 wo: WO-009-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/12
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -65,19 +65,19 @@ related:
   icons, and a skin picker; settings persist but do **not** yet change gameplay.
 
 **Phase 1 — Framework**
-1. [ ] Central real-typed `DEFAULTS.profile` table + the tree registration via `BadgerConfigUI`; an icon
+1. [x] Central real-typed `DEFAULTS.profile` table + the tree registration via `BadgerConfigUI`; an icon
        helper (label texture-escape). Replace the WO-008 skeleton options.
 
 **Phase 2 — Settings/appearance nodes**
-1. [ ] Build **General · Behavior · Skin · Display · Estimator** option tables, each option get/set-bound
+1. [x] Build **General · Behavior · Skin · Display · Estimator** option tables, each option get/set-bound
        to `db.profile` with the WO-007 defaults; icons on entries where they apply.
 
 **Phase 3 — Profiles + placeholders**
-1. [ ] Add the `AceDBOptions` **Profiles** node; add **Raids / Abilities / Simulation** placeholder
+1. [x] Add the `AceDBOptions` **Profiles** node; add **Raids / Abilities / Simulation** placeholder
        groups (a `description` naming their feature WO).
 
 **Phase 4 — Verify**
-1. [ ] `pnpm validate` green; spec any pure config helper. In-game `/reload` persistence check deferred
+1. [x] `pnpm validate` green; spec any pure config helper. In-game `/reload` persistence check deferred
        to the human.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR opened for human merge; the
@@ -97,5 +97,6 @@ related:
   label-icon helper is **deferred to the first feature WO that needs it** (avoids unused code). Skin
   node ships the picker + font sizes + the six state colours; **LSM-backed font/texture/border pickers
   deferred to the skin-engine WO** (which adds LibSharedMedia to the `.toc`). **Gate green:** stylua ·
-  luacheck 0/0 (5 files) · busted 2/0 · full `pnpm validate` exit 0. Awaiting human PR review/merge + an
-  in-game `/reload` persistence check. **Done** once PR #12 merges and `main` is green.
+  luacheck 0/0 (5 files) · busted 2/0 · full `pnpm validate` exit 0. **PR #12 merged; `main` green.**
+  The human **waived the in-game `/reload` check for now** (assumed working) — the gate proves
+  lint/format/tests off-client; an in-game confirmation can happen later. **Done.**
