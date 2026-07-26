@@ -1,8 +1,8 @@
 ---
 wo: WO-024-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/27
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-015-IJ.md
@@ -48,17 +48,17 @@ related:
   through the endgame; `hideOnTargetDead` now takes effect.
 
 **Phase 1 — Sticky gate (pure)**
-1. [ ] `driver.lua` `LiveDriver.gate(settings, context, wasShown)`: `minTTK` qualifies the initial show only
+1. [x] `driver.lua` `LiveDriver.gate(settings, context, wasShown)`: `minTTK` qualifies the initial show only
        (skipped when `showAnyTarget`); `hideOnTargetDead` + `context.dead` hides on death. Update + extend
        `driver_spec.lua` (initial-qualify, sticky-stays-under-minTTK, showAnyTarget-bypass, dead).
 
 **Phase 2 — Wire the edge**
-1. [ ] `driver.lua` `update()`: keep a `shown` flag reset on GUID change; pass `context.dead =
+1. [x] `driver.lua` `update()`: keep a `shown` flag reset on GUID change; pass `context.dead =
        UnitIsDeadOrGhost("target")` and `wasShown = shown`; `shown = LiveDriver.gate(...)`; render when
        shown, else `ns.Display.hide()`.
 
 **Phase 3 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.7**, rebuild `.release`.
+1. [x] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.7**, rebuild `.release`.
 2. [ ] **In-game (human, required):** a normal mob with **Show on any target** shows steadily (no flicker);
        the bars persist to the kill and hide on death.
 
@@ -66,5 +66,5 @@ related:
 - **Constitution check:** Principles OK — the gate stays a PURE spec-tested helper; the sticky flag is edge
   state; no `_G` leaks.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** [PR #27](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/27)
+- **Outcome:** Implemented; `pnpm validate` green (70 badger-ttk specs — +3; luacheck 0/0). minTTK is now a sticky initial-show gate; showAnyTarget bypasses it; hideOnTargetDead wired. `.toc` -> v0.9.7. **In progress** pending merge of PR #27 + the human's in-game re-test.
