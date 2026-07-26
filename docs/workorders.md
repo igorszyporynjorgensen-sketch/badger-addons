@@ -87,9 +87,10 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
 - **WO-026-IJ** — **Behavior toggle: show utility bars outside a raid?**: a new option next to *Show on any
-  target* — when off and not in a raid instance, only the main TTK bar shows (utility bars hidden as noise
-  on random mobs); the live driver passes an empty utility list via the existing seam. "raid" = an active ENCOUNTER or a `worldboss`-classified target (encounter + world-boss detection),
-  approved by the human (see `docs/workorders/WO-026-IJ.md`). Status: Accepted.
+  target* — when off and the target is **not a raid boss**, only the main TTK bar shows (utility bars hidden
+  as noise on random mobs). "raid" = an active **encounter** (`ENCOUNTER_START`/`END`) **or** a
+  `worldboss`-classified target — covering instance + open-world bosses (human-approved); pure `showUtility`
+  helper, empty utility list via the existing seam (see `docs/workorders/WO-026-IJ.md`). Status: Accepted.
 - **WO-025-IJ** — **recorded kill history → steadier TTK**: record every observed kill into
   `db.global.history[level][npcId]` (running-mean health-loss rate) and blend it as a **prior** to smooth
   the noisy live estimate — organized **by player level**, for trash and raids. Pure `history` +
