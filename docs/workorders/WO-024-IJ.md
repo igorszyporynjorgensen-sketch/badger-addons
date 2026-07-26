@@ -1,6 +1,6 @@
 ---
 wo: WO-024-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/27
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -59,7 +59,7 @@ related:
 
 **Phase 3 — Verify**
 1. [x] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.7**, rebuild `.release`.
-2. [ ] **In-game (human, required):** a normal mob with **Show on any target** shows steadily (no flicker);
+2. [x] **In-game (human, required):** (approved by the human — flicker gone) a normal mob with **Show on any target** shows steadily (no flicker);
        the bars persist to the kill and hide on death.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
