@@ -86,6 +86,12 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-025-IJ** — **recorded kill history → steadier TTK**: record every observed kill into
+  `db.global.history[level][npcId]` (running-mean health-loss rate) and blend it as a **prior** to smooth
+  the noisy live estimate — organized **by player level**, for trash and raids. Pure `history` +
+  estimator-blend (confidence ramp + prior-floor) spec-tested; Record/Use toggles + Clear button. The
+  local half of the `db.global` history seam (D-005); WarcraftLogs import still later (see
+  `docs/workorders/WO-025-IJ.md`). Status: Proposed.
 - **WO-024-IJ** — **fix live show/hide flicker**: the gate hid the bars the instant `ttk < minTTK` every
   ~0.15s, so a noisy live estimate flapped them (and it hid the endgame of every fight). Make `minTTK` a
   **sticky initial-show gate** (qualify once, then stay through the fight), have `showAnyTarget` bypass it,
