@@ -1,6 +1,6 @@
 ---
 wo: WO-023-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/26
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -73,7 +73,7 @@ related:
 
 **Phase 4 — Verify**
 1. [x] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.6**, rebuild `.release`.
-2. [ ] **In-game (human, required):** utility bars go waiting → green (ready) → gray (used); the sim shows
+2. [x] **In-game (human, required):** (approved by the human) utility bars go waiting → green (ready) → gray (used); the sim shows
        Earthstrike green for ~4s (late) then gray.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.

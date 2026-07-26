@@ -1,6 +1,6 @@
 ---
 wo: WO-021-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/24
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -61,7 +61,7 @@ related:
 **Phase 3 — Verify**
 1. [x] `pnpm validate` green. Bump badger-ttk `.toc` `## Version` → **0.9.4**, rebuild `.release`
        (re-embedding the updated `BadgerConfigUI`), load graph resolves.
-2. [ ] **In-game (human, required):** node icons have a gap before the name and the name is vertically
+2. [x] **In-game (human, required):** (approved by the human) node icons have a gap before the name and the name is vertically
        centred; nodes still work.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; a rebuilt package; PR for human merge;

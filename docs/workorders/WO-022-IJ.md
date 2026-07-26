@@ -1,6 +1,6 @@
 ---
 wo: WO-022-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/25
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -67,7 +67,7 @@ related:
 
 **Phase 3 — Verify**
 1. [x] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.5**, rebuild `.release`.
-2. [ ] **In-game (human, required):** Raids shows a sub-node per raid with encounter checkboxes + master
+2. [x] **In-game (human, required):** (approved by the human) Raids shows a sub-node per raid with encounter checkboxes + master
        toggle; toggles persist across `/reload`.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.

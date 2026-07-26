@@ -89,15 +89,15 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 - **WO-023-IJ** — **utility-bar colour = action signal**: recolour utility bars **waiting → ready (green)
   → used (gray)** so the player sees exactly when to fire (`ready = ttk ≤ duration+offset`, pure/spec-
   tested); new `colorReady/colorUsed/colorWaiting` (retire the coverage colours); sim demos **Earthstrike
-  used 4s late** (a 4s green window). See `docs/workorders/WO-023-IJ.md`. Status: In progress — PR #26 opened.
+  used 4s late** (a 4s green window). See `docs/workorders/WO-023-IJ.md`. Status: Done — PR #26 merged; in-game approved.
 - **WO-022-IJ** — **Raids config node**: replace the WO-009 placeholder with a **sub-node per Classic-Era
   raid**, each listing its **encounters as checkboxes** (default on) + a per-raid **master toggle**; a pure
   `ns.RaidTable` registry (spec-tested) + `buildRaids` + `db.profile.raids` storage. Config surface only —
-  live gating enforcement + boss icons deferred (see `docs/workorders/WO-022-IJ.md`). Status: In progress — PR #25 opened.
+  live gating enforcement + boss icons deferred (see `docs/workorders/WO-022-IJ.md`). Status: Done — PR #25 merged; in-game approved.
 - **WO-021-IJ** — **UI polish**: (1) config left-nav — a small gap between each node's icon and name +
   vertical centring, via re-anchoring the AceGUI TreeGroup buttons in the shared `BadgerConfigUI` lib
   (guarded `hooksecurefunc`, no vendored-lib edits, so all Badger addons get it); (2) **right-align** the
-  utility-bar text (badger-ttk). See `docs/workorders/WO-021-IJ.md`. Status: In progress — PR #24 merged; .release rebuilt (v0.9.4).
+  utility-bar text (badger-ttk). See `docs/workorders/WO-021-IJ.md`. Status: Done — PR #24 merged; in-game approved.
 - **WO-020-IJ** — `badger-ttk` media pickers show **visual previews**: embed `AceGUI-3.0-SharedMediaWidgets`
   and point the statusbar/font/border selects at the `LSM30_*` dialog controls, so the config dropdowns
   render a preview per entry instead of just names (see `docs/workorders/WO-020-IJ.md`). Status: Done — PR #23 merged; in-game approved.
