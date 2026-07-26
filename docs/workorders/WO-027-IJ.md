@@ -1,8 +1,8 @@
 ---
 wo: WO-027-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/30
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-025-IJ.md
@@ -65,27 +65,27 @@ related:
   text + category corrected; banner subtitle smaller; bars smoother; start-TTK sensible.
 
 **Phase 1 — Config: hints + Warrior node**
-1. [ ] `config.lua`: add a `desc` to every changeable option lacking one (Behavior / Skin / Display /
+1. [x] `config.lua`: add a `desc` to every changeable option lacking one (Behavior / Skin / Display /
        Simulation + the generated per-ability & per-encounter toggles). Re-run the audit → 0 missing.
-2. [ ] `config.lua` `buildAbilities`: nest the warrior entries under a **Warrior** group inside Abilities.
+2. [x] `config.lua` `buildAbilities`: nest the warrior entries under a **Warrior** group inside Abilities.
 
 **Phase 2 — TOC: flavor + category**
-1. [ ] `BadgerTTK.toc`: Notes → "WoW Classic (Era / Hardcore)"; drop Anniversary from the Interface-check
+1. [x] `BadgerTTK.toc`: Notes → "WoW Classic (Era / Hardcore)"; drop Anniversary from the Interface-check
        comment; add `## Category: Combat`.
 
 **Phase 3 — BadgerConfigUI: smaller subtitle (shared lib)**
-1. [ ] `options-tree.lua`: title (large) + subtitle (medium) as separate descriptions; `BadgerConfigUI-1.0`
+1. [x] `options-tree.lua`: title (large) + subtitle (medium) as separate descriptions; `BadgerConfigUI-1.0`
        `MINOR` 2 → 3; update `options-tree_spec.lua`.
 
 **Phase 4 — Display: smoother bars**
-1. [ ] `display.lua`: store each bar's target fill; ease displayed values toward target on a persistent
+1. [x] `display.lua`: store each bar's target fill; ease displayed values toward target on a persistent
        always-shown ticker.
 
 **Phase 5 — Driver: start-TTK window**
-1. [ ] `driver.lua` `update()`: record from first-damage → death (track `prevHealth`; skip zero-duration).
+1. [x] `driver.lua` `update()`: record from first-damage → death (track `prevHealth`; skip zero-duration).
 
 **Phase 6 — Verify**
-1. [ ] `pnpm validate` green; audit 0 missing `desc`. Bump `.toc` `## Version` → **0.9.10**, rebuild
+1. [x] `pnpm validate` green; audit 0 missing `desc`. Bump `.toc` `## Version` → **0.9.10**, rebuild
        `.release` (re-embedding the updated BadgerConfigUI).
 2. [ ] **In-game (human, required):** hints on every option; Warrior node; Combat category; smaller subtitle;
        smooth bars; **Clear history** then a post-idle kill gives a sensible start-TTK.
@@ -94,5 +94,5 @@ related:
 - **Constitution check:** Principles OK — pure `options-tree` change spec-tested; config copy + toc metadata +
   display smoothing + driver window are edge/data; the shared lib bumps `MINOR`; no `_G` leaks.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** [PR #30](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/30)
+- **Outcome:** Implemented all 6 parts; `pnpm validate` green (79 badger-ttk + 18 BadgerConfigUI specs; luacheck 0/0); config audit 0 options without a hint. BadgerConfigUI MINOR 2->3. `.toc` -> v0.9.10 + `## Category: Combat`. **In progress** pending merge of PR #30 + the human's in-game re-test.
