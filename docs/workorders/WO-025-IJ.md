@@ -1,8 +1,8 @@
 ---
 wo: WO-025-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/29
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-010-IJ.md
@@ -57,21 +57,21 @@ related:
 - **Behavior delta:** ADDED — kills are recorded; the estimate blends a per-level historical prior (toggle).
 
 **Phase 1 — History store (pure) + config seam**
-1. [ ] `src/engine/history.lua`: `record` (running mean, capped) + `rate` lookup. `history_spec.lua`. Add
+1. [x] `src/engine/history.lua`: `record` (running mean, capped) + `rate` lookup. `history_spec.lua`. Add
        to `.toc`. `core.lua`: profile defaults `recordHistory = true`, `useHistory = true` (history table
        already reserved in `db.global`).
 
 **Phase 2 — Estimator blend (pure)**
-1. [ ] `estimator.lua`: `Estimator.new{ priorRate }`; `ttk()` blends by confidence, floors at a fraction of
+1. [x] `estimator.lua`: `Estimator.new{ priorRate }`; `ttk()` blends by confidence, floors at a fraction of
        the prior, and returns the prior immediately before warm-up. Extend `estimator_spec.lua`.
 
 **Phase 3 — Live wiring + config**
-1. [ ] `driver.lua`: parse NPC id from GUID + `UnitLevel("player")`; look up the prior for `Estimator.new`;
+1. [x] `driver.lua`: parse NPC id from GUID + `UnitLevel("player")`; look up the prior for `Estimator.new`;
        track `fightStart`; record the kill's average rate on death (when `recordHistory`).
-2. [ ] `config.lua` Estimator node: **Record kills** / **Use history** toggles + **Clear history** button.
+2. [x] `config.lua` Estimator node: **Record kills** / **Use history** toggles + **Clear history** button.
 
 **Phase 4 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.8**, rebuild `.release`.
+1. [x] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.9**, rebuild `.release`.
 2. [ ] **In-game (human, required):** kill some mobs; the estimate steadies on repeat kills of the same mob
        at your level; **Clear history** resets it; toggling **Use history** off reverts to pure-live.
 
@@ -80,5 +80,5 @@ related:
   reads are the edge; observational data in `db.global` (D-005); no `_G` leaks.
 - **Decisions produced:** — (candidate: self-recorded per-level kill history blended as a prior; single mean
   rate per NPC id for v1, a curve later.)
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** [PR #29](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/29)
+- **Outcome:** Implemented; `pnpm validate` green (79 badger-ttk specs — +7; luacheck 0/0). Pure `history` store + estimator prior blend (confidence ramp + 0.5x-prior floor + immediate prior); driver records kills by NPC id + level, config Record/Use toggles + Clear. `.toc` -> v0.9.9. **In progress** pending merge of PR #29 + the human's in-game re-test.
