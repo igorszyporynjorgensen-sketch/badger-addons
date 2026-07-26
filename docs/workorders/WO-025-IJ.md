@@ -1,6 +1,6 @@
 ---
 wo: WO-025-IJ
-status: Proposed        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: ~                   # pull-request URL once opened, else ~
 decision: ~             # D-0xx-II once a decision is produced, else ~
