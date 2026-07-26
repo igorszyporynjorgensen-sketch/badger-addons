@@ -1,6 +1,6 @@
 ---
 wo: WO-026-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/28
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -62,7 +62,7 @@ related:
 
 **Phase 3 — Verify**
 1. [x] `pnpm validate` green. Bump `.toc` `## Version` (next patch), rebuild `.release`.
-2. [ ] **In-game (human, required):** on a raid boss the utility bars show regardless; on a normal mob the
+2. [x] **In-game (human, required):** (approved by the human — works) on a raid boss the utility bars show regardless; on a normal mob the
        toggle hides/shows them (TTK bar stays). (Also confirms whether world bosses fire `ENCOUNTER_START`
        and/or read as `worldboss` — the fallback covers either way.)
 
