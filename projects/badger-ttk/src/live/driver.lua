@@ -73,6 +73,13 @@ function LiveDriver.gate(settings, context, wasShown)
     return true
 end
 
+-- PURE: should the UTILITY bars show (vs. the main TTK bar only)? They show in a raid encounter always, and
+-- elsewhere only when the human opts in — outside a raid they're noise on a random mob. `context.inRaidEncounter`
+-- is the edge's encounter/worldboss read.
+function LiveDriver.showUtility(settings, context)
+    return (context.inRaidEncounter or settings.showUtilityOutsideRaid) and true or false
+end
+
 -- ===== the client edge (untestable off-client; delegates all decisions to the pure helpers above) =====
 
 local frame -- event + ticker frame
@@ -80,6 +87,7 @@ local est -- per-target estimator
 local lastGUID
 local shown = false -- sticky per-target show-state (feeds the gate's minTTK initial-qualify); reset on
 -- a target change so each new target must re-qualify.
+local encounterActive = false -- true between ENCOUNTER_START and ENCOUNTER_END (instance raid encounters)
 local character = { knownSpells = {}, equippedTrinkets = {}, bagCounts = {} }
 local nameIndex -- buff name → entry (for aura matching)
 local accum = 0
@@ -155,6 +163,8 @@ local function update()
         hostile = UnitCanAttack("player", "target"),
         dead = dead,
         ttk = ttk,
+        -- A raid boss = an active encounter (instances) OR a worldboss-classified target (open world).
+        inRaidEncounter = encounterActive or (UnitClassification("target") == "worldboss"),
     }
     -- Sticky: pass the current show-state so minTTK only gates the FIRST appearance (no flicker).
     shown = LiveDriver.gate(p, context, shown)
@@ -163,7 +173,10 @@ local function update()
         return
     end
 
-    local entries = LiveDriver.assembleEntries(AbilityTable, p.abilities, character, readStates())
+    -- Utility bars only where they matter: in a raid encounter, or when the human opts to show them anywhere.
+    local entries = LiveDriver.showUtility(p, context)
+            and LiveDriver.assembleEntries(AbilityTable, p.abilities, character, readStates())
+        or {}
     ns.Display.render(RenderModel.build(ttk or 0, entries), h)
 end
 
@@ -183,8 +196,14 @@ function LiveDriver.start()
     frame:RegisterEvent("PLAYER_TARGET_CHANGED")
     frame:RegisterEvent("BAG_UPDATE")
     frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+    frame:RegisterEvent("ENCOUNTER_START")
+    frame:RegisterEvent("ENCOUNTER_END")
     frame:SetScript("OnEvent", function(_, event)
-        if event ~= "PLAYER_TARGET_CHANGED" then
+        if event == "ENCOUNTER_START" then
+            encounterActive = true
+        elseif event == "ENCOUNTER_END" then
+            encounterActive = false
+        elseif event ~= "PLAYER_TARGET_CHANGED" then
             rescan()
         end
         update()

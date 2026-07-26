@@ -122,6 +122,8 @@ files["projects/badger-ttk/**"] = {
         "GetItemIcon",
         "UnitCanAttack",
         "UnitIsDeadOrGhost",
+        "UnitClassification",
+        "UnitLevel",
         "GetAddOnMetadata",
         "C_AddOns",
     },

@@ -150,4 +150,21 @@ describe("LiveDriver", function()
             assert.is_true(ns.LiveDriver.gate(settings({ hideOnTargetDead = false }), ctx, true))
         end)
     end)
+
+    describe("showUtility", function()
+        it("shows utilities in a raid encounter regardless of the toggle", function()
+            assert.is_true(
+                ns.LiveDriver.showUtility(
+                    { showUtilityOutsideRaid = false },
+                    { inRaidEncounter = true }
+                )
+            )
+        end)
+
+        it("outside a raid encounter, follows the showUtilityOutsideRaid toggle", function()
+            local ctx = { inRaidEncounter = false }
+            assert.is_true(ns.LiveDriver.showUtility({ showUtilityOutsideRaid = true }, ctx))
+            assert.is_false(ns.LiveDriver.showUtility({ showUtilityOutsideRaid = false }, ctx))
+        end)
+    end)
 end)

@@ -192,6 +192,16 @@ local function buildBehavior(db)
                 get = getter(db, "showAnyTarget"),
                 set = setter(db, "showAnyTarget"),
             },
+            showUtilityOutsideRaid = {
+                type = "toggle",
+                name = "Show utility bars outside raids",
+                desc = "Show the utility cooldown bars on non-raid-boss targets too. When off, only the"
+                    .. " main time-to-kill bar shows outside a raid encounter (utility bars are usually"
+                    .. " noise on a random mob). A raid boss = an active encounter or a world boss.",
+                order = 5.5,
+                get = getter(db, "showUtilityOutsideRaid"),
+                set = setter(db, "showUtilityOutsideRaid"),
+            },
             minTTK = {
                 type = "range",
                 name = "Minimum time-to-kill",

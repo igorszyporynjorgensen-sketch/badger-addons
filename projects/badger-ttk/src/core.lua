@@ -18,6 +18,7 @@ local DEFAULTS = {
         hideOnTargetDead = true,
         requireHostile = true,
         showAnyTarget = false,
+        showUtilityOutsideRaid = true, -- show utility bars on non-raid-boss targets (else TTK bar only)
         minTTK = 10,
         minConfidenceToShow = 0.5,
 
