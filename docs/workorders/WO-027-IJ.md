@@ -7,71 +7,92 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-025-IJ.md
 related:
+  - projects/badger-ttk/src/config/config.lua
+  - projects/badger-ttk/src/display/display.lua
   - projects/badger-ttk/src/live/driver.lua
+  - projects/badger-ttk/BadgerTTK.toc
+  - libs/BadgerConfigUI-1.0/options-tree.lua
+  - libs/BadgerConfigUI-1.0/BadgerConfigUI-1.0.lua
 ---
 
-# WO-027-IJ — config: every changeable option gets a hint + record kill-rate from first-damage
+# WO-027-IJ — polish batch: config hints · Warrior node · category · smaller subtitle · smoother bars · start-TTK
 
 - **Created / Updated:** 2026-07-26
-- **Objective (two folded-in fixes):**
-  1. **Config hints** — **every changeable option** (toggle / range / select / colour / execute) gets a
-     helpful **`desc`** hint (the AceConfig tooltip). An audit found **30 of 51** static options with no
-     hint, plus the generated **per-ability enable** and **per-encounter** toggles. Add concise hints to all.
-  2. **Start-TTK fix** — kill history sometimes shows an **insanely large start-TTK** (the human saw ~1 min
-     and ~30s for mobs that die in ≤5s), which then corrects. Make recorded kill rates reflect the **actual
-     fight**, so the prior gives a sensible start-TTK.
-  3. **Flavor text fix** — the `.toc` **Notes** says "Era / Anniversary / Hardcore"; the addon targets
-     **Era + Hardcore** only (not Anniversary). Drop "Anniversary" from the Notes line (and the internal
-     Interface-check comment).
-- **Root cause:** WO-025 records a kill's rate as `fightStartH / (deathTime − targetAcquiredTime)`, where
-  `fightStartT` is set when the target is first **selected**. Any gap between selecting a mob and actually
-  damaging it (standing on it, buffing, running up) is counted as fight time → the duration is inflated →
-  the recorded **rate is too low** → the next kill's prior shows a huge start-TTK (`h / lowRate`) until the
-  live estimate overrides it. ~55s idle → 0.017/s → ~60s start; ~25s idle → ~30s start. Matches the report.
-- **Fix (driver edge):** start the recording clock at the **first observed health drop**, not at target
-  acquisition. Track `prevHealth`; when `h < prevHealth` for the first time on this target, set
-  `fightStartT = now` and `fightStartH = prevHealth` (the health just before damage began). On death,
-  `rate = fightStartH / (deathTime − fightStartT)` now measures only the damaging window. One-shot / zero-
-  duration kills (die within a tick of first damage) are skipped (no measurable rate). Pre-fight idle is
-  excluded; a fresh, accurate prior results.
-- **Note:** existing records made before this fix may still be inflated — a one-time **Clear history**
-  (Config → Estimator) drops them so they re-learn correctly. (No auto-migration; the store just re-fills.)
+- **Objective — a batch of polish/fixes the human asked to fold together (one build, v0.9.10):**
+  1. **Config hints** — **every changeable option** (toggle/range/select/colour/execute) gets a helpful
+     `desc` tooltip. Audit: **30 of 51** static options + the generated per-ability / per-encounter toggles
+     have none. Re-run the audit → **0 missing**.
+  2. **Warrior node** — the **Abilities** node lists warrior abilities directly; nest them under a
+     **"Warrior"** sub-node (so more classes can slot in beside it later).
+  3. **Flavor text** — the `.toc` **Notes** say "Era / Anniversary / Hardcore"; the addon targets **Era +
+     Hardcore** only. Drop "Anniversary" (Notes + the internal Interface-check comment).
+  4. **Category** — give the addon an AddOn-list category: `## Category: Combat` (matches the existing
+     `X-Category`).
+  5. **Smaller subtitle** — the config banner renders title + subtitle in **one `fontSize="large"`**
+     description, so they're the same size. Split into two descriptions — **title large, subtitle medium** —
+     in `BadgerConfigUI` (shared lib; `MINOR` 2 → 3; all Badger addons benefit).
+  6. **Smoother bars** — the status bars `SetValue` directly, so the live 0.15s update cadence (and any
+     step) shows as **jerky** jumps. Add lightweight **per-frame value smoothing** (ease each bar's fill
+     toward its target) so bars glide regardless of update rate.
+  7. **Start-TTK fix** — kill history sometimes shows an **insanely large start-TTK** (~1 min / ~30s for
+     ≤5s kills) that corrects. Record the kill rate from **first-damage → death** (not target acquisition),
+     so idle-before-combat stops inflating the prior.
+- **Design notes:**
+  - **Subtitle (5):** `OptionsTree.bannerArg` returns the title description (large, keeps the image);
+    `buildTree` also injects a **subtitle description** (`fontSize="medium"`, order just after). Pure module
+    → covered by `options-tree_spec`.
+  - **Smoothing (6):** `render` stores each bar's **target** fill; a persistent always-shown ticker eases the
+    displayed value toward it each frame (`v += (target − v)·min(1, elapsed·SPEED)`). Decouples the visible
+    motion from the 0.15s live tick and the sim's per-frame updates. The eased fill is edge; the geometry is
+    unchanged.
+  - **Warrior node (2):** `buildAbilities` wraps the current toggles/offsets in a `Warrior = { type="group",
+    … }` sub-node under `Abilities` (Abilities becomes a container of class nodes).
+  - **Start-TTK (7):** track `prevHealth`; set `fightStartT`/`fightStartH` at the first health drop, record
+    on death from that window (skip zero-duration). Reset per target. (Human should **Clear history** once to
+    drop the old inflated records.)
 - **Acceptance criteria:**
-  - **Every** changeable config option shows a hint on hover (audit re-run reports **0 missing `desc`**),
-    including the per-ability and per-encounter toggles. Hints are concise and say what the setting does.
-  - After the start-TTK fix, killing a mob (from full or partial health) records a rate ≈ `healthDamaged /
-    actualKill seconds`, regardless of how long it was targeted beforehand; the next kill's **start-TTK is
-    sensible** (≈ the real kill time), not tens of seconds.
-  - `pnpm validate` green (config copy + an edge-only driver change; the pure history/estimator specs are
-    untouched).
-- **Out of scope:** excluding mid-fight idle *gaps* (rare; still counted as fight time — correct for TTK);
-  a warm-up guard on the pure-live first sample (separate, only if new-mob starts still spike); the
-  health→time curve; restructuring the config tree (hints only).
-- **Behavior delta:** MODIFIED — every changeable option has a tooltip hint; recorded kill rates (and thus
-  the history prior's start-TTK) reflect the real fight, not idle-before-combat.
+  - Audit reports **0 changeable options without `desc`**; hints are concise and accurate.
+  - Abilities shows a **Warrior** sub-node containing the warrior list.
+  - `.toc` Notes read "Era / Hardcore" (no Anniversary); the addon shows a **Combat** category.
+  - The config banner **subtitle is visibly smaller** than the title.
+  - The bars **glide smoothly** (no visible 0.15s stepping) in both live and sim.
+  - After the start-TTK fix + a Clear history, a kill after idling on the mob records a **sensible** rate.
+  - `pnpm validate` green — `options-tree` change spec-tested; config/toc/display/driver edits don't touch the
+    pure history/estimator/layout specs.
+- **Out of scope:** restructuring the config tree beyond the Warrior node; non-warrior ability tables;
+  animating bar *position* (only the fill is smoothed); the health→time curve.
+- **Behavior delta:** MODIFIED (in-game) — every option has a hint; Abilities gains a Warrior node; flavor
+  text + category corrected; banner subtitle smaller; bars smoother; start-TTK sensible.
 
-**Phase 1 — Config hints + flavor text**
-1. [ ] `config.lua`: add a `desc` to every changeable option lacking one — Behavior (in-combat / hide-on-
-       dead / hostile-only), Skin (texture/font/border + the 5 colours + font sizes), Display (anchor / lock
-       / offsets / scale / bar size+spacing / max bars / opacity / strata / reset / names / icons / time
-       format / confidence), Simulation (playback speed), and the generated **per-ability** + **per-
-       encounter** toggles. Re-run the audit → 0 missing.
-2. [ ] `BadgerTTK.toc`: Notes → "WoW Classic (Era / Hardcore)" (drop Anniversary); update the internal
-       Interface-check comment likewise.
+**Phase 1 — Config: hints + Warrior node**
+1. [ ] `config.lua`: add a `desc` to every changeable option lacking one (Behavior / Skin / Display /
+       Simulation + the generated per-ability & per-encounter toggles). Re-run the audit → 0 missing.
+2. [ ] `config.lua` `buildAbilities`: nest the warrior entries under a **Warrior** group inside Abilities.
 
-**Phase 2 — Start-TTK fix (recording window)**
-1. [ ] `driver.lua` `update()`: track `prevHealth`; set `fightStartT`/`fightStartH` at the first health
-       drop (not on GUID change); record on death from that window (skip zero-duration). Reset per target.
+**Phase 2 — TOC: flavor + category**
+1. [ ] `BadgerTTK.toc`: Notes → "WoW Classic (Era / Hardcore)"; drop Anniversary from the Interface-check
+       comment; add `## Category: Combat`.
 
-**Phase 3 — Verify**
-1. [ ] `pnpm validate` green; audit reports 0 changeable options without `desc`. Bump `.toc` `## Version` →
-       **0.9.10**, rebuild `.release`.
-2. [ ] **In-game (human, required):** every option shows a hint on hover; after **Clear history**, killing a
-       mob after idling on it gives a sensible start-TTK (no ~30s/1-min spike).
+**Phase 3 — BadgerConfigUI: smaller subtitle (shared lib)**
+1. [ ] `options-tree.lua`: title (large) + subtitle (medium) as separate descriptions; `BadgerConfigUI-1.0`
+       `MINOR` 2 → 3; update `options-tree_spec.lua`.
 
-- **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
-- **Constitution check:** Principles OK — a small edge fix to the recording window; the pure `History`/
-  `Estimator` logic is unchanged; no `_G` leaks.
+**Phase 4 — Display: smoother bars**
+1. [ ] `display.lua`: store each bar's target fill; ease displayed values toward target on a persistent
+       always-shown ticker.
+
+**Phase 5 — Driver: start-TTK window**
+1. [ ] `driver.lua` `update()`: record from first-damage → death (track `prevHealth`; skip zero-duration).
+
+**Phase 6 — Verify**
+1. [ ] `pnpm validate` green; audit 0 missing `desc`. Bump `.toc` `## Version` → **0.9.10**, rebuild
+       `.release` (re-embedding the updated BadgerConfigUI).
+2. [ ] **In-game (human, required):** hints on every option; Warrior node; Combat category; smaller subtitle;
+       smooth bars; **Clear history** then a post-idle kill gives a sensible start-TTK.
+
+- **Verification:** the acceptance criteria; `pnpm validate` green; the audit; PR for human merge; in-game.
+- **Constitution check:** Principles OK — pure `options-tree` change spec-tested; config copy + toc metadata +
+  display smoothing + driver window are edge/data; the shared lib bumps `MINOR`; no `_G` leaks.
 - **Decisions produced:** —
 - **MR:** —
 - **Outcome:** — (running notes; filled on completion)
