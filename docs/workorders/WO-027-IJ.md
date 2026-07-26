@@ -20,6 +20,9 @@ related:
   2. **Start-TTK fix** — kill history sometimes shows an **insanely large start-TTK** (the human saw ~1 min
      and ~30s for mobs that die in ≤5s), which then corrects. Make recorded kill rates reflect the **actual
      fight**, so the prior gives a sensible start-TTK.
+  3. **Flavor text fix** — the `.toc` **Notes** says "Era / Anniversary / Hardcore"; the addon targets
+     **Era + Hardcore** only (not Anniversary). Drop "Anniversary" from the Notes line (and the internal
+     Interface-check comment).
 - **Root cause:** WO-025 records a kill's rate as `fightStartH / (deathTime − targetAcquiredTime)`, where
   `fightStartT` is set when the target is first **selected**. Any gap between selecting a mob and actually
   damaging it (standing on it, buffing, running up) is counted as fight time → the duration is inflated →
@@ -47,12 +50,14 @@ related:
 - **Behavior delta:** MODIFIED — every changeable option has a tooltip hint; recorded kill rates (and thus
   the history prior's start-TTK) reflect the real fight, not idle-before-combat.
 
-**Phase 1 — Config hints**
+**Phase 1 — Config hints + flavor text**
 1. [ ] `config.lua`: add a `desc` to every changeable option lacking one — Behavior (in-combat / hide-on-
        dead / hostile-only), Skin (texture/font/border + the 5 colours + font sizes), Display (anchor / lock
        / offsets / scale / bar size+spacing / max bars / opacity / strata / reset / names / icons / time
        format / confidence), Simulation (playback speed), and the generated **per-ability** + **per-
        encounter** toggles. Re-run the audit → 0 missing.
+2. [ ] `BadgerTTK.toc`: Notes → "WoW Classic (Era / Hardcore)" (drop Anniversary); update the internal
+       Interface-check comment likewise.
 
 **Phase 2 — Start-TTK fix (recording window)**
 1. [ ] `driver.lua` `update()`: track `prevHealth`; set `fightStartT`/`fightStartH` at the first health
