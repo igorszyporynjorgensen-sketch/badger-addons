@@ -72,4 +72,4 @@ related:
 - **Decisions produced:** — (candidate: "raid" for show-gating = an active encounter OR a `worldboss`-
   classified target; exact per-encounter gating via a future NPC-id registry.)
 - **MR:** [PR #28](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/28)
-- **Outcome:** Implemented; `pnpm validate` green (72 badger-ttk specs — +2; luacheck 0/0). Encounter + worldboss detection; pure showUtility helper; empty utility list when off. `.toc` -> v0.9.8. **In progress** pending merge of PR #28 + the human's in-game re-test.
+- **Outcome:** Implemented; `pnpm validate` green (72 badger-ttk specs — +2; luacheck 0/0). Encounter + worldboss detection; pure showUtility helper; empty utility list when off. `.toc` -> v0.9.8. **PR #28 merged**; rebuilt `.release/BadgerTTK` at v0.9.8 (load graph resolves 73/0, showUtility + encounter/worldboss detection shipped, source parity clean). **In progress** pending the human's in-game re-test.
