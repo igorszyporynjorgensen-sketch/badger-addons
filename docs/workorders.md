@@ -86,10 +86,11 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
-- **WO-027-IJ** — **fix huge start-TTK from history**: WO-025 recorded a kill's rate from *target
-  acquisition* → idle-before-combat inflated the duration → a too-low prior showed a ~30s/1-min start-TTK
-  that then corrected. Record from **first-damage → death** instead (driver edge). Clear history once to
-  drop old inflated records (see `docs/workorders/WO-027-IJ.md`). Status: Proposed.
+- **WO-027-IJ** — **config hints + fix huge start-TTK**: (1) give **every changeable config option** a
+  tooltip **hint** (`desc`) — 30/51 static options + the generated per-ability/per-encounter toggles lacked
+  one; (2) record the kill rate from **first-damage → death** (not target acquisition), so idle-before-combat
+  stops inflating the prior into a ~30s/1-min start-TTK. Clear history once to drop old records (see
+  `docs/workorders/WO-027-IJ.md`). Status: Proposed.
 - **WO-026-IJ** — **Behavior toggle: show utility bars outside a raid?**: a new option next to *Show on any
   target* — when off and the target is **not a raid boss**, only the main TTK bar shows (utility bars hidden
   as noise on random mobs). "raid" = an active **encounter** (`ENCOUNTER_START`/`END`) **or** a
