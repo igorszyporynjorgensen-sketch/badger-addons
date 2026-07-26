@@ -1,6 +1,6 @@
 ---
 wo: WO-025-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/29
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -72,7 +72,7 @@ related:
 
 **Phase 4 — Verify**
 1. [x] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.9**, rebuild `.release`.
-2. [ ] **In-game (human, required):** kill some mobs; the estimate steadies on repeat kills of the same mob
+2. [x] **In-game (human, required):** (approved — works; a self-correcting large-start-TTK nit tracked as WO-027) kill some mobs; the estimate steadies on repeat kills of the same mob
        at your level; **Clear history** resets it; toggling **Use history** off reverts to pure-live.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
