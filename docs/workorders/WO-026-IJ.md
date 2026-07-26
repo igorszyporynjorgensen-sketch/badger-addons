@@ -1,8 +1,8 @@
 ---
 wo: WO-026-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/28
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-015-IJ.md
@@ -51,17 +51,17 @@ related:
 - **Behavior delta:** ADDED (in-game) — outside a raid encounter, utility bars can be hidden via the toggle.
 
 **Phase 1 — Detection + pure gate helper**
-1. [ ] `driver.lua`: track `encounterActive` via `ENCOUNTER_START`/`ENCOUNTER_END`; add PURE
+1. [x] `driver.lua`: track `encounterActive` via `ENCOUNTER_START`/`ENCOUNTER_END`; add PURE
        `LiveDriver.showUtility(settings, context)`; in `update()` build `context.inRaidEncounter =
        encounterActive or UnitClassification("target") == "worldboss"` and pass an empty utility list when
        `showUtility` is false. `core.lua`: `showUtilityOutsideRaid = true` default. Spec `showUtility`.
 
 **Phase 2 — Config**
-1. [ ] `config.lua` Behavior node: **"Show utility bars outside raids"** toggle next to *Show on any target*.
+1. [x] `config.lua` Behavior node: **"Show utility bars outside raids"** toggle next to *Show on any target*.
        Whitelist `UnitClassification` in `.luacheckrc` / `.luarc.json`.
 
 **Phase 3 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version` (next patch), rebuild `.release`.
+1. [x] `pnpm validate` green. Bump `.toc` `## Version` (next patch), rebuild `.release`.
 2. [ ] **In-game (human, required):** on a raid boss the utility bars show regardless; on a normal mob the
        toggle hides/shows them (TTK bar stays). (Also confirms whether world bosses fire `ENCOUNTER_START`
        and/or read as `worldboss` — the fallback covers either way.)
@@ -71,5 +71,5 @@ related:
   encounter-event + `UnitClassification` reads are the edge; no `_G` leaks.
 - **Decisions produced:** — (candidate: "raid" for show-gating = an active encounter OR a `worldboss`-
   classified target; exact per-encounter gating via a future NPC-id registry.)
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** [PR #28](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/28)
+- **Outcome:** Implemented; `pnpm validate` green (72 badger-ttk specs — +2; luacheck 0/0). Encounter + worldboss detection; pure showUtility helper; empty utility list when off. `.toc` -> v0.9.8. **In progress** pending merge of PR #28 + the human's in-game re-test.
