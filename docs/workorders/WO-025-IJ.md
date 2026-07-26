@@ -81,4 +81,4 @@ related:
 - **Decisions produced:** — (candidate: self-recorded per-level kill history blended as a prior; single mean
   rate per NPC id for v1, a curve later.)
 - **MR:** [PR #29](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/29)
-- **Outcome:** Implemented; `pnpm validate` green (79 badger-ttk specs — +7; luacheck 0/0). Pure `history` store + estimator prior blend (confidence ramp + 0.5x-prior floor + immediate prior); driver records kills by NPC id + level, config Record/Use toggles + Clear. `.toc` -> v0.9.9. **In progress** pending merge of PR #29 + the human's in-game re-test.
+- **Outcome:** Implemented; `pnpm validate` green (79 badger-ttk specs — +7; luacheck 0/0). Pure `history` store + estimator prior blend (confidence ramp + 0.5x-prior floor + immediate prior); driver records kills by NPC id + level, config Record/Use toggles + Clear. `.toc` -> v0.9.9. **PR #29 merged**; rebuilt `.release/BadgerTTK` at v0.9.9 (load graph resolves 74/0, history.lua loads, driver wires record/lookup, source parity clean). **In progress** pending the human's in-game re-test.
