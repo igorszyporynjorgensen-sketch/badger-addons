@@ -46,9 +46,16 @@ function LiveDriver.assembleEntries(entries, config, character, states)
 end
 
 -- PURE: should the bars show? `settings` = the enable/Behavior profile; `context` = { hasTarget, inCombat,
--- hostile, ttk }. `showAnyTarget` bypasses the hostile gate (testing); combat + minTTK still apply.
-function LiveDriver.gate(settings, context)
+-- hostile, dead, ttk }; `wasShown` = the display's current shown-state.
+-- `showAnyTarget` bypasses the hostile + minTTK gates (testing). Crucially, **minTTK qualifies only the
+-- FIRST appearance** ("is this fight worth showing for?") — once shown, the bars STAY as long as the base
+-- gate holds, even as the noisy estimate dips below minTTK. That kills the show/hide flicker AND keeps the
+-- bars up through the endgame (where `ttk` is naturally small but the "fire now" signal matters most).
+function LiveDriver.gate(settings, context, wasShown)
     if not (settings.enabled and context.hasTarget) then
+        return false
+    end
+    if settings.hideOnTargetDead and context.dead then
         return false
     end
     if settings.inCombatOnly and not context.inCombat then
@@ -57,8 +64,11 @@ function LiveDriver.gate(settings, context)
     if not settings.showAnyTarget and settings.requireHostile and not context.hostile then
         return false
     end
-    if context.ttk and context.ttk < settings.minTTK then
-        return false
+    if not wasShown and not settings.showAnyTarget then
+        -- Initial qualification: don't start showing until the estimate reaches minTTK.
+        if not (context.ttk and context.ttk >= settings.minTTK) then
+            return false
+        end
     end
     return true
 end
@@ -68,6 +78,8 @@ end
 local frame -- event + ticker frame
 local est -- per-target estimator
 local lastGUID
+local shown = false -- sticky per-target show-state (feeds the gate's minTTK initial-qualify); reset on
+-- a target change so each new target must re-qualify.
 local character = { knownSpells = {}, equippedTrinkets = {}, bagCounts = {} }
 local nameIndex -- buff name → entry (for aura matching)
 local accum = 0
@@ -117,13 +129,14 @@ local function update()
         return
     end
     if not UnitExists("target") then
-        est, lastGUID = nil, nil
+        est, lastGUID, shown = nil, nil, false
         ns.Display.hide()
         return
     end
     local guid = UnitGUID("target")
     if guid ~= lastGUID then
         lastGUID = guid
+        shown = false -- a new target must re-qualify (minTTK) before showing
         est = Estimator.new({
             reactivity = p.reactivity,
             executeThreshold = p.executeThreshold,
@@ -132,16 +145,20 @@ local function update()
     end
     local maxhp = UnitHealthMax("target")
     local h = (maxhp > 0) and (UnitHealth("target") / maxhp) or 1
-    est:sample(GetTime(), h, not UnitIsDeadOrGhost("target"))
+    local dead = UnitIsDeadOrGhost("target")
+    est:sample(GetTime(), h, not dead)
     local ttk = est:ttk()
 
     local context = {
         hasTarget = true,
         inCombat = InCombatLockdown(),
         hostile = UnitCanAttack("player", "target"),
+        dead = dead,
         ttk = ttk,
     }
-    if not LiveDriver.gate(p, context) then
+    -- Sticky: pass the current show-state so minTTK only gates the FIRST appearance (no flicker).
+    shown = LiveDriver.gate(p, context, shown)
+    if not shown then
         ns.Display.hide()
         return
     end

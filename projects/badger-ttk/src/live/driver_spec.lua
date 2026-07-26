@@ -118,13 +118,36 @@ describe("LiveDriver", function()
             )
         end)
 
-        it("hides below minTTK", function()
-            assert.is_false(
+        it(
+            "does not START showing below minTTK, but STAYS shown once up (sticky = no flicker)",
+            function()
+                local ctx = { hasTarget = true, inCombat = true, hostile = true, ttk = 5 }
+                assert.is_false(ns.LiveDriver.gate(settings(), ctx, false)) -- initial: ttk 5 < 10 → no
+                assert.is_true(ns.LiveDriver.gate(settings(), ctx, true)) -- already shown → stays (endgame)
+            end
+        )
+
+        it("qualifies the initial show only once ttk reaches minTTK (nil = not yet)", function()
+            local c = { hasTarget = true, inCombat = true, hostile = true }
+            assert.is_false(ns.LiveDriver.gate(settings(), c, false)) -- ttk nil → not qualified
+            c.ttk = 12
+            assert.is_true(ns.LiveDriver.gate(settings(), c, false))
+        end)
+
+        it("showAnyTarget shows immediately regardless of ttk", function()
+            assert.is_true(
                 ns.LiveDriver.gate(
-                    settings(),
-                    { hasTarget = true, inCombat = true, hostile = true, ttk = 5 }
+                    settings({ showAnyTarget = true }),
+                    { hasTarget = true, inCombat = true, hostile = false, ttk = 3 },
+                    false
                 )
             )
+        end)
+
+        it("hides a dead target only when hideOnTargetDead", function()
+            local ctx = { hasTarget = true, inCombat = true, hostile = true, ttk = 20, dead = true }
+            assert.is_false(ns.LiveDriver.gate(settings({ hideOnTargetDead = true }), ctx, true))
+            assert.is_true(ns.LiveDriver.gate(settings({ hideOnTargetDead = false }), ctx, true))
         end)
     end)
 end)
