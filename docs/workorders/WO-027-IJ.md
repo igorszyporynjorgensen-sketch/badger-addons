@@ -95,4 +95,4 @@ related:
   display smoothing + driver window are edge/data; the shared lib bumps `MINOR`; no `_G` leaks.
 - **Decisions produced:** —
 - **MR:** [PR #30](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/30)
-- **Outcome:** Implemented all 6 parts; `pnpm validate` green (79 badger-ttk + 18 BadgerConfigUI specs; luacheck 0/0); config audit 0 options without a hint. BadgerConfigUI MINOR 2->3. `.toc` -> v0.9.10 + `## Category: Combat`. **In progress** pending merge of PR #30 + the human's in-game re-test.
+- **Outcome:** Implemented all 6 parts; `pnpm validate` green (79 badger-ttk + 18 BadgerConfigUI specs; luacheck 0/0); config audit 0 options without a hint. BadgerConfigUI MINOR 2->3. `.toc` -> v0.9.10 + `## Category: Combat`. **PR #30 merged**; rebuilt `.release/BadgerTTK` at v0.9.10 (load graph 74/0, updated BadgerConfigUI embedded, source parity clean). **In progress** pending the human's in-game re-test.
