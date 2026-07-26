@@ -88,6 +88,21 @@ local lastGUID
 local shown = false -- sticky per-target show-state (feeds the gate's minTTK initial-qualify); reset on
 -- a target change so each new target must re-qualify.
 local encounterActive = false -- true between ENCOUNTER_START and ENCOUNTER_END (instance raid encounters)
+-- Kill-history tracking for the current target (WO-025): its NPC id + the player level at engage, and the
+-- fight-start reference used to record the average health-loss rate when it dies. Reset on target change.
+local curKey, curLevel, fightStartT, fightStartH, recorded
+
+-- The target's NPC id (string) from its GUID — only Creatures/Vehicles; players/pets aren't recorded.
+local function npcIdFromGUID(guid)
+    if not guid then
+        return nil
+    end
+    local kind, _, _, _, _, id = strsplit("-", guid)
+    if kind == "Creature" or kind == "Vehicle" then
+        return id
+    end
+    return nil
+end
 local character = { knownSpells = {}, equippedTrinkets = {}, bagCounts = {} }
 local nameIndex -- buff name → entry (for aura matching)
 local accum = 0
@@ -138,23 +153,41 @@ local function update()
     end
     if not UnitExists("target") then
         est, lastGUID, shown = nil, nil, false
+        curKey, recorded = nil, false
         ns.Display.hide()
         return
-    end
-    local guid = UnitGUID("target")
-    if guid ~= lastGUID then
-        lastGUID = guid
-        shown = false -- a new target must re-qualify (minTTK) before showing
-        est = Estimator.new({
-            reactivity = p.reactivity,
-            executeThreshold = p.executeThreshold,
-            executeModifier = p.executeModifier,
-        })
     end
     local maxhp = UnitHealthMax("target")
     local h = (maxhp > 0) and (UnitHealth("target") / maxhp) or 1
     local dead = UnitIsDeadOrGhost("target")
+    local guid = UnitGUID("target")
+    if guid ~= lastGUID then
+        lastGUID = guid
+        shown = false -- a new target must re-qualify (minTTK) before showing
+        -- Kill-history: key this target by NPC id + the player's level; look up the recorded prior (if any).
+        curKey = npcIdFromGUID(guid)
+        curLevel = UnitLevel("player")
+        fightStartT, fightStartH, recorded = GetTime(), h, false
+        local prior = (p.useHistory and curKey)
+                and ns.History.rate(ns.addon.db.global.history, curLevel, curKey)
+            or nil
+        est = Estimator.new({
+            reactivity = p.reactivity,
+            executeThreshold = p.executeThreshold,
+            executeModifier = p.executeModifier,
+            priorRate = prior,
+        })
+    end
     est:sample(GetTime(), h, not dead)
+    -- Record the kill once, when this tracked creature dies: the average health-loss rate over the fight
+    -- (stable, unlike the EWMA) → db.global.history[level][npcId].
+    if dead and not recorded and p.recordHistory and curKey and fightStartT then
+        local duration = GetTime() - fightStartT
+        if duration > 0 and fightStartH and fightStartH > 0 then
+            ns.History.record(ns.addon.db.global.history, curLevel, curKey, fightStartH / duration)
+        end
+        recorded = true
+    end
     local ttk = est:ttk()
 
     local context = {

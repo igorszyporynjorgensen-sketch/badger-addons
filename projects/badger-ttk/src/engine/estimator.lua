@@ -18,6 +18,8 @@ local LAMBDA_MIN = 0.5 -- seconds — most reactive (reactivity = 1): snappy but
 local LAMBDA_MAX = 5.0 -- seconds — most stable (reactivity = 0): smooth but slower
 local DEFAULT_RATE_FLOOR = 0.0002 -- fraction/sec; below this the target is ~not dying → TTK unknown
 local CONF_SAMPLES = 8 -- rate updates to reach full confidence
+local PRIOR_FLOOR = 0.5 -- with a history prior, never let the effective rate fall below this × the prior,
+-- so between-hit rate decay can't balloon TTK beyond ~2× the historical estimate
 
 local function clamp01(x)
     if x < 0 then
@@ -41,9 +43,9 @@ function Estimator.new(opts)
     self.executeThreshold = opts.executeThreshold or 0
     self.executeModifier = opts.executeModifier or 1
     self.rateFloor = opts.rateFloor or DEFAULT_RATE_FLOOR
-    -- WO-014 seam: an imported E(h) history profile to blend with the live estimate. v1 leaves it nil
-    -- and stays pure-live; WO-014 reads it in ttk() without changing this interface.
-    self.history = opts.history
+    -- WO-025: a per-level recorded mean health-loss rate (fraction/sec) to blend as a PRIOR — steadies the
+    -- noisy live rate and gives an immediate estimate before warm-up. nil → pure-live (unchanged behavior).
+    self.priorRate = opts.priorRate
     self:reset()
     return self
 end
@@ -87,19 +89,38 @@ function Estimator:sample(t, h, damageable)
     self.lastH = h
 end
 
--- Returns (ttk_seconds, confidence) — ttk is nil while warming up or when the target is ~not dying.
+-- Returns (ttk_seconds, confidence) — ttk is nil while warming up (no prior) or when the target is ~not
+-- dying. Confidence ramps 0→1 over the first CONF_SAMPLES live rate updates.
 function Estimator:ttk()
-    if self.rate == nil or self.rate < self.rateFloor or self.lastH == nil then
+    if self.lastH == nil then
         return nil, 0
     end
-    local ttk = self.lastH / self.rate
+    local conf = clamp01(self.updates / CONF_SAMPLES)
+    local rate = self.rate
+    -- Blend the live rate with the history prior: early on (low confidence) lean on the stable prior, then
+    -- ramp toward live. Before any live rate, use the prior outright so an estimate shows immediately. The
+    -- effective rate is floored at PRIOR_FLOOR × prior so between-hit decay can't balloon TTK.
+    if self.priorRate and self.priorRate > 0 then
+        if rate == nil then
+            rate = self.priorRate
+        else
+            rate = conf * rate + (1 - conf) * self.priorRate
+            local floor = self.priorRate * PRIOR_FLOOR
+            if rate < floor then
+                rate = floor
+            end
+        end
+    end
+    if rate == nil or rate < self.rateFloor then
+        return nil, conf
+    end
+    local ttk = self.lastH / rate
     -- Execute-phase correction: below the threshold a plain linear model over-estimates (raids dump
-    -- burst), so shorten. A real history curve (WO-014) captures this and would supersede it.
+    -- burst), so shorten.
     if self.lastH < self.executeThreshold then
         ttk = ttk / self.executeModifier
     end
-    -- WO-014: if self.history is set, blend `ttk` with self.history:project(self.lastH) here.
-    return ttk, clamp01(self.updates / CONF_SAMPLES)
+    return ttk, conf
 end
 
 ns.Estimator = Estimator

@@ -64,6 +64,10 @@ local DEFAULTS = {
         leadTime = 1.5,
         executeThreshold = 0.20,
         executeModifier = 1.2,
+        -- Recorded kill history (WO-025): record observed kills, and blend the per-level prior into the
+        -- estimate to steady it. The history data itself lives in db.global (below).
+        recordHistory = true,
+        useHistory = true,
 
         -- Simulation preview (WO-012).
         simStatic = false,

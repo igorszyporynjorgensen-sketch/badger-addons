@@ -77,6 +77,27 @@ describe("Estimator", function()
         assert.is_true(e:ttk() > 5 and e:ttk() < 9)
     end)
 
+    it("uses the history prior immediately, before any live rate", function()
+        local e = ns.Estimator.new({ priorRate = 0.05 })
+        e:sample(0, 0.50) -- one sample: no live rate yet, so lean on the prior
+        local ttk = e:ttk()
+        assert.is_not_nil(ttk)
+        assert.is_true(ttk > 8 and ttk < 12) -- 0.50 / 0.05 = 10
+    end)
+
+    it("floors the effective rate at a fraction of the prior (caps TTK spikes)", function()
+        local e = ns.Estimator.new({ reactivity = 1, priorRate = 0.10 })
+        e:sample(0, 1.00)
+        e:sample(1, 0.90)
+        e:sample(2, 0.80)
+        for i = 3, 12 do
+            e:sample(i, 0.80) -- flat: the live rate decays toward 0
+        end
+        -- Without the floor TTK would balloon; floor = 0.5·0.10 = 0.05 → ttk ≤ 0.80 / 0.05 = 16
+        local ttk = e:ttk()
+        assert.is_true(ttk ~= nil and ttk <= 16)
+    end)
+
     it("ramps confidence with more samples", function()
         local e = ns.Estimator.new({ reactivity = 1 })
         e:sample(0, 1.0)

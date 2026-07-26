@@ -593,6 +593,37 @@ local function buildEstimator(db)
                 get = getter(db, "executeModifier"),
                 set = setter(db, "executeModifier"),
             },
+            historyHeader = { type = "header", name = "Kill history", order = 20 },
+            recordHistory = {
+                type = "toggle",
+                name = "Record kills",
+                desc = "Remember how fast you kill each creature, organised by your level, to steady the"
+                    .. " estimate over time.",
+                order = 21,
+                get = getter(db, "recordHistory"),
+                set = setter(db, "recordHistory"),
+            },
+            useHistory = {
+                type = "toggle",
+                name = "Use history for the estimate",
+                desc = "Blend the recorded per-level kill rate in as a stable prior — fewer TTK spikes, and"
+                    .. " an estimate that appears sooner. Off = pure live estimate.",
+                order = 22,
+                get = getter(db, "useHistory"),
+                set = setter(db, "useHistory"),
+            },
+            clearHistory = {
+                type = "execute",
+                name = "Clear history",
+                desc = "Wipe all recorded kill data (account-wide).",
+                order = 23,
+                confirm = true,
+                func = function()
+                    if ns.addon and ns.addon.db and ns.addon.db.global then
+                        ns.addon.db.global.history = {}
+                    end
+                end,
+            },
         },
     }
 end
