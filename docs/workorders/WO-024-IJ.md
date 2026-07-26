@@ -67,4 +67,4 @@ related:
   state; no `_G` leaks.
 - **Decisions produced:** —
 - **MR:** [PR #27](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/27)
-- **Outcome:** Implemented; `pnpm validate` green (70 badger-ttk specs — +3; luacheck 0/0). minTTK is now a sticky initial-show gate; showAnyTarget bypasses it; hideOnTargetDead wired. `.toc` -> v0.9.7. **In progress** pending merge of PR #27 + the human's in-game re-test.
+- **Outcome:** Implemented; `pnpm validate` green (70 badger-ttk specs — +3; luacheck 0/0). minTTK is now a sticky initial-show gate; showAnyTarget bypasses it; hideOnTargetDead wired. `.toc` -> v0.9.7. **PR #27 merged**; rebuilt `.release/BadgerTTK` at v0.9.7 (load graph resolves 73/0, sticky gate + hideOnTargetDead shipped, source parity clean). **In progress** pending the human's in-game re-test.
