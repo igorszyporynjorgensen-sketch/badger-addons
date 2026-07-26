@@ -88,9 +88,10 @@ local lastGUID
 local shown = false -- sticky per-target show-state (feeds the gate's minTTK initial-qualify); reset on
 -- a target change so each new target must re-qualify.
 local encounterActive = false -- true between ENCOUNTER_START and ENCOUNTER_END (instance raid encounters)
--- Kill-history tracking for the current target (WO-025): its NPC id + the player level at engage, and the
--- fight-start reference used to record the average health-loss rate when it dies. Reset on target change.
-local curKey, curLevel, fightStartT, fightStartH, recorded
+-- Kill-history tracking for the current target (WO-025): its NPC id + the player level at engage. The
+-- fight-start reference is set at FIRST DAMAGE (not target acquisition) so idle-before-combat doesn't
+-- inflate the recorded rate (WO-027); `prevHealth` detects that first drop. Reset on target change.
+local curKey, curLevel, fightStartT, fightStartH, recorded, prevHealth
 
 -- The target's NPC id (string) from its GUID — only Creatures/Vehicles; players/pets aren't recorded.
 local function npcIdFromGUID(guid)
@@ -153,7 +154,7 @@ local function update()
     end
     if not UnitExists("target") then
         est, lastGUID, shown = nil, nil, false
-        curKey, recorded = nil, false
+        curKey, recorded, fightStartT, prevHealth = nil, false, nil, nil
         ns.Display.hide()
         return
     end
@@ -165,9 +166,10 @@ local function update()
         lastGUID = guid
         shown = false -- a new target must re-qualify (minTTK) before showing
         -- Kill-history: key this target by NPC id + the player's level; look up the recorded prior (if any).
+        -- The fight clock starts at FIRST DAMAGE (below), not here — idle-before-combat must not count.
         curKey = npcIdFromGUID(guid)
         curLevel = UnitLevel("player")
-        fightStartT, fightStartH, recorded = GetTime(), h, false
+        fightStartT, fightStartH, recorded, prevHealth = nil, nil, false, h
         local prior = (p.useHistory and curKey)
                 and ns.History.rate(ns.addon.db.global.history, curLevel, curKey)
             or nil
@@ -178,9 +180,15 @@ local function update()
             priorRate = prior,
         })
     end
+    -- Start the recording clock at the first observed health drop (the real fight), with the health just
+    -- before it as the reference.
+    if not dead and fightStartT == nil and prevHealth and h < prevHealth then
+        fightStartT, fightStartH = GetTime(), prevHealth
+    end
+    prevHealth = h
     est:sample(GetTime(), h, not dead)
-    -- Record the kill once, when this tracked creature dies: the average health-loss rate over the fight
-    -- (stable, unlike the EWMA) → db.global.history[level][npcId].
+    -- Record the kill once, when this tracked creature dies: the average health-loss rate over the actual
+    -- damaging window (stable, unlike the EWMA) → db.global.history[level][npcId]. Skip zero-duration kills.
     if dead and not recorded and p.recordHistory and curKey and fightStartT then
         local duration = GetTime() - fightStartT
         if duration > 0 and fightStartH and fightStartH > 0 then

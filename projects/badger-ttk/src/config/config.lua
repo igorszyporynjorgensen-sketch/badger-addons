@@ -1,10 +1,11 @@
 local ADDON_NAME, ns = ...
 
--- The badger-ttk options tree (WO-009). This is the FULL navigable window: every setting exists,
--- reads/writes db.profile, and persists across /reload — but it drives NO in-game behavior yet; each
--- functionality work order reads these values when it lands. The data-driven nodes (Raids, Abilities,
--- Simulation) are placeholders here and are populated by their own work orders. Registered/opened through
--- the shared BadgerConfigUI library (no ad-hoc AceConfig). Kept declarative so the schema is easy to grow.
+-- The badger-ttk options tree. The FULL navigable window: every setting reads/writes db.profile and
+-- persists across /reload, and the live driver / display / estimator read these values. The data-driven
+-- nodes are built from their registries — Abilities (per class, the warrior list from ns.AbilityTable),
+-- Raids (ns.RaidTable), Simulation. Registered/opened through the shared BadgerConfigUI library (no
+-- ad-hoc AceConfig). Kept declarative so the schema is easy to grow. Every changeable option carries a
+-- `desc` hint (WO-027).
 --
 -- Node icons use AceConfig's native `icon` field (a texture path) — no BadgerConfigUI change. Per-entry
 -- spell/item label-icons (a `|T...|t` helper) arrive with the ability/raid work orders that need them.
@@ -139,7 +140,8 @@ local function buildGeneral(db)
         args = {
             about = {
                 type = "description",
-                name = "Time-to-kill and optimal cooldown timing. On-screen bars arrive in later updates.",
+                name = "Time-to-kill and optimal cooldown timing — a right-anchored TTK bar plus utility"
+                    .. " bars that show when to fire each cooldown so its buff covers the kill.",
                 fontSize = "medium",
                 order = 1,
             },
@@ -166,6 +168,7 @@ local function buildBehavior(db)
             inCombatOnly = {
                 type = "toggle",
                 name = "In combat only",
+                desc = "Only show the bars while you are in combat.",
                 order = 2,
                 get = getter(db, "inCombatOnly"),
                 set = setter(db, "inCombatOnly"),
@@ -173,6 +176,7 @@ local function buildBehavior(db)
             hideOnTargetDead = {
                 type = "toggle",
                 name = "Hide when target dies",
+                desc = "Hide the bars the moment the target dies, instead of lingering on the corpse.",
                 order = 3,
                 get = getter(db, "hideOnTargetDead"),
                 set = setter(db, "hideOnTargetDead"),
@@ -180,6 +184,7 @@ local function buildBehavior(db)
             requireHostile = {
                 type = "toggle",
                 name = "Hostile targets only",
+                desc = "Only show on targets you can attack (skip friendly/neutral units).",
                 order = 4,
                 get = getter(db, "requireHostile"),
                 set = setter(db, "requireHostile"),
@@ -262,6 +267,7 @@ local function buildSkin(db)
                 type = "select",
                 dialogControl = "LSM30_Statusbar",
                 name = "Bar texture",
+                desc = "The status-bar texture used for all bars (each option previews in the dropdown).",
                 order = 5,
                 values = function()
                     return LSM:HashTable("statusbar")
@@ -273,6 +279,7 @@ local function buildSkin(db)
                 type = "select",
                 dialogControl = "LSM30_Font",
                 name = "Font",
+                desc = "The font for all bar text (each option previews in its own face).",
                 order = 6,
                 values = function()
                     return LSM:HashTable("font")
@@ -284,6 +291,7 @@ local function buildSkin(db)
                 type = "select",
                 dialogControl = "LSM30_Border",
                 name = "Border",
+                desc = "An optional border drawn around the bar container.",
                 order = 7,
                 values = function()
                     return LSM:HashTable("border")
@@ -295,6 +303,7 @@ local function buildSkin(db)
             fontSizeMain = {
                 type = "range",
                 name = "Main TTK size",
+                desc = "Font size of the time-to-kill text on the main bar.",
                 order = 11,
                 min = 8,
                 max = 32,
@@ -305,6 +314,7 @@ local function buildSkin(db)
             fontSizeOther = {
                 type = "range",
                 name = "Other bars size",
+                desc = "Font size of the text on the utility bars.",
                 order = 12,
                 min = 8,
                 max = 24,
@@ -316,6 +326,7 @@ local function buildSkin(db)
             colorTarget = {
                 type = "color",
                 name = "Target (TTK)",
+                desc = "Colour of the main time-to-kill bar.",
                 order = 21,
                 hasAlpha = true,
                 get = colorGetter(db, "colorTarget"),
@@ -324,6 +335,7 @@ local function buildSkin(db)
             colorUtility = {
                 type = "color",
                 name = "Utility",
+                desc = "Fallback colour for a utility bar with no specific state colour.",
                 order = 22,
                 hasAlpha = true,
                 get = colorGetter(db, "colorUtility"),
@@ -332,6 +344,7 @@ local function buildSkin(db)
             colorWaiting = {
                 type = "color",
                 name = "Waiting (fire moment ahead)",
+                desc = "Colour of a utility bar before its optimal fire moment.",
                 order = 23,
                 hasAlpha = true,
                 get = colorGetter(db, "colorWaiting"),
@@ -340,6 +353,7 @@ local function buildSkin(db)
             colorReady = {
                 type = "color",
                 name = "Ready (fire now)",
+                desc = "Colour when a utility is ready to fire (its optimal moment has arrived).",
                 order = 24,
                 hasAlpha = true,
                 get = colorGetter(db, "colorReady"),
@@ -348,6 +362,7 @@ local function buildSkin(db)
             colorUsed = {
                 type = "color",
                 name = "Used (draining)",
+                desc = "Colour once a utility has been fired and its buff is draining.",
                 order = 25,
                 hasAlpha = true,
                 get = colorGetter(db, "colorUsed"),
@@ -368,6 +383,7 @@ local function buildDisplay(db)
             anchorPoint = {
                 type = "select",
                 name = "Screen anchor",
+                desc = "Which screen point the bar container is pinned to.",
                 order = 2,
                 values = ANCHORS,
                 get = getter(db, "anchorPoint"),
@@ -376,6 +392,7 @@ local function buildDisplay(db)
             locked = {
                 type = "toggle",
                 name = "Lock position",
+                desc = "Lock the bars in place; unlock to drag them with the mouse.",
                 order = 3,
                 get = getter(db, "locked"),
                 set = setterC(db, "locked"),
@@ -383,6 +400,7 @@ local function buildDisplay(db)
             posX = {
                 type = "range",
                 name = "Horizontal offset",
+                desc = "Fine-tune the horizontal position from the anchor.",
                 order = 4,
                 min = -800,
                 max = 800,
@@ -393,6 +411,7 @@ local function buildDisplay(db)
             posY = {
                 type = "range",
                 name = "Vertical offset",
+                desc = "Fine-tune the vertical position from the anchor.",
                 order = 5,
                 min = -800,
                 max = 800,
@@ -403,6 +422,7 @@ local function buildDisplay(db)
             scale = {
                 type = "range",
                 name = "Scale",
+                desc = "Overall size of the bar display.",
                 order = 6,
                 min = 0.5,
                 max = 2.0,
@@ -422,6 +442,7 @@ local function buildDisplay(db)
             barWidth = {
                 type = "range",
                 name = "Bar width",
+                desc = "Width of every bar, in pixels.",
                 order = 8,
                 min = 60,
                 max = 400,
@@ -432,6 +453,7 @@ local function buildDisplay(db)
             barHeight = {
                 type = "range",
                 name = "Bar height",
+                desc = "Height of each bar, in pixels.",
                 order = 9,
                 min = 8,
                 max = 40,
@@ -442,6 +464,7 @@ local function buildDisplay(db)
             barSpacing = {
                 type = "range",
                 name = "Bar spacing",
+                desc = "Vertical gap between stacked bars, in pixels.",
                 order = 10,
                 min = 0,
                 max = 20,
@@ -452,6 +475,7 @@ local function buildDisplay(db)
             maxBars = {
                 type = "range",
                 name = "Max utility bars",
+                desc = "The most utility bars to show at once.",
                 order = 11,
                 min = 1,
                 max = 20,
@@ -462,6 +486,7 @@ local function buildDisplay(db)
             opacity = {
                 type = "range",
                 name = "Opacity",
+                desc = "Overall transparency of the display.",
                 order = 12,
                 min = 0,
                 max = 1,
@@ -473,6 +498,7 @@ local function buildDisplay(db)
             strata = {
                 type = "select",
                 name = "Frame strata",
+                desc = "Which UI layer the display draws on (higher sits in front of more frames).",
                 order = 13,
                 values = STRATA,
                 get = getter(db, "strata"),
@@ -481,6 +507,7 @@ local function buildDisplay(db)
             resetPosition = {
                 type = "execute",
                 name = "Reset position",
+                desc = "Move the display back to the default screen position.",
                 order = 14,
                 func = function()
                     if ns.Display then
@@ -492,6 +519,7 @@ local function buildDisplay(db)
             showBarNames = {
                 type = "toggle",
                 name = "Show names",
+                desc = "Show each utility's name on its bar.",
                 order = 21,
                 get = getter(db, "showBarNames"),
                 set = setter(db, "showBarNames"),
@@ -508,6 +536,7 @@ local function buildDisplay(db)
             showIcons = {
                 type = "toggle",
                 name = "Show icons",
+                desc = "Show each ability/item icon on its bar.",
                 order = 23,
                 get = getter(db, "showIcons"),
                 set = setter(db, "showIcons"),
@@ -515,6 +544,7 @@ local function buildDisplay(db)
             timeFormat = {
                 type = "select",
                 name = "Time format",
+                desc = "How the time-to-kill reads: m:ss or raw seconds.",
                 order = 24,
                 values = TIMEFMT,
                 get = getter(db, "timeFormat"),
@@ -531,6 +561,7 @@ local function buildDisplay(db)
             showConfidence = {
                 type = "toggle",
                 name = "Show confidence",
+                desc = "Show how confident the current estimate is.",
                 order = 26,
                 get = getter(db, "showConfidence"),
                 set = setter(db, "showConfidence"),
@@ -669,6 +700,7 @@ local function buildSimulation(db)
             speed = {
                 type = "range",
                 name = "Playback speed",
+                desc = "How fast the dynamic simulation plays back the scripted fight.",
                 order = 4,
                 min = 0.25,
                 max = 4,
@@ -706,6 +738,7 @@ local function buildRaids(db)
             args["e" .. enc.id] = {
                 type = "toggle",
                 name = enc.name,
+                desc = "Show the bars on the " .. enc.name .. " encounter.",
                 order = 2 + j,
                 width = "full",
                 disabled = masterOff,
@@ -733,22 +766,27 @@ end
 -- Abilities node — the full static warrior list (ns.AbilityTable); a per-entry enable/disable + offset,
 -- dimmed when the character can't currently use it (WO-014). The live tracking + display is WO-015.
 local function buildAbilities(db)
-    local args = {}
+    -- One class node per class; today just Warrior. The tracked list is nested under it so more classes
+    -- can slot in beside it later.
+    local warrior = {}
     for i = 1, #ns.AbilityTable do
         local e = ns.AbilityTable[i]
         local unavailable = function()
             return not ns.Abilities.available(e, ns.Abilities.scanCharacter())
         end
-        args["a" .. e.id] = {
+        warrior["a" .. e.id] = {
             type = "toggle",
             name = abilityIcon(e) .. " " .. e.name,
+            desc = "Track "
+                .. e.name
+                .. " and show its timing bar (dimmed while you can't currently use it).",
             order = i * 2,
             width = "full",
             disabled = unavailable,
             get = abilityGet(db, e.id, "enabled", true),
             set = abilitySet(db, e.id, "enabled"),
         }
-        args["o" .. e.id] = {
+        warrior["o" .. e.id] = {
             type = "range",
             name = "offset (s)",
             desc = "Fire earlier (+) or later (−) than the exact fit.",
@@ -766,7 +804,15 @@ local function buildAbilities(db)
         name = "Abilities",
         order = 7,
         icon = ICON .. "Ability_Warrior_Trauma",
-        args = args,
+        args = {
+            warrior = {
+                type = "group",
+                name = "Warrior",
+                order = 1,
+                icon = ICON .. "Ability_Warrior_Trauma",
+                args = warrior,
+            },
+        },
     }
 end
 

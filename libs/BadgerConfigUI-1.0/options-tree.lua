@@ -21,24 +21,32 @@ local function shallowCopy(t)
     return copy
 end
 
--- Build the banner element for a page's content pane: a large-font, full-width type="description".
+-- Build the banner TITLE element for a page's content pane: a large-font, full-width type="description".
+-- The subtitle is a SEPARATE, smaller description (see subtitleArg) so it reads smaller than the title.
 -- The image* fields are passed straight through so real artwork later is a data change, not code.
 -- `banner` may carry {title, subtitle, image, imageCoords, imageWidth, imageHeight}; title -> "Badger".
 function OptionsTree.bannerArg(banner, order)
     banner = banner or {}
-    local name = colour(banner.title or "Badger")
-    if banner.subtitle then
-        name = name .. "\n" .. banner.subtitle
-    end
     return {
         type = "description",
-        name = name,
+        name = colour(banner.title or "Badger"),
         fontSize = "large",
         width = "full",
         image = banner.image,
         imageCoords = banner.imageCoords,
         imageWidth = banner.imageWidth,
         imageHeight = banner.imageHeight,
+        order = order or 0,
+    }
+end
+
+-- The banner SUBTITLE — a medium-font description, deliberately smaller than the large title above it.
+function OptionsTree.subtitleArg(subtitle, order)
+    return {
+        type = "description",
+        name = subtitle,
+        fontSize = "medium",
+        width = "full",
         order = order or 0,
     }
 end
@@ -61,6 +69,9 @@ function OptionsTree.normalize(root, opts)
                 local page = shallowCopy(child)
                 page.args = shallowCopy(child.args or {})
                 page.args.badgerBanner = OptionsTree.bannerArg(banner, 0)
+                if banner.subtitle then
+                    page.args.badgerBannerSub = OptionsTree.subtitleArg(banner.subtitle, 0.001)
+                end
                 args[key] = page
             end
         end
