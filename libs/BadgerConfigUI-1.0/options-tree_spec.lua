@@ -20,12 +20,37 @@ describe("BadgerConfigUI options-tree", function()
         assert.is_truthy(arg.name:find(OptionsTree.BRAND_COLOR, 1, true))
     end)
 
-    it("appends the subtitle on a second line when given", function()
-        local arg = ns.BadgerConfigUIOptionsTree.bannerArg({
-            title = "Badger Arena",
-            subtitle = "Arena info",
-        }, 0)
-        assert.is_truthy(arg.name:find("\nArena info", 1, true))
+    it(
+        "keeps the subtitle OUT of the title banner (it is a separate, smaller description)",
+        function()
+            local arg = ns.BadgerConfigUIOptionsTree.bannerArg({
+                title = "Badger Arena",
+                subtitle = "Arena info",
+            }, 0)
+            assert.is_nil(arg.name:find("Arena info", 1, true)) -- title banner is title-only
+        end
+    )
+
+    it("builds a medium-font subtitle description (smaller than the large title)", function()
+        local arg = ns.BadgerConfigUIOptionsTree.subtitleArg("Arena info", 0.001)
+        assert.equals("description", arg.type)
+        assert.equals("medium", arg.fontSize)
+        assert.equals("Arena info", arg.name)
+    end)
+
+    it("injects the subtitle description below the banner when opts.banner has one", function()
+        local root = {
+            name = "Root",
+            type = "group",
+            args = { general = { type = "group", name = "General", args = {} } },
+        }
+        local normalized = ns.BadgerConfigUIOptionsTree.normalize(root, {
+            banner = { title = "T", subtitle = "S" },
+        })
+        local sub = normalized.args.general.args.badgerBannerSub
+        assert.is_table(sub)
+        assert.equals("medium", sub.fontSize)
+        assert.equals("S", sub.name)
     end)
 
     it("passes banner image fields straight through", function()

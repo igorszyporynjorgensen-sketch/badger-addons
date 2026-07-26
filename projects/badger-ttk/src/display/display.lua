@@ -18,9 +18,26 @@ local pool = {} -- reusable utility bar frames
 local play -- dynamic-playback state, or nil
 local simFrame -- dedicated ticker for dynamic playback — ALWAYS shown, never hidden, so its OnUpdate
 -- can't stall (a hidden frame's OnUpdate stops firing; the container gets hidden, so it must NOT host this)
+local smoothFrame -- always-shown ticker that eases each bar's fill toward its target (`bar.__target`) so
+-- the display glides instead of stepping at the 0.15s live cadence
+local SMOOTH_SPEED = 10 -- higher = snappier ease; ~90% of the way to target in ~0.15s at 60fps
 
 local function profile()
     return ns.addon.db.profile
+end
+
+-- Ease a status bar's displayed value toward its stored target this frame (exponential smoothing).
+local function smoothStep(bar, elapsed)
+    if not bar or bar.__target == nil then
+        return
+    end
+    local cur = bar:GetValue()
+    local diff = bar.__target - cur
+    if math.abs(diff) < 0.001 then
+        bar:SetValue(bar.__target)
+    else
+        bar:SetValue(cur + diff * math.min(1, elapsed * SMOOTH_SPEED))
+    end
 end
 
 -- Command the live driver directly: while a preview (static or dynamic) owns the container, the driver
@@ -116,6 +133,19 @@ function Display.init()
     targetBar.text = targetBar:CreateFontString(nil, "OVERLAY")
     targetBar.text:SetPoint("LEFT", targetBar, "LEFT", 4, 0)
 
+    -- Ease every bar's fill toward its target each frame, so the display glides rather than stepping at the
+    -- live 0.15s cadence. Skips work while the display is hidden.
+    smoothFrame = CreateFrame("Frame")
+    smoothFrame:SetScript("OnUpdate", function(_, elapsed)
+        if not container:IsShown() then
+            return
+        end
+        smoothStep(targetBar, elapsed)
+        for i = 1, #pool do
+            smoothStep(pool[i], elapsed)
+        end
+    end)
+
     Display.applyContainer()
 end
 
@@ -150,7 +180,7 @@ function Display.render(model, health)
     targetBar:SetStatusBarTexture(tex)
     targetBar.text:SetFont(font, p.fontSizeMain, "OUTLINE")
     paint(targetBar, "colorTarget")
-    targetBar:SetValue(health or 0)
+    targetBar.__target = health or 0 -- the smoother eases the fill toward this
     targetBar.text:SetText(Display.formatTime(model.ttk))
 
     local step = p.barHeight + p.barSpacing
@@ -174,7 +204,7 @@ function Display.render(model, health)
             bar:SetStatusBarColor(c[1], c[2], c[3], c[4])
             bar.bg:SetTexture(tex)
             bar.bg:SetVertexColor(c[1] * 0.3, c[2] * 0.3, c[3] * 0.3, (c[4] or 1) * 0.5)
-            bar:SetValue(b.fill or 1)
+            bar.__target = b.fill or 1 -- the smoother eases the fill toward this
             -- Label: the entry's name (showBarNames) + remaining seconds while active (showTimers, off by
             -- default). Read from the sorted bar, not model.entries (the layout reorders by duration).
             local label = (p.showBarNames and b.name) or ""

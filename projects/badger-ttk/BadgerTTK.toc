@@ -1,13 +1,14 @@
 ## Interface: 11509
 ## Title: Badger TTK
-## Notes: Time-to-kill estimate and optimal cooldown-timing bars for WoW Classic (Era / Anniversary / Hardcore).
+## Notes: Time-to-kill estimate and optimal cooldown-timing bars for WoW Classic (Era / Hardcore).
 ## Author: Igor Szyporyn
-## Version: 0.9.9
+## Version: 0.9.10
 ## SavedVariables: BadgerTTKDB
+## Category: Combat
 ## X-Category: Combat
 ## X-License: MIT
 
-# NOTE: confirm the Interface number against the live Classic Era / Anniversary client with
+# NOTE: confirm the Interface number against the live Classic Era / Hardcore client with
 #   /run print((select(4, GetBuildInfo())))
 # and update the line above if it differs (Classic Era 1.15.x is a 115xx build).
 
