@@ -86,6 +86,11 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-024-IJ** — **fix live show/hide flicker**: the gate hid the bars the instant `ttk < minTTK` every
+  ~0.15s, so a noisy live estimate flapped them (and it hid the endgame of every fight). Make `minTTK` a
+  **sticky initial-show gate** (qualify once, then stay through the fight), have `showAnyTarget` bypass it,
+  and wire `hideOnTargetDead`; pure `gate(settings, context, wasShown)` spec-tested (see
+  `docs/workorders/WO-024-IJ.md`). Status: Proposed.
 - **WO-023-IJ** — **utility-bar colour = action signal**: recolour utility bars **waiting → ready (green)
   → used (gray)** so the player sees exactly when to fire (`ready = ttk ≤ duration+offset`, pure/spec-
   tested); new `colorReady/colorUsed/colorWaiting` (retire the coverage colours); sim demos **Earthstrike
