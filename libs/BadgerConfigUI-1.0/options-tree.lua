@@ -51,6 +51,19 @@ function OptionsTree.subtitleArg(subtitle, order)
     }
 end
 
+-- A blank, full-width spacer that separates a page's HEADER block (banner + subtitle) from its BODY (the
+-- options). A large-font single space reads as clear vertical margin. Injected by normalize just below the
+-- subtitle, above the first real option, so every page reads header-then-body.
+function OptionsTree.spacerArg(order)
+    return {
+        type = "description",
+        name = " ",
+        fontSize = "large",
+        width = "full",
+        order = order or 0,
+    }
+end
+
 -- Return a normalized copy of `root` with childGroups forced to "tree" and a banner injected at
 -- order 0 into every non-inline child group's args. NON-MUTATING: root, each touched page, and its
 -- .args are shallow-copied before any write, so the caller's tables are left untouched. Non-group,
@@ -72,6 +85,9 @@ function OptionsTree.normalize(root, opts)
                 if banner.subtitle then
                     page.args.badgerBannerSub = OptionsTree.subtitleArg(banner.subtitle, 0.001)
                 end
+                -- Spacer between the header block and the options (order sits above the subtitle, below the
+                -- first option, which is >= 1). Injected on every page for consistent header/body separation.
+                page.args.badgerBannerSpacer = OptionsTree.spacerArg(0.002)
                 args[key] = page
             end
         end

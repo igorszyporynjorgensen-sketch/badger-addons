@@ -120,6 +120,7 @@ files["projects/badger-ttk/**"] = {
         "GetInventoryItemID",
         "GetItemCount",
         "GetItemIcon",
+        "GetSpellDescription",
         "UnitCanAttack",
         "UnitIsDeadOrGhost",
         "UnitClassification",

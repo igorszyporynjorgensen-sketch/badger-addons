@@ -122,6 +122,44 @@ local function abilityIcon(entry)
     return ns.iconMarkup(tex, 16)
 end
 
+-- Prettier labels for the curated ability metadata (kind / category), used in the composed fallback hint.
+local KIND_LABEL = {
+    trinket = "On-use trinket",
+    spell = "Spell",
+    consumable = "Consumable",
+    engineering = "Engineering",
+}
+local CATEGORY_LABEL = {
+    attackpower = "attack power",
+    haste = "haste",
+    damage = "damage",
+    crit = "crit",
+    armor = "armor",
+}
+
+-- Descriptive hint under an ability: the in-game spell tooltip text where we have it (spells), otherwise a
+-- line composed from the curated table data (kind · category · buff · cooldown). Best-effort, edge (no spec).
+local function abilityDesc(entry)
+    if entry.idType == "spell" and GetSpellDescription then
+        local d = GetSpellDescription(entry.id)
+        if d and d ~= "" then
+            return d
+        end
+    end
+    local parts = {}
+    parts[#parts + 1] = KIND_LABEL[entry.kind] or entry.kind
+    if entry.category then
+        parts[#parts + 1] = CATEGORY_LABEL[entry.category] or entry.category
+    end
+    if entry.duration then
+        parts[#parts + 1] = entry.duration .. "s buff"
+    end
+    if entry.cooldown then
+        parts[#parts + 1] = entry.cooldown .. "s cooldown"
+    end
+    return table.concat(parts, "  ·  ")
+end
+
 local function buildGeneral(db)
     return {
         type = "group",
@@ -226,6 +264,7 @@ local function buildBehavior(db)
 end
 
 local function buildSkin(db)
+    local pendingSkinName = "" -- transient: name typed into the save-as-skin box (not persisted)
     return {
         type = "group",
         name = "Skin",
@@ -235,8 +274,9 @@ local function buildSkin(db)
             skin = {
                 type = "select",
                 name = "Skin",
-                desc = "Choose a bar skin (a preset applied onto the settings below). Add your own with"
-                    .. " BadgerTTK:RegisterSkin — see src/skin/skin.lua.",
+                desc = "Choose a bar skin (a preset applied onto the settings below). Save your own with"
+                    .. " the box below, or add one in code with BadgerTTK:RegisterSkin — see"
+                    .. " src/skin/skin.lua.",
                 order = 1,
                 values = function()
                     return ns.Skin.ListSkins()
@@ -247,6 +287,39 @@ local function buildSkin(db)
                     ns.Skin.apply(db.profile, v)
                     if ns.Display then
                         ns.Display.refresh()
+                    end
+                end,
+            },
+            newSkinName = {
+                type = "input",
+                name = "New skin name",
+                desc = "Type a name, then press Save to capture the current Skin + Display settings as a"
+                    .. " reusable skin.",
+                order = 2,
+                get = function()
+                    return pendingSkinName
+                end,
+                set = function(_, v)
+                    pendingSkinName = v
+                end,
+            },
+            saveSkin = {
+                type = "execute",
+                name = "Save current as skin",
+                desc = "Save all current Skin and Display settings as a new skin under the name above. It"
+                    .. " appears in the picker and persists across /reload.",
+                order = 3,
+                disabled = function()
+                    return strtrim(pendingSkinName or "") == ""
+                end,
+                func = function()
+                    local nm = strtrim(pendingSkinName or "")
+                    if nm ~= "" then
+                        local skin = ns.Skin.saveCurrent(db.profile, nm)
+                        db.global.skins = db.global.skins or {}
+                        db.global.skins[nm] = skin
+                        db.profile.skin = nm
+                        pendingSkinName = ""
                     end
                 end,
             },
@@ -762,30 +835,44 @@ local function buildAbilities(db)
     local warrior = {}
     for i = 1, #ns.AbilityTable do
         local e = ns.AbilityTable[i]
-        local unavailable = function()
-            return not ns.Abilities.available(e, ns.Abilities.scanCharacter())
+        local base = i * 10
+        -- A thin full-width rule between entries (not before the first) so each ability reads as its own block.
+        if i > 1 then
+            warrior["sep" .. e.id] = { type = "header", name = "", order = base }
         end
         warrior["a" .. e.id] = {
             type = "toggle",
-            name = abilityIcon(e) .. " " .. e.name,
+            -- The label DIMS (greyed + tagged) while the ability isn't currently usable, but the control
+            -- stays fully editable — availability gates the live bar, not your ability to configure it.
+            name = function()
+                local label = abilityIcon(e) .. " " .. e.name
+                if not ns.Abilities.available(e, ns.Abilities.scanCharacter()) then
+                    return "|cff808080" .. label .. "|r  |cff808080(unavailable)|r"
+                end
+                return label
+            end,
             desc = "Track "
                 .. e.name
-                .. " and show its timing bar (dimmed while you can't currently use it).",
-            order = i * 2,
+                .. " and show its timing bar. Editable even while unavailable.",
+            order = base + 1,
             width = "full",
-            disabled = unavailable,
             get = abilityGet(db, e.id, "enabled", true),
             set = abilitySet(db, e.id, "enabled"),
+        }
+        warrior["d" .. e.id] = {
+            type = "description",
+            name = abilityDesc(e),
+            fontSize = "small",
+            order = base + 2,
         }
         warrior["o" .. e.id] = {
             type = "range",
             name = "offset (s)",
             desc = "Fire earlier (+) or later (−) than the exact fit.",
-            order = i * 2 + 1,
+            order = base + 3,
             min = -30,
             max = 60,
             step = 1,
-            disabled = unavailable,
             get = abilityGet(db, e.id, "offset", 0),
             set = abilitySet(db, e.id, "offset"),
         }
