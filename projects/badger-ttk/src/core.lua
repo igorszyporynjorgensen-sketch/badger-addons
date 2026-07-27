@@ -46,7 +46,7 @@ local DEFAULTS = {
 
         -- Skin: the selected skin (a preset applied onto these), LSM media names, sizes, and the six
         -- state colours. Colours are { r, g, b, a }. Media default to the built-in Badger skin.
-        skin = "Badger",
+        skin = "Default",
         statusbar = "Blizzard",
         font = "Friz Quadrata TT",
         border = "None",
@@ -93,6 +93,10 @@ local DEFAULTS = {
 
 function BadgerTTK:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("BadgerTTKDB", DEFAULTS, true)
+    -- The built-in skin was renamed "Badger" → "Default" (WO-038); carry old profiles across.
+    if self.db.profile.skin == "Badger" then
+        self.db.profile.skin = ns.Skin.BUILTIN
+    end
     -- Re-register persisted user skins into the runtime registry so they list + re-apply after a reload.
     for name, skin in pairs(self.db.global.skins or {}) do
         ns.Skin.RegisterSkin(name, skin)

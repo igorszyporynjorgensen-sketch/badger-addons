@@ -7,9 +7,10 @@ describe("Skin", function()
         ns = mock.load("projects/badger-ttk/src/skin/skin.lua")
     end)
 
-    it("ships a built-in Badger skin", function()
-        assert.is_not_nil(ns.Skin.GetSkin("Badger"))
-        assert.equals("Badger", ns.Skin.ListSkins().Badger)
+    it("ships a built-in Default skin (Skin.BUILTIN)", function()
+        assert.equals("Default", ns.Skin.BUILTIN)
+        assert.is_not_nil(ns.Skin.GetSkin("Default"))
+        assert.equals("Default", ns.Skin.ListSkins().Default)
     end)
 
     it("registers a third-party skin so it lists and resolves", function()
@@ -18,9 +19,18 @@ describe("Skin", function()
         assert.equals("Neon", ns.Skin.ListSkins().Neon)
     end)
 
+    it("deletes a user skin, but never the built-in or an unknown one", function()
+        ns.Skin.RegisterSkin("Temp", { statusbar = "Flat", colors = {} })
+        assert.is_true(ns.Skin.deleteSkin("Temp"))
+        assert.is_nil(ns.Skin.GetSkin("Temp"))
+        assert.is_false(ns.Skin.deleteSkin("Default")) -- the built-in is protected
+        assert.is_not_nil(ns.Skin.GetSkin("Default"))
+        assert.is_false(ns.Skin.deleteSkin("Nope")) -- unknown
+    end)
+
     it("applies a skin's media + colours onto the profile", function()
         local p = { colorTarget = { 0, 0, 0, 1 } }
-        ns.Skin.apply(p, "Badger")
+        ns.Skin.apply(p, "Default")
         assert.equals("Blizzard", p.statusbar)
         assert.equals("Friz Quadrata TT", p.font)
         assert.same({ 0.85, 0.15, 0.15, 1 }, p.colorTarget)
@@ -67,7 +77,7 @@ describe("Skin", function()
 
     it("leaves layout untouched for a media-only skin (no Display block)", function()
         local p = { barWidth = 180, scale = 1.0, colorTarget = { 0, 0, 0, 1 } }
-        ns.Skin.apply(p, "Badger") -- built-in: media + colours, no display block
+        ns.Skin.apply(p, "Default") -- built-in: media + colours, no display block
         assert.equals(180, p.barWidth) -- geometry preserved
         assert.equals(1.0, p.scale)
     end)

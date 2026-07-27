@@ -58,6 +58,9 @@ local DISPLAY_FIELDS = {
     "showConfidence",
 }
 
+-- The built-in skin's name — the one skin that always exists and can never be deleted.
+Skin.BUILTIN = "Default"
+
 function Skin.RegisterSkin(name, skin)
     registry[name] = skin
 end
@@ -73,6 +76,16 @@ function Skin.ListSkins()
         out[name] = name
     end
     return out
+end
+
+-- PURE: delete a user skin from the registry. Refuses the built-in (Skin.BUILTIN) and unknown names.
+-- Returns true if a skin was removed, so the caller can also drop it from db.global + pick a fallback.
+function Skin.deleteSkin(name)
+    if not name or name == Skin.BUILTIN or not registry[name] then
+        return false
+    end
+    registry[name] = nil
+    return true
 end
 
 -- Apply a named skin's values onto `profile`. Only writes what the skin carries: media/sizes (present),
@@ -129,8 +142,8 @@ function Skin.saveCurrent(profile, name)
     return skin
 end
 
--- Built-in default skin — the Badger brand palette + safe stock media.
-Skin.RegisterSkin("Badger", {
+-- Built-in default skin — the Badger brand palette + safe stock media. Always present; never deletable.
+Skin.RegisterSkin(Skin.BUILTIN, {
     statusbar = "Blizzard",
     font = "Friz Quadrata TT",
     border = "None",
