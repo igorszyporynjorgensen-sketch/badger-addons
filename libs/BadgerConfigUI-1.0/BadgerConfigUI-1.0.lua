@@ -9,7 +9,7 @@ local _, ns = ...
 -- Obtain the shared instance with:  local BCUI = LibStub("BadgerConfigUI-1.0")
 -- Consumers register a UNIQUE appName (their ADDON_NAME) so status/registry tables never collide.
 
-local MAJOR, MINOR = "BadgerConfigUI-1.0", 7
+local MAJOR, MINOR = "BadgerConfigUI-1.0", 8
 assert(LibStub, MAJOR .. " requires LibStub")
 
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
@@ -62,6 +62,40 @@ local function polishTree(frame)
             end
             reanchorTreeButtons(child)
             return
+        end
+    end
+end
+
+-- Align the bottom status bar + Close button with the content's L/R inset. AceGUI insets the content 17px
+-- but the status bar sits at 15 (left) and the Close button at -27 (right). Re-anchor them so all three
+-- lines read flush; applied once per Open (Ace doesn't re-anchor these on refresh). Fully defensive: it
+-- no-ops on any shape mismatch, and only touches the status bar's parent + the text-bearing child Button.
+local function polishStatusBar(frame)
+    if not frame then
+        return
+    end
+    local statustext = frame.statustext
+    local statusbg = statustext and statustext.GetParent and statustext:GetParent()
+    if statusbg and statusbg.ClearAllPoints then
+        statusbg:ClearAllPoints()
+        statusbg:SetPoint("BOTTOMLEFT", 17, 15)
+        statusbg:SetPoint("BOTTOMRIGHT", -122, 15)
+    end
+    local root = frame.frame
+    if root and root.GetChildren then
+        for _, child in ipairs({ root:GetChildren() }) do
+            -- The Close button is the direct-child Button with text; the status bar bg is a text-less Button.
+            if
+                child ~= statusbg
+                and child.GetObjectType
+                and child:GetObjectType() == "Button"
+                and child.GetText
+                and child:GetText()
+                and child:GetText() ~= ""
+            then
+                child:ClearAllPoints()
+                child:SetPoint("BOTTOMRIGHT", -17, 17)
+            end
         end
     end
 end
@@ -169,6 +203,7 @@ function lib:Open(appName)
         frame:SetStatusText(app.status)
     end
     polishTree(frame)
+    polishStatusBar(frame)
     chainClose(self, appName, frame)
     hookHide(self, appName, frame)
 end
