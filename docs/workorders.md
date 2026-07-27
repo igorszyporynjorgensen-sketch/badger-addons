@@ -85,6 +85,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
+- **WO-049-IJ** — **default profile tuning**: fresh-profile defaults (bar 220, bg opacity 45%, Blizzard Raid Bar, Arial Narrow, util size 10, TTK size 13, util-waiting black) + built-in Default skin match (see `docs/workorders/WO-049-IJ.md`). Status: Accepted (batch pre-approved) — implementing.
 
 - **WO-048-IJ** — **fix: icons don't render** — the TGAs were top-origin (descriptor `0x28`); WoW needs bottom-origin. Fix `png-to-tga.py` to emit `0x08` + bottom-to-top rows, regenerate both `Media/*.tga` (see `docs/workorders/WO-048-IJ.md`). Status: Done — PR #51 merged; main green.
 - **WO-047-IJ** — **Display node: pair the Text-offset sliders two-per-row** — `width = "half"` on the four TTK/Utility text-offset sliders so they lay out as a 2×2 grid (TTK X·Y over Utility X·Y) (see `docs/workorders/WO-047-IJ.md`). Status: Done — PR #50 merged; main green.
