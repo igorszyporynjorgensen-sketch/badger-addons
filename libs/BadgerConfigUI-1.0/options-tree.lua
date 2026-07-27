@@ -51,13 +51,13 @@ function OptionsTree.subtitleArg(subtitle, order)
     }
 end
 
--- A blank, full-width spacer. A large-font single space reads as clear vertical margin. Used at the foot
--- of the global header so it sits clear of the tree below.
+-- A blank, full-width spacer at the foot of the global header, so it sits clear of the tree below. A
+-- medium-font single space is a modest margin (half the height of the large font used before — WO-037).
 function OptionsTree.spacerArg(order)
     return {
         type = "description",
         name = " ",
-        fontSize = "large",
+        fontSize = "medium",
         width = "full",
         order = order or 0,
     }
