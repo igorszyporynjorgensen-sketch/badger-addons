@@ -1,6 +1,6 @@
 ---
 wo: WO-029-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/32
 decision: D-008-IJ      # D-0xx-II once a decision is produced, else ~
@@ -76,7 +76,7 @@ related:
   pure/spec-tested; per-entry tooltip reads are edge; shared lib bumps `MINOR`; no `_G` leaks.
 - **Decisions produced:** D-008-IJ — a "skin" is a saved preset of Skin + full Display config (incl.
   position); user skins persist in `db.global`, built-ins stay code-defined.
-- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/32 (open, awaiting human merge)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/32 (merged; main green)
 - **Outcome:** Branch `feature/WO-029-IJ-config-improvements`, PR #32. Warrior node — rule between entries,
   a description under each (spell tooltip / composed data), toggle+offset always editable (availability only
   dims the label). Save-as-skin — skin format carries optional font-size + full Display blocks; pure
