@@ -16,8 +16,7 @@ local container -- movable parent frame that hosts the bars + the border child
 local borderFrame -- outset child of the container so the border wraps the bars (never overlaps them)
 local targetBar -- the TTK / health bar
 local pool = {} -- reusable utility bar frames
-local BORDER_INSET = 12 -- px the border frame extends beyond the bar area on each side (matches edgeSize)
-local BG_ALPHA = 0.1 -- faint background track opacity (both TTK + utility bars)
+local BORDER_INSET = 0 -- px the border frame extends beyond the bar area — 0 so the border hugs the bar (WO-041)
 local play -- dynamic-playback state, or nil
 local simFrame -- dedicated ticker for dynamic playback — ALWAYS shown, never hidden, so its OnUpdate
 -- can't stall (a hidden frame's OnUpdate stops firing; the container gets hidden, so it must NOT host this)
@@ -57,11 +56,6 @@ local function media(mtype, name, fallback)
     return (name and LSM:Fetch(mtype, name)) or fallback
 end
 
-local function paint(bar, key)
-    local c = profile()[key]
-    bar:SetStatusBarColor(c[1], c[2], c[3], c[4])
-end
-
 -- Utility-bar colour is an ACTION signal: waiting (fire moment ahead) → ready (fire now, green) → used
 -- (fired + draining, gray). Maps a layout bar to its db.profile colour key.
 local function utilityColorKey(bar)
@@ -93,7 +87,7 @@ function Display.applyContainer()
     container:SetScale(p.scale)
     container:SetAlpha(p.opacity)
     container:SetFrameStrata(p.strata)
-    container:SetSize(p.barWidth, p.barHeight)
+    container:SetSize(p.barWidth, p.ttkBarHeight)
     container:ClearAllPoints()
     -- Anchored by a right-side point (RIGHT by default), so a width change grows leftward and the death
     -- (right) edge stays fixed.
@@ -101,7 +95,7 @@ function Display.applyContainer()
     container:EnableMouse(not p.locked)
     -- The main bar tracks the container size immediately; utility bars re-layout on the next render.
     if targetBar then
-        targetBar:SetSize(p.barWidth, p.barHeight)
+        targetBar:SetSize(p.barWidth, p.ttkBarHeight)
     end
     -- Border on the outset child frame so it wraps the bars without overlapping them. Scale / alpha /
     -- strata are INHERITED from the container (it's a child now), so we only set the backdrop + anchors.
@@ -206,23 +200,25 @@ function Display.render(model, health)
     local tex = media("statusbar", p.statusbar, FALLBACK_TEX)
     local font = media("font", p.font, FALLBACK_FONT)
     local fc = p.colorFont or { 1, 1, 1, 1 } -- bar text colour
-    local layout = ns.Layout.compute(
-        model,
-        { width = p.barWidth, height = p.barHeight, spacing = p.barSpacing }
-    )
+    local fg = p.barFgOpacity or 1 -- fill opacity
+    local bgOp = p.barBgOpacity or 0.1 -- background-track opacity
+    local ttkH, utilH = p.ttkBarHeight, p.utilityBarHeight
+    -- Layout is x-only (it ignores height/spacing); the Y stacking + sizes are done here.
+    local layout = ns.Layout.compute(model, { width = p.barWidth })
 
-    targetBar:SetSize(p.barWidth, p.barHeight)
+    targetBar:SetSize(p.barWidth, ttkH)
     targetBar:SetStatusBarTexture(tex)
     targetBar.text:SetFont(font, p.fontSizeMain, "OUTLINE")
     targetBar.text:SetTextColor(fc[1], fc[2], fc[3], fc[4])
-    paint(targetBar, "colorTarget")
+    targetBar.text:ClearAllPoints()
+    targetBar.text:SetPoint("LEFT", targetBar, "LEFT", 4 + p.ttkTextX, p.ttkTextY)
     local tc = p.colorTarget
+    targetBar:SetStatusBarColor(tc[1], tc[2], tc[3], (tc[4] or 1) * fg)
     targetBar.bg:SetTexture(tex) -- faint background track, tinted from the target colour
-    targetBar.bg:SetVertexColor(tc[1] * 0.3, tc[2] * 0.3, tc[3] * 0.3, BG_ALPHA)
+    targetBar.bg:SetVertexColor(tc[1] * 0.3, tc[2] * 0.3, tc[3] * 0.3, bgOp)
     targetBar.__target = health or 0 -- the smoother eases the fill toward this
     targetBar.text:SetText(Display.formatTime(model.ttk))
 
-    local step = p.barHeight + p.barSpacing
     local shown = 0
     for i = 1, #layout.bars do
         local b = layout.bars[i]
@@ -232,18 +228,23 @@ function Display.render(model, health)
             local left = math.max(0, w.left)
             local right = math.min(p.barWidth, w.right)
             shown = shown + 1
+            -- Stack above the TTK bar: first utility bar sits at ttkH + spacing, each next one a utility
+            -- height + spacing higher.
+            local uy = ttkH + p.barSpacing + (shown - 1) * (utilH + p.barSpacing)
             bar:ClearAllPoints()
-            bar:SetPoint("BOTTOMLEFT", container, "BOTTOMLEFT", left, shown * step)
-            bar:SetSize(math.max(1, right - left), p.barHeight)
+            bar:SetPoint("BOTTOMLEFT", container, "BOTTOMLEFT", left, uy)
+            bar:SetSize(math.max(1, right - left), utilH)
             bar:SetStatusBarTexture(tex)
             bar.text:SetFont(font, p.fontSizeOther, "OUTLINE")
             bar.text:SetTextColor(fc[1], fc[2], fc[3], fc[4])
+            bar.text:ClearAllPoints()
+            bar.text:SetPoint("RIGHT", bar, "RIGHT", -3 + p.utilTextX, p.utilTextY)
             -- Colour by action state (waiting/ready/used); the track (bg) is the same texture at a dim
             -- tint, so the steady segment stays visible while the fill drains within it once used.
             local c = p[utilityColorKey(b)] or p.colorUtility
-            bar:SetStatusBarColor(c[1], c[2], c[3], c[4])
+            bar:SetStatusBarColor(c[1], c[2], c[3], (c[4] or 1) * fg)
             bar.bg:SetTexture(tex)
-            bar.bg:SetVertexColor(c[1] * 0.3, c[2] * 0.3, c[3] * 0.3, BG_ALPHA)
+            bar.bg:SetVertexColor(c[1] * 0.3, c[2] * 0.3, c[3] * 0.3, bgOp)
             bar.__target = b.fill or 1 -- the smoother eases the fill toward this
             -- Label: the entry's name (showBarNames) + remaining seconds while active (showTimers, off by
             -- default). Read from the sorted bar, not model.entries (the layout reorders by duration).
