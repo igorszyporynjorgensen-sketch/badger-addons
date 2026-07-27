@@ -31,8 +31,8 @@ describe("Skin", function()
     it("applies a skin's media + colours (incl. font) onto the profile", function()
         local p = { colorTarget = { 0, 0, 0, 1 } }
         ns.Skin.apply(p, "Default")
-        assert.equals("Blizzard", p.statusbar)
-        assert.equals("Friz Quadrata TT", p.font)
+        assert.equals("Blizzard Raid Bar", p.statusbar)
+        assert.equals("Arial Narrow", p.font)
         assert.same({ 0.85, 0.15, 0.15, 1 }, p.colorTarget)
         assert.same({ 1, 1, 1, 1 }, p.colorFont) -- WO-040 font colour
     end)
