@@ -99,6 +99,26 @@ local function abilitySet(db, id, field)
     end
 end
 
+-- Per-ability bar colour (WO-042). Overrides the global Utility (waiting) colour for this ability's bar;
+-- unset shows the global colour, so the picker reads as the current global until the user changes it.
+local function abilityColorGet(db, id)
+    return function()
+        local a = db.profile.abilities[id]
+        local c = (a and a.color) or db.profile.colorUtility
+        return c[1], c[2], c[3], c[4]
+    end
+end
+
+local function abilityColorSet(db, id)
+    return function(_, r, g, b, a)
+        db.profile.abilities[id] = db.profile.abilities[id] or {}
+        db.profile.abilities[id].color = { r, g, b, a }
+        if ns.Display then
+            ns.Display.refresh()
+        end
+    end
+end
+
 -- Per-raid / per-encounter show-gating config (db.profile.raids[raidId] = { enabled, encounters }).
 -- Absent = ON, so a fresh profile shows everything without pre-seeding.
 local function raidEnabledGet(db, raidId)
@@ -1050,11 +1070,23 @@ local function buildAbilities(db)
             name = "offset (s)",
             desc = "Fire earlier (+) or later (−) than the exact fit.",
             order = base + 3,
+            width = "half",
             min = -30,
             max = 60,
             step = 1,
             get = abilityGet(db, e.id, "offset", 0),
             set = abilitySet(db, e.id, "offset"),
+        }
+        warrior["c" .. e.id] = {
+            type = "color",
+            name = "colour",
+            desc = "Colour of this ability's bar while waiting for its fire moment. Overrides the global"
+                .. " Utility (waiting) colour for this ability only.",
+            order = base + 4,
+            width = "half",
+            hasAlpha = true,
+            get = abilityColorGet(db, e.id),
+            set = abilityColorSet(db, e.id),
         }
     end
     return {
