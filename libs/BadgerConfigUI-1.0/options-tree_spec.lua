@@ -56,6 +56,41 @@ describe("BadgerConfigUI options-tree", function()
         assert.is_nil(normalized.args.general.args.badgerHeaderTitle) -- not per-page
     end)
 
+    it("OMITS the text title/subtitle when header.image is set (the raw band owns them)", function()
+        local root = {
+            name = "Root",
+            type = "group",
+            args = { general = { type = "group", name = "General", args = {} } },
+        }
+        local normalized = ns.BadgerConfigUIOptionsTree.normalize(root, {
+            header = {
+                title = "T",
+                subtitle = "S",
+                image = "Interface\\AddOns\\BadgerTTK\\Media\\badger-master",
+                controls = { { type = "toggle", name = "Show preview" } },
+            },
+        })
+        -- No description banner/subtitle — the consumer draws the two-column brand band instead.
+        assert.is_nil(normalized.args.badgerHeaderTitle)
+        assert.is_nil(normalized.args.badgerHeaderSub)
+        -- Controls stay native, first in order (nothing precedes them), and the spacer still trails.
+        assert.is_table(normalized.args.badgerHeaderCtrl1)
+        assert.equals(1, normalized.args.badgerHeaderCtrl1.order)
+        assert.is_table(normalized.args.badgerHeaderSpacer)
+        assert.is_true(
+            normalized.args.badgerHeaderSpacer.order > normalized.args.badgerHeaderCtrl1.order
+        )
+    end)
+
+    it("still emits the text banner when header has NO image (badger-arena path)", function()
+        local root = { name = "Root", type = "group", args = { g = { type = "group", args = {} } } }
+        local normalized = ns.BadgerConfigUIOptionsTree.normalize(root, {
+            header = { title = "T", subtitle = "S" },
+        })
+        assert.is_table(normalized.args.badgerHeaderTitle)
+        assert.is_table(normalized.args.badgerHeaderSub)
+    end)
+
     it("builds a full-width spacer description", function()
         local arg = ns.BadgerConfigUIOptionsTree.spacerArg(9)
         assert.equals("description", arg.type)

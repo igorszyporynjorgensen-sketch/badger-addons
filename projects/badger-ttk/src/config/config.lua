@@ -1154,6 +1154,13 @@ function ns.buildOptions(addon)
         header = {
             title = "Badger Time To Kill (TTK)",
             subtitle = "Time-to-kill and optimal cooldown timing  —  v" .. version,
+            -- With an image set, BadgerConfigUI draws the two-column brand band (image left + right
+            -- margin, title/subtitle stacked left on the right) instead of the text banner; the controls
+            -- below stay native. The master (publisher/series) texture shipped in WO-044.
+            image = "Interface\\AddOns\\BadgerTTK\\Media\\badger-master",
+            imageWidth = 72,
+            imageHeight = 72,
+            imageMargin = 14,
             controls = {
                 {
                     type = "toggle",
