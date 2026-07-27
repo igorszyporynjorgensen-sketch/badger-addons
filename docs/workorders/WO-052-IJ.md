@@ -1,8 +1,8 @@
 ---
 wo: WO-052-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/55
 decision: ~
 depends_on:
   - docs/workorders/WO-045-IJ.md
