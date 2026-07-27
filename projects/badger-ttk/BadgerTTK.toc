@@ -2,7 +2,7 @@
 ## Title: Badger Time To Kill (TTK)
 ## Notes: Time-to-kill estimate and optimal cooldown-timing bars for WoW Classic (Era / Hardcore).
 ## Author: Igor Szyporyn
-## Version: 0.9.24
+## Version: 0.9.25
 ## SavedVariables: BadgerTTKDB
 ## Category: Combat
 ## X-Category: Combat
