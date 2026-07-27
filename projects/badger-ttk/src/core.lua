@@ -29,14 +29,14 @@ local DEFAULTS = {
         posY = 0,
         scale = 1.0,
         growthDirection = "UP",
-        barWidth = 180,
+        barWidth = 220,
         ttkBarHeight = 30, -- main TTK bar height (WO-041)
         utilityBarHeight = 20, -- utility bars height (WO-041)
         barSpacing = 2,
         maxBars = 8,
         opacity = 1.0, -- overall container opacity
         barFgOpacity = 1.0, -- bar fill opacity (WO-041)
-        barBgOpacity = 0.1, -- bar background-track opacity (WO-041)
+        barBgOpacity = 0.45, -- bar background-track opacity (WO-041)
         strata = "MEDIUM",
         -- Bar-text offsets from their current anchor (WO-041): TTK text (left-anchored) + utility text
         -- (right-anchored). X = horizontal, Y = vertical.
@@ -56,14 +56,14 @@ local DEFAULTS = {
         -- Skin: the selected skin (a preset applied onto these), LSM media names, sizes, and the six
         -- state colours. Colours are { r, g, b, a }. Media default to the built-in Badger skin.
         skin = "Default",
-        statusbar = "Blizzard",
-        font = "Friz Quadrata TT",
+        statusbar = "Blizzard Raid Bar",
+        font = "Arial Narrow",
         border = "None",
-        fontSizeMain = 16,
-        fontSizeOther = 12,
+        fontSizeMain = 13,
+        fontSizeOther = 10,
         colorTarget = { 0.85, 0.15, 0.15, 1 }, -- Target (TTK) bar
         -- Utility-bar action signal (WO-040): waiting (fire moment ahead) → fire (fire now) → fired (draining).
-        colorUtility = { 0.30, 0.50, 0.80, 1 }, -- Utility (waiting)
+        colorUtility = { 0, 0, 0, 1 }, -- Utility (waiting)
         colorReady = { 0.15, 0.85, 0.25, 1 }, -- Utility (fire)
         colorUsed = { 0.55, 0.55, 0.55, 1 }, -- Utility (fired)
         colorFont = { 1, 1, 1, 1 }, -- bar text colour

@@ -153,12 +153,12 @@ end
 
 -- Built-in default skin — the Badger brand palette + safe stock media. Always present; never deletable.
 Skin.RegisterSkin(Skin.BUILTIN, {
-    statusbar = "Blizzard",
-    font = "Friz Quadrata TT",
+    statusbar = "Blizzard Raid Bar",
+    font = "Arial Narrow",
     border = "None",
     colors = {
         target = { 0.85, 0.15, 0.15, 1 }, -- Target (TTK)
-        utility = { 0.30, 0.50, 0.80, 1 }, -- Utility (waiting)
+        utility = { 0, 0, 0, 1 }, -- Utility (waiting)
         ready = { 0.15, 0.85, 0.25, 1 }, -- Utility (fire)
         used = { 0.55, 0.55, 0.55, 1 }, -- Utility (fired)
         font = { 1, 1, 1, 1 }, -- bar text
