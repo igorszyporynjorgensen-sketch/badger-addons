@@ -1,9 +1,9 @@
 ---
 wo: WO-031-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
-decision: ~             # D-0xx-II once a decision is produced, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/34
+decision: D-010-IJ      # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-029-IJ.md
 related:
@@ -35,18 +35,26 @@ related:
 - **Behavior delta:** MODIFIED (in-game) — applying a skin no longer moves the frame or changes its lock.
 
 **Phase 1 — Exclude position/lock**
-1. [ ] `skin.lua`: remove the four placement fields from `DISPLAY_FIELDS`; update the comment.
-   `skin_spec`: assert `saveCurrent` omits them + `apply` leaves the frame position/lock untouched.
-   `config.lua`: save-as-skin copy clarifies placement is kept.
+1. [x] `skin.lua`: removed `anchorPoint/posX/posY/locked` from `DISPLAY_FIELDS`; updated the comments.
+   `skin_spec`: asserts `saveCurrent` omits them (capture) + `apply` leaves an existing profile's
+   `anchorPoint/posX/posY/locked` untouched (apply, all four). `config.lua`: save-as-skin copy clarifies
+   placement/lock are kept.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version` (next patch), rebuild `.release`. Record D-010-IJ,
-   mark D-008 amended.
+1. [x] `pnpm validate` green (85/20/9/4 successes, 0 failures; luacheck 0/0). `.toc` `## Version` → **0.9.14**;
+   `.release` rebuilt + parity/load-graph verified. D-010-IJ recorded; D-008 marked amended. A read-only
+   3-lens adversarial review confirmed correctness (no consumer reads the excluded fields; single-source
+   list; backward-compat); its one should-fix (missing apply-side `posY` assertion) was folded in.
 2. [ ] **In-game (human, required):** save a skin at one spot, move the bars, re-apply — the bars stay put
    and the lock is unchanged; the look still applies.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
 - **Constitution check:** Principles OK — pure `DISPLAY_FIELDS` list change, spec-tested; no `_G` leaks.
 - **Decisions produced:** D-010-IJ (amends D-008 — skins exclude frame position/lock).
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/34 (merged; main green)
+- **Outcome:** Branch `feature/WO-031-IJ-skin-exclude-position`, PR #34. Removed the four placement fields
+  from the single `DISPLAY_FIELDS` list, so both capture (`saveCurrent`) and restore (`apply`) drop
+  position/lock. Backward-compatible (stale fields on already-saved skins are ignored). `skin_spec` locks
+  in both directions; config copy updated; D-010 recorded, D-008 marked amended. `.toc` → 0.9.14; gate
+  green; `.release` rebuilt + verified; adversarial 3-lens review clean (one posY assertion folded in).
+  Awaiting human merge + in-game re-test.

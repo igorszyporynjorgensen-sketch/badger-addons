@@ -76,6 +76,7 @@ related:
   pure/spec-tested; per-entry tooltip reads are edge; shared lib bumps `MINOR`; no `_G` leaks.
 - **Decisions produced:** D-008-IJ — a "skin" is a saved preset of Skin + full Display config (incl.
   position); user skins persist in `db.global`, built-ins stay code-defined.
+  _Superseded on position/lock by WO-031-IJ / D-010-IJ — skins no longer capture frame position or lock._
 - **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/32 (merged; main green)
 - **Outcome:** Branch `feature/WO-029-IJ-config-improvements`, PR #32. Warrior node — rule between entries,
   a description under each (spell tooltip / composed data), toggle+offset always editable (availability only
