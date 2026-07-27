@@ -1,6 +1,6 @@
 ---
 wo: WO-035-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/38
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -46,7 +46,7 @@ related:
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
 - **Constitution check:** Principles OK — frame/edge change; no `_G` leaks; pure sim/layout untouched.
 - **Decisions produced:** —
-- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/38 (open, awaiting human merge)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/38 (merged; main green)
 - **Outcome:** Branch `feature/WO-035-IJ-reset-to-start`, PR #38. `resetSim()` rewinds to t=0 (0:50, 100%)
   and renders it, independent of play/pause (no longer clears play / stops the ticker / sets simPlaying);
   config reset button dropped `simPlaying = false`. `.toc` → 0.9.18; gate green; `.release` rebuilt.

@@ -89,10 +89,10 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 - **WO-036-IJ** — **badger-arena adopts the global-header API**: switch its config from the `banner` alias
   to the explicit `opts.header` (already renders via the alias; this makes it current). Arena has no built
   `.release` yet, so an in-game build is deferred; whenever built it embeds BadgerConfigUI MINOR 6 (see
-  `docs/workorders/WO-036-IJ.md`). Status: In progress — PR #39 open.
+  `docs/workorders/WO-036-IJ.md`). Status: Done — PR #39 merged; main green.
 - **WO-035-IJ** — **Reset rewinds the sim to 100% (0:50), independent of Play**: Reset returns to the
   timeline start (full health) instead of the 0:25 still, and no longer stops playback (see
-  `docs/workorders/WO-035-IJ.md`). Status: In progress — PR #38 open.
+  `docs/workorders/WO-035-IJ.md`). Status: Done — PR #38 merged; main green.
 - **WO-034-IJ** — **persistent global header in BadgerConfigUI**: replace the identical per-node banner with
   one global header (title/subtitle) rendered above the tree via root-level AceConfig args, and add a **Show
   preview** toggle to it (kept in the Simulation node too; native two-way sync). Shared lib (MINOR 5→6),

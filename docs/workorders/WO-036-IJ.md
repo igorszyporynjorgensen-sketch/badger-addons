@@ -1,6 +1,6 @@
 ---
 wo: WO-036-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/39
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -42,7 +42,7 @@ related:
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge.
 - **Constitution check:** Principles OK — a config-glue edit; no `_G` leaks; uses the shared lib's public API.
 - **Decisions produced:** —
-- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/39 (open, awaiting human merge)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/39 (merged; main green)
 - **Outcome:** Branch `feature/WO-036-IJ-arena-header`, PR #39. arena `config.lua` `banner` → explicit
   `header` (BadgerConfigUI-1.0 MINOR 6); `BadgerArena.toc` → 0.1.1. Gate green. No arena `.release` built
   (externals never fetched; deferred — offered on request). Awaiting human merge.
