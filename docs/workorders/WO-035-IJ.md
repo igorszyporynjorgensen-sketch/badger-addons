@@ -1,8 +1,8 @@
 ---
 wo: WO-035-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/38
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-033-IJ.md
@@ -34,16 +34,20 @@ related:
 - **Behavior delta:** MODIFIED (in-game) — Reset rewinds to 0:50 and no longer stops playback.
 
 **Phase 1 — Reset to start**
-1. [ ] `display.lua` `resetSim()`: rewind to `t=0` (0:50), keep play/pause state; `config.lua` reset button:
-       drop `simPlaying = false`.
+1. [x] `display.lua` `resetSim()`: rewind to `t=0` (0:50), keep play/pause state (no more clearing play /
+       detaching ticker / touching simPlaying); `config.lua` reset button: dropped `simPlaying = false`.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version` (next patch), rebuild `.release`.
+1. [x] `pnpm validate` green (85/21/9/4 successes, 0 failures; luacheck 0/0). `.toc` `## Version` → **0.9.18**;
+       `.release` rebuilt + parity verified.
 2. [ ] **In-game (human, required):** Reset → 0:50 / 100%; Reset while playing keeps playing; while paused
        freezes at 0:50.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
 - **Constitution check:** Principles OK — frame/edge change; no `_G` leaks; pure sim/layout untouched.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/38 (open, awaiting human merge)
+- **Outcome:** Branch `feature/WO-035-IJ-reset-to-start`, PR #38. `resetSim()` rewinds to t=0 (0:50, 100%)
+  and renders it, independent of play/pause (no longer clears play / stops the ticker / sets simPlaying);
+  config reset button dropped `simPlaying = false`. `.toc` → 0.9.18; gate green; `.release` rebuilt.
+  Awaiting human merge + in-game re-test.

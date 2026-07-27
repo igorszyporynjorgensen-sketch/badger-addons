@@ -91,7 +91,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
   Status: Proposed.
 - **WO-035-IJ** — **Reset rewinds the sim to 100% (0:50), independent of Play**: Reset returns to the
   timeline start (full health) instead of the 0:25 still, and no longer stops playback (see
-  `docs/workorders/WO-035-IJ.md`). Status: Accepted.
+  `docs/workorders/WO-035-IJ.md`). Status: In progress — PR #38 open.
 - **WO-034-IJ** — **persistent global header in BadgerConfigUI**: replace the identical per-node banner with
   one global header (title/subtitle) rendered above the tree via root-level AceConfig args, and add a **Show
   preview** toggle to it (kept in the Simulation node too; native two-way sync). Shared lib (MINOR 5→6),
