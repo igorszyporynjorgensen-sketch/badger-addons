@@ -1,8 +1,8 @@
 ---
 wo: WO-037-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/40
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-030-IJ.md
@@ -40,16 +40,19 @@ related:
 - **Behavior delta:** FIXED (in-game) — preview always closes with the window; tighter header margin.
 
 **Phase 1 — Fixes**
-1. [ ] `BadgerConfigUI-1.0.lua`: `OnHide` hook in `lib:Open` firing `app.onClose` (guarded). `options-tree.lua`:
-       `spacerArg` fontSize large → medium. `MINOR` 6→7.
+1. [x] `BadgerConfigUI-1.0.lua`: `hookHide()` in `lib:Open` firing `app.onClose` on the frame `OnHide`
+       (guarded), + kept `chainClose`. `options-tree.lua`: `spacerArg` fontSize large → medium. `MINOR` 6→7.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green. Bump badger-ttk `.toc` `## Version`; rebuild `.release` (re-embed the lib).
+1. [x] `pnpm validate` green (85/21/9/4 successes, 0 failures; luacheck 0/0). badger-ttk `.toc` → **0.9.19**;
+       `.release` rebuilt with the re-embedded lib (MINOR 7); parity verified.
 2. [ ] **In-game (human, required):** preview turns off on ESC / toggle / X close; header margin ~half.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
 - **Constitution check:** Principles OK — `options-tree` stays pure/spec-tested; the OnHide hook is the Ace
   edge; shared lib bumps `MINOR`; no `_G` leaks.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/40 (open, awaiting human merge)
+- **Outcome:** Branch `fix/WO-037-IJ-close-callback-header-margin`, PR #40. `hookHide()` fires `app.onClose`
+  on the frame `OnHide` so every close path (X/ESC/toggle/:Close) turns the preview off; header foot spacer
+  large→medium. `MINOR` 7; `.toc` 0.9.19. Gate green; `.release` rebuilt. Awaiting human merge + in-game.

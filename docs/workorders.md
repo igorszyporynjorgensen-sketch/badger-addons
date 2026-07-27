@@ -89,7 +89,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 - **WO-037-IJ** — **fix: config close callback + header margin**: the window's close callback only fired on
   the X button (ESC / slash-toggle / `:Close` go through Ace's deferred hide and never fire `OnClose`), so
   the preview lingered — hook the frame `OnHide` instead; and halve the global-header bottom spacer. Shared
-  lib (MINOR 6→7) (see `docs/workorders/WO-037-IJ.md`). Status: Accepted.
+  lib (MINOR 6→7) (see `docs/workorders/WO-037-IJ.md`). Status: In progress — PR #40 open.
 - **WO-036-IJ** — **badger-arena adopts the global-header API**: switch its config from the `banner` alias
   to the explicit `opts.header` (already renders via the alias; this makes it current). Arena has no built
   `.release` yet, so an in-game build is deferred; whenever built it embeds BadgerConfigUI MINOR 6 (see
