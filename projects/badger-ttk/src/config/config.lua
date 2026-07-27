@@ -686,11 +686,14 @@ local function buildDisplay(db)
                 set = setterR(db, "barBgOpacity"),
             },
             textHeader = { type = "header", name = "Text offsets", order = 15 },
+            -- width="half": two half-width controls fill a row, so the flow wraps after each pair —
+            -- TTK X · TTK Y on one line, Utility X · Utility Y on the line below (WO-047).
             ttkTextX = {
                 type = "range",
                 name = "TTK text X",
                 desc = "Horizontal offset of the TTK bar text from its anchor, in pixels.",
                 order = 15.1,
+                width = "half",
                 min = -60,
                 max = 60,
                 step = 1,
@@ -702,6 +705,7 @@ local function buildDisplay(db)
                 name = "TTK text Y",
                 desc = "Vertical offset of the TTK bar text from its anchor, in pixels.",
                 order = 15.2,
+                width = "half",
                 min = -30,
                 max = 30,
                 step = 1,
@@ -713,6 +717,7 @@ local function buildDisplay(db)
                 name = "Utility text X",
                 desc = "Horizontal offset of the utility bar text from its anchor, in pixels.",
                 order = 15.3,
+                width = "half",
                 min = -60,
                 max = 60,
                 step = 1,
@@ -724,6 +729,7 @@ local function buildDisplay(db)
                 name = "Utility text Y",
                 desc = "Vertical offset of the utility bar text from its anchor, in pixels.",
                 order = 15.4,
+                width = "half",
                 min = -30,
                 max = 30,
                 step = 1,
