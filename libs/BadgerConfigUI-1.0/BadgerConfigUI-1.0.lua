@@ -9,7 +9,7 @@ local _, ns = ...
 -- Obtain the shared instance with:  local BCUI = LibStub("BadgerConfigUI-1.0")
 -- Consumers register a UNIQUE appName (their ADDON_NAME) so status/registry tables never collide.
 
-local MAJOR, MINOR = "BadgerConfigUI-1.0", 6
+local MAJOR, MINOR = "BadgerConfigUI-1.0", 7
 assert(LibStub, MAJOR .. " requires LibStub")
 
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
@@ -139,6 +139,24 @@ local function chainClose(self, appName, frame)
     end)
 end
 
+-- Every close path (X, ESC, slash-toggle, :Close, :CloseAll) ends in the window being HIDDEN, but only the
+-- X fires the AceGUI OnClose — :Close defers to a RefreshOnUpdate that just :Hide()s the frame. So also fire
+-- app.onClose on the underlying frame's OnHide, guarded once per frame instance, to catch them all. Ace's
+-- refresh/re-Open path never hides, so OnHide fires only on real closes. Idempotent with chainClose above.
+local function hookHide(self, appName, widget)
+    local frame = widget and widget.frame
+    if not (frame and frame.HookScript) or frame.__badgerHideHooked then
+        return
+    end
+    frame.__badgerHideHooked = true
+    frame:HookScript("OnHide", function()
+        local app = self.apps[appName]
+        if app and app.onClose then
+            app.onClose(appName)
+        end
+    end)
+end
+
 -- Open (building Ace's own frame if needed) and best-effort seed the status bar. Ace overwrites the
 -- status text on validation, so this is only the initial hint.
 function lib:Open(appName)
@@ -152,6 +170,7 @@ function lib:Open(appName)
     end
     polishTree(frame)
     chainClose(self, appName, frame)
+    hookHide(self, appName, frame)
 end
 
 function lib:Close(appName)
