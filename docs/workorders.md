@@ -89,7 +89,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 - **WO-031-IJ** — **skins exclude frame position & lock** (amends D-008): a saved skin no longer captures
   `anchorPoint/posX/posY/locked`, so applying a skin restyles the bars **without moving them or changing
   the lock** (the geometry/readout *look* still applies). Records **D-010-IJ** (see
-  `docs/workorders/WO-031-IJ.md`). Status: Proposed.
+  `docs/workorders/WO-031-IJ.md`). Status: Accepted.
 - **WO-030-IJ** — **simulation rework**: make the sim ONE thing — the static preview is the single source
   of the UI, and Play/Stop just loops/freezes that same setup; the preview reads **0:25**; and closing the
   config window **shuts down** any preview (see `docs/workorders/WO-030-IJ.md`). Status: Done — PR #33 merged; main green.
