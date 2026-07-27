@@ -1,6 +1,6 @@
 ---
 wo: WO-037-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/40
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -52,7 +52,7 @@ related:
 - **Constitution check:** Principles OK — `options-tree` stays pure/spec-tested; the OnHide hook is the Ace
   edge; shared lib bumps `MINOR`; no `_G` leaks.
 - **Decisions produced:** —
-- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/40 (open, awaiting human merge)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/40 (merged; main green)
 - **Outcome:** Branch `fix/WO-037-IJ-close-callback-header-margin`, PR #40. `hookHide()` fires `app.onClose`
   on the frame `OnHide` so every close path (X/ESC/toggle/:Close) turns the preview off; header foot spacer
   large→medium. `MINOR` 7; `.toc` 0.9.19. Gate green; `.release` rebuilt. Awaiting human merge + in-game.

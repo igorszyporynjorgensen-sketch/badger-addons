@@ -1,6 +1,6 @@
 ---
 wo: WO-038-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/41
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -69,7 +69,7 @@ related:
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
 - **Constitution check:** Principles OK — config glue + a pure `Skin.deleteSkin` (spec-tested); no `_G` leaks.
 - **Decisions produced:** —
-- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/41 (open; stacked on #40)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/41 (merged; main green — was stacked on #40)
 - **Outcome:** Branch `feature/WO-038-IJ-config-structure` (stacked on the WO-037 fix branch), PR #41. All 8
   items done (config.lua + skin.lua + core.lua + `.toc`); built-in skin "Badger"→"Default" with migration;
   pure `Skin.deleteSkin`. `.toc` Title updated + 0.9.20; gate green (86 successes); `.release` rebuilt.
