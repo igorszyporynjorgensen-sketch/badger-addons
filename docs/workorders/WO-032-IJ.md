@@ -1,8 +1,8 @@
 ---
 wo: WO-032-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/35
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-028-IJ.md
@@ -45,11 +45,12 @@ related:
 - **Behavior delta:** FIXED (in-game) — utility bars render again; no stray border/preview on Display edits.
 
 **Phase 1 — Fix**
-1. [ ] `display.lua`: remove `SetClipsChildren`; re-parent `borderFrame` to the container; drop its
-       redundant scale/alpha/strata (inherited).
+1. [x] `display.lua`: removed `SetClipsChildren`; re-parented `borderFrame` to the container; dropped its
+       now-inherited scale/alpha/strata.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.15**, rebuild `.release`.
+1. [x] `pnpm validate` green (85/20/9/4 successes, 0 failures; luacheck 0/0). `.toc` `## Version` → **0.9.15**;
+       `.release` rebuilt + parity/load-graph verified.
 2. [ ] **In-game (human, required):** sim shows utility bars; editing Display values with the preview off
        shows nothing; border still wraps the bars cleanly with a preview up.
 
@@ -57,5 +58,9 @@ related:
 - **Constitution check:** Principles OK — frame/edge change in display.lua; no `_G` leaks; pure geometry
   (ns.Layout) untouched.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/35 (open, awaiting human merge)
+- **Outcome:** Branch `fix/WO-032-IJ-display-regressions`, PR #35. Removed `container:SetClipsChildren(true)`
+  (was clipping the utility bars stacked above the one-bar-tall container) and re-parented `borderFrame`
+  from `UIParent` to the container (so its visibility tracks the bars — no stray border box on Display
+  edits, no lingering border). Dropped the border's now-inherited scale/alpha/strata. `.toc` → 0.9.15;
+  gate green; `.release` rebuilt + verified. Awaiting human merge + in-game re-test.
