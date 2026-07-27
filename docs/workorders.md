@@ -86,6 +86,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-047-IJ** — **Display node: pair the Text-offset sliders two-per-row** — `width = "half"` on the four TTK/Utility text-offset sliders so they lay out as a 2×2 grid (TTK X·Y over Utility X·Y) (see `docs/workorders/WO-047-IJ.md`). Status: Accepted (batch pre-approved) — implementing.
 - **WO-045-IJ** — **config header: two-column brand band** (image left + right-margin, title/subtitle stacked left on the right); a self-contained raw band in BadgerConfigUI (`polishHeader`, MINOR 8→9) + a one-time `content` inset, `normalize` omits the text descriptions when `header.image` is set; controls stay native below the band (see `docs/workorders/WO-045-IJ.md`). Status: Done — PR #49 merged; main green.
 - **WO-046-IJ** — **README overhaul**: rework README.md in the polished payload-wonderly/zenzo style (hero + badges + emoji sections + stack table + NOTE callout), promote **badger-ttk to first**, and reflect the **TBC Anniversary + Classic Era** target (#27/#28) (see `docs/workorders/WO-046-IJ.md`). Status: Done — PR #43 merged; main green.
 - **WO-044-IJ** — **ship the icons**: convert the PNGs to uncompressed TGA, ship `badger-ttk-icon.tga` + `badger-master.tga` in `Media/`, set `## IconTexture` (badger-ttk), add `tools/png-to-tga.py`, commit the source PNGs (see `docs/workorders/WO-044-IJ.md`). Status: Done — PR #48 merged; main green.
