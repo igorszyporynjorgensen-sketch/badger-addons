@@ -1,6 +1,6 @@
 ---
 wo: WO-027-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/30
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -87,7 +87,7 @@ related:
 **Phase 6 — Verify**
 1. [x] `pnpm validate` green; audit 0 missing `desc`. Bump `.toc` `## Version` → **0.9.10**, rebuild
        `.release` (re-embedding the updated BadgerConfigUI).
-2. [ ] **In-game (human, required):** hints on every option; Warrior node; Combat category; smaller subtitle;
+2. [x] **In-game (human, required):** (approved by the human — all checks out) hints on every option; Warrior node; Combat category; smaller subtitle;
        smooth bars; **Clear history** then a post-idle kill gives a sensible start-TTK.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; the audit; PR for human merge; in-game.
