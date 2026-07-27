@@ -86,7 +86,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
-- **WO-046-IJ** — **README overhaul**: rework README.md in the polished payload-wonderly/zenzo style (hero + badges + emoji sections + stack table + NOTE callout), promote **badger-ttk to first**, and reflect the **TBC Anniversary + Classic Era** target (#27/#28) (see `docs/workorders/WO-046-IJ.md`). Status: In progress — PR #43 open.
+- **WO-046-IJ** — **README overhaul**: rework README.md in the polished payload-wonderly/zenzo style (hero + badges + emoji sections + stack table + NOTE callout), promote **badger-ttk to first**, and reflect the **TBC Anniversary + Classic Era** target (#27/#28) (see `docs/workorders/WO-046-IJ.md`). Status: Done — PR #43 merged; main green.
 - **WO-039-IJ** — **config copy** (pre-1.0 batch 2): deeper General how-to (#3/#13), a Behavior intro line (#26), intro text on the Raids + Abilities parent nodes (#6), sharper minTTK tooltip (#7) (see `docs/workorders/WO-039-IJ.md`). Status: Done — PR #42 merged; main green.
 - **WO-038-IJ** — **config structure & labels** (pre-1.0 batch 1): title → "Badger Time To Kill (TTK)"
   (#10); Raids moved above Abilities (#11); Simulation → **Preview** (#12); Profiles icon (#8); a header
