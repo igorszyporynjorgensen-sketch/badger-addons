@@ -1,8 +1,8 @@
 ---
 wo: WO-039-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/42
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-038-IJ.md
@@ -34,11 +34,11 @@ related:
 - **Behavior delta:** MODIFIED (in-game) — more descriptive text in the config; no functional change.
 
 **Phase 1 — Copy**
-1. [ ] `config.lua`: General how-to (#3/#13), Behavior intro (#26), Raids + Abilities parent intros (#6),
+1. [x] `config.lua`: General how-to (#3/#13), Behavior intro (#26), Raids + Abilities parent intros (#6),
        minTTK desc (#7).
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version`; rebuild `.release`.
+1. [x] `pnpm validate` green (86 tests). Bumped `.toc` to 0.9.21; `## Version`; rebuild `.release`.
 2. [ ] **In-game (human, required):** the new copy reads well and sits in the right places.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
