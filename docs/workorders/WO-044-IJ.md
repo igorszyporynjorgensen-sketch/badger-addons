@@ -1,8 +1,8 @@
 ---
 wo: WO-044-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/48
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on: []
 related:
@@ -36,10 +36,10 @@ related:
   list, it's a path/extension or descriptor-flip tweak (see [[png-to-wow-tga]]).
 
 **Phase 1 — Ship + wire**
-1. [ ] `Media/*.tga`; `## IconTexture`; `tools/png-to-tga.py`; commit source PNGs; build includes `Media/`.
+1. [x] `Media/*.tga`; `## IconTexture`; `tools/png-to-tga.py`; commit source PNGs; build includes `Media/`.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version`; rebuild `.release` (with `Media/`).
+1. [x] `pnpm validate` green (86). Bumped 0.9.26; Media in .release. `.toc` `## Version`; rebuild `.release` (with `Media/`).
 2. [ ] **In-game (human, required):** the badger-ttk icon shows in the AddOns list.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
