@@ -1,8 +1,8 @@
 ---
 wo: WO-048-IJ
-status: Accepted         # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # PR URL once opened
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/51
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-044-IJ.md
@@ -40,10 +40,10 @@ related:
   or a path/folder-name mismatch. Confirm with a `/reload`.
 
 **Phase 1 — Convert**
-1. [ ] `png-to-tga.py` bottom-origin; regenerate both TGAs; verify descriptor `0x08` + `file(1)`.
+1. [x] `png-to-tga.py` bottom-origin; regenerate both TGAs; verify descriptor `0x08` + `file(1)`.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green; bump badger-ttk `.toc` `## Version` (0.9.29); rebuild `.release` (Media).
+1. [x] `pnpm validate` green; bumped 0.9.29; Media in .release.; rebuild `.release` (Media).
    PR for human merge.
 2. [ ] **In-game (human, required):** the AddOns-list icon and the config-header brand image both show,
    right-side-up.
