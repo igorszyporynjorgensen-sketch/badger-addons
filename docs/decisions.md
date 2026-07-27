@@ -62,11 +62,28 @@ _As of 2026-07-25._
 - **Inspiration assets.** `assets/` (repo root) holds internet-gathered reference material — see
   `assets/README.md`. Drops land via a lightweight lane: `chore` branch + PR (human merges), **no work
   order**; images are optimized before the first commit (see D-002-IJ).
-- **Next id:** D-008-IJ.
+- **Next id:** D-009-IJ.
 
 ---
 
 ## Decision log
+
+### 2026-07-27
+
+- **[D-008-IJ] `badger-ttk` — a "skin" is a saved preset of the Skin *and* Display config; user skins
+  persist in `db.global`.** The skin format (still data-only, no code) gains two OPTIONAL blocks on top of
+  media + colours: bar-text sizes and a **full Display block** (geometry, scale/opacity/strata, growth,
+  the readout toggles — **and** frame position/lock). `Skin.apply` writes **only what a skin carries**, so
+  the built-ins (media + colours, no Display block) restyle **without touching your layout**, while a
+  user-saved skin also **restores the exact captured layout incl. position** on select. A new pure
+  `Skin.saveCurrent(profile, name)` value-copies the current profile into a skin, registers it, and
+  returns it; the config Skin node gets a **name input + "Save current as skin"** button that persists the
+  result to `db.global.skins[name]` (re-registered on `OnInitialize`, so it survives `/reload`); built-ins
+  stay code-defined. *Why:* the human observed a skin is "just combinations of options in skin and
+  display" and wanted to snapshot the current look as a reusable preset. Capturing the **full** Display
+  (including position) is the faithful reading of "save current config" — applying such a skin is an
+  explicit "restore this exact setup", so the frame moving is expected; built-ins deliberately omit the
+  block to keep skin-switching a pure restyle. Recorded by WO-029-IJ.
 
 ### 2026-07-25
 

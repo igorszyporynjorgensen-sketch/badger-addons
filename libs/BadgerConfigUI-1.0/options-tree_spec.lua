@@ -53,6 +53,29 @@ describe("BadgerConfigUI options-tree", function()
         assert.equals("S", sub.name)
     end)
 
+    it("builds a full-width spacer description above the first option", function()
+        local arg = ns.BadgerConfigUIOptionsTree.spacerArg(0.002)
+        assert.equals("description", arg.type)
+        assert.equals("full", arg.width)
+        assert.equals(0.002, arg.order)
+    end)
+
+    it("injects a header/body spacer between the header block and the options", function()
+        local root = {
+            name = "Root",
+            type = "group",
+            args = { general = { type = "group", name = "General", args = {} } },
+        }
+        local normalized = ns.BadgerConfigUIOptionsTree.normalize(root, {
+            banner = { title = "T", subtitle = "S" },
+        })
+        local spacer = normalized.args.general.args.badgerBannerSpacer
+        assert.is_table(spacer)
+        assert.equals("description", spacer.type)
+        -- Sits below the subtitle (0.001) and above any real option (>= 1).
+        assert.is_true(spacer.order > 0.001 and spacer.order < 1)
+    end)
+
     it("passes banner image fields straight through", function()
         local coords = { 0, 1, 0, 1 }
         local arg = ns.BadgerConfigUIOptionsTree.bannerArg({

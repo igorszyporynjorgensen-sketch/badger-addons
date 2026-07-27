@@ -85,11 +85,18 @@ local DEFAULTS = {
     -- observational data, not a per-settings-profile value, so it lives in `global`, never `profile`.
     global = {
         history = {},
+        -- User-saved skins (WO-029): [name] = skin table (see src/skin/skin.lua). Persisted here so a
+        -- "save current config as a skin" survives /reload; built-in skins stay code-defined.
+        skins = {},
     },
 }
 
 function BadgerTTK:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("BadgerTTKDB", DEFAULTS, true)
+    -- Re-register persisted user skins into the runtime registry so they list + re-apply after a reload.
+    for name, skin in pairs(self.db.global.skins or {}) do
+        ns.Skin.RegisterSkin(name, skin)
+    end
     ns.buildOptions(self)
     self:RegisterChatCommand("badgerttk", "OpenOptions")
     self:RegisterChatCommand("bttk", "OpenOptions")
