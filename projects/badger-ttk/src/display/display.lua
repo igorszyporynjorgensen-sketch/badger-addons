@@ -240,8 +240,16 @@ function Display.render(model, health)
             bar.text:ClearAllPoints()
             bar.text:SetPoint("RIGHT", bar, "RIGHT", -3 + p.utilTextX, p.utilTextY)
             -- Colour by action state (waiting/ready/used); the track (bg) is the same texture at a dim
-            -- tint, so the steady segment stays visible while the fill drains within it once used.
-            local c = p[utilityColorKey(b)] or p.colorUtility
+            -- tint. While WAITING, an ability may override the global Utility (waiting) colour with its own
+            -- (WO-042) — looked up by the bar's ability id. Fire/fired keep the global state colours.
+            local key = utilityColorKey(b)
+            local c = p[key] or p.colorUtility
+            if key == "colorUtility" then
+                local ac = p.abilities and p.abilities[b.id]
+                if ac and ac.color then
+                    c = ac.color
+                end
+            end
             bar:SetStatusBarColor(c[1], c[2], c[3], (c[4] or 1) * fg)
             bar.bg:SetTexture(tex)
             bar.bg:SetVertexColor(c[1] * 0.3, c[2] * 0.3, c[3] * 0.3, bgOp)
