@@ -758,12 +758,13 @@ local function buildSimulation(db)
             },
             play = {
                 type = "execute",
-                -- A start/stop button that flips its label with the state.
+                -- A play/pause button that flips its label with the state.
                 name = function()
-                    return db.profile.simPlaying and "Stop" or "Play"
+                    return db.profile.simPlaying and "Pause" or "Play"
                 end,
-                desc = "Animate the shown preview on a loop; Stop returns to the frozen 0:25 still (the"
-                    .. " same bars either way).",
+                desc = "Play or pause the shown preview. Pause freezes the bars exactly where they are;"
+                    .. " Play resumes from there — pausing never resets the timeline. Use Reset to return"
+                    .. " to the 0:25 start.",
                 order = 3,
                 disabled = function()
                     return not db.profile.simStatic -- only meaningful once the preview is shown
@@ -772,6 +773,21 @@ local function buildSimulation(db)
                     db.profile.simPlaying = not db.profile.simPlaying
                     if ns.Display then
                         ns.Display.playSim(db.profile.simPlaying, db.profile.simSpeed)
+                    end
+                end,
+            },
+            reset = {
+                type = "execute",
+                name = "Reset",
+                desc = "Return the preview to the frozen 0:25 start and stop playback.",
+                order = 3.5,
+                disabled = function()
+                    return not db.profile.simStatic -- nothing to reset unless the preview is shown
+                end,
+                func = function()
+                    db.profile.simPlaying = false -- so the Play/Pause button returns to "Play"
+                    if ns.Display then
+                        ns.Display.resetSim()
                     end
                 end,
             },

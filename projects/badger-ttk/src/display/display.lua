@@ -12,8 +12,8 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local FALLBACK_TEX = "Interface\\TargetingFrame\\UI-StatusBar"
 local FALLBACK_FONT = "Fonts\\FRIZQT__.TTF"
 
-local container -- movable parent frame (clips its children to the bar area)
-local borderFrame -- separate frame OUTSET around the container so the border wraps the bars, never overlaps
+local container -- movable parent frame that hosts the bars + the border child
+local borderFrame -- outset child of the container so the border wraps the bars (never overlaps them)
 local targetBar -- the TTK / health bar
 local pool = {} -- reusable utility bar frames
 local BORDER_INSET = 12 -- px the border frame extends beyond the bar area on each side (matches edgeSize)
@@ -270,12 +270,16 @@ local function renderFrozen()
 end
 
 -- Re-apply container settings and re-render the preview if it's up (called from the config UI on any
--- setting change). During playback the loop already re-renders every frame with the new settings, so we
--- only need the container re-apply; otherwise re-draw the frozen still.
+-- setting change). While playing, the loop re-renders every frame; while PAUSED (a `play` exists but the
+-- ticker is off), redraw that same frozen point so a Display edit doesn't snap back to 0:25; otherwise
+-- (plain Show-preview) redraw the 0:25 still.
 function Display.refresh()
     Display.applyContainer()
     if profile().simPlaying then
         return
+    elseif play then
+        local model, _, health = ns.Sim.run(ns.SimScenario.warriorBurst, play.t)
+        Display.render(model, health)
     elseif profile().simStatic then
         renderFrozen()
     end
@@ -310,26 +314,23 @@ function Display.showPreview(on)
     end
 end
 
--- Play / stop the shown preview (WO-030): Play animates the one scenario on a loop; Stop re-freezes it to
--- the same 0:25 still (NOT hide). The OnUpdate lives on the dedicated always-shown simFrame (NOT the
--- container) so a container hide can't stall it; render() re-shows the container each tick.
+-- Play / PAUSE the shown preview (WO-033): Play animates the one scenario on a loop; Pause freezes it
+-- exactly where it is (keeps `play`, so Play resumes from the same point — pausing never resets the
+-- timeline). Reset (below) is the explicit way back to the 0:25 start. The OnUpdate lives on the dedicated
+-- always-shown simFrame (NOT the container) so a container hide can't stall it.
 function Display.playSim(on, speed)
     if not simFrame then
         simFrame = CreateFrame("Frame")
     end
     if not on then
-        play = nil
+        -- Pause: stop the ticker but keep `play` and the current frame on screen.
         simFrame:SetScript("OnUpdate", nil)
-        if profile().simStatic then
-            renderFrozen() -- re-freeze to the same setup (still shown)
-        elseif container then
-            container:Hide()
-        end
         syncDriver()
         return
     end
     Display.init()
-    play = { t = 0, speed = speed or 1 }
+    play = play or { t = 0 } -- resume a paused run from where it left off, or start a fresh one
+    play.speed = speed or play.speed or 1
     simFrame:SetScript("OnUpdate", function(_, elapsed)
         local scenario = ns.SimScenario.warriorBurst
         play.t = play.t + elapsed * play.speed
@@ -339,6 +340,21 @@ function Display.playSim(on, speed)
         local model, _, health = ns.Sim.run(scenario, play.t)
         Display.render(model, health)
     end)
+    syncDriver()
+end
+
+-- Reset the preview to the frozen 0:25 start (WO-033): discard any in-progress run and redraw the still.
+-- The caller (config) also clears db.profile.simPlaying so the Play/Pause button returns to "Play".
+function Display.resetSim()
+    play = nil
+    if simFrame then
+        simFrame:SetScript("OnUpdate", nil)
+    end
+    if profile().simStatic then
+        renderFrozen()
+    elseif container then
+        container:Hide()
+    end
     syncDriver()
 end
 
