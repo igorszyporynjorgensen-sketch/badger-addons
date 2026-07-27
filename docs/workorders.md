@@ -88,7 +88,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 - **WO-033-IJ** — **simulation: Play → Play/Pause + a Reset button**: Pause freezes the animation in place
   (Play resumes from there — pausing never resets the timeline); a new Reset button returns to the frozen
-  0:25 still (see `docs/workorders/WO-033-IJ.md`). Status: Accepted.
+  0:25 still (see `docs/workorders/WO-033-IJ.md`). Status: In progress — PR #36 open.
 - **WO-032-IJ** — **fix two WO-028 display regressions** (found testing 0.9.14): utility bars vanished
   (container `SetClipsChildren` clips the bars stacked above the one-bar-tall container) and editing a
   Display value pops a stray border box (the sibling `borderFrame` isn't tied to container visibility). One

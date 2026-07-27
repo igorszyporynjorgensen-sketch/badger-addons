@@ -1,8 +1,8 @@
 ---
 wo: WO-033-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/36
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-030-IJ.md
@@ -41,17 +41,24 @@ related:
 - **Behavior delta:** MODIFIED (in-game) — Play/Pause preserves position; a Reset button returns to 0:25.
 
 **Phase 1 — Play/Pause + Reset**
-1. [ ] `display.lua`: `playSim(false)` = pause (keep `play`/frame); add `Display.resetSim()`; `refresh()`
-       re-renders a paused frame at `play.t`.
-2. [ ] `config.lua` Simulation node: Play⇄Pause label on the toggle button; add a Reset button (both gated
-       on Show preview).
+1. [x] `display.lua`: `playSim(false)` = pause (keep `play`/frame, no re-freeze/hide); `playSim(true)`
+       resumes (`play = play or {t=0}`); added `Display.resetSim()`; `refresh()` re-renders a paused frame
+       at `play.t`.
+2. [x] `config.lua` Simulation node: Play⇄Pause label on the toggle button; added a Reset button (both
+       gated on Show preview; Reset clears `simPlaying`).
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version` (next patch), rebuild `.release`.
+1. [x] `pnpm validate` green (85/20/9/4 successes, 0 failures; luacheck 0/0). `.toc` `## Version` → **0.9.16**;
+       `.release` rebuilt + parity/load-graph verified.
 2. [ ] **In-game (human, required):** Pause freezes in place; Play resumes; Reset returns to 0:25.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
 - **Constitution check:** Principles OK — frame/edge changes; no `_G` leaks; pure sim/layout untouched.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/36 (open, awaiting human merge)
+- **Outcome:** Branch `feature/WO-033-IJ-sim-play-pause-reset`, PR #36. `playSim(false)` now pauses (keeps
+  `play` + the current frame); `playSim(true)` resumes; `Display.resetSim()` returns to the 0:25 still;
+  `refresh()` redraws a paused frame at `play.t`. Config Simulation node: Play⇄Pause label + a Reset button
+  (both gated on Show preview). `.toc` → 0.9.16; gate green; `.release` rebuilt + verified. Open question in
+  the PR: whether a fresh Play should also start at 0:25 (kept the timeline start unchanged for minimality).
+  Awaiting human merge + in-game re-test.
