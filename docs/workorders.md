@@ -86,9 +86,10 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
-- **WO-036-IJ** — **badger-arena up to speed with the global header**: switch its config from `banner` to
-  `header` and rebuild its `.release` to embed BadgerConfigUI MINOR 6 (see `docs/workorders/WO-036-IJ.md`).
-  Status: Proposed.
+- **WO-036-IJ** — **badger-arena adopts the global-header API**: switch its config from the `banner` alias
+  to the explicit `opts.header` (already renders via the alias; this makes it current). Arena has no built
+  `.release` yet, so an in-game build is deferred; whenever built it embeds BadgerConfigUI MINOR 6 (see
+  `docs/workorders/WO-036-IJ.md`). Status: Accepted.
 - **WO-035-IJ** — **Reset rewinds the sim to 100% (0:50), independent of Play**: Reset returns to the
   timeline start (full health) instead of the 0:25 still, and no longer stops playback (see
   `docs/workorders/WO-035-IJ.md`). Status: In progress — PR #38 open.
