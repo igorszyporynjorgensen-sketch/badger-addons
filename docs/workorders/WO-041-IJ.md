@@ -1,8 +1,8 @@
 ---
 wo: WO-041-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/45
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-040-IJ.md
@@ -47,11 +47,11 @@ related:
 - **Behavior delta:** MODIFIED (in-game) — two heights, tight border, fill/bg opacity, text offsets.
 
 **Phase 1 — Geometry & opacity**
-1. [ ] `core.lua` defaults, `skin.lua` `DISPLAY_FIELDS`, `display.lua` (heights/stack/opacity/text/border),
+1. [x] `core.lua` defaults, `skin.lua` `DISPLAY_FIELDS`, `display.lua` (heights/stack/opacity/text/border),
        `config.lua` (Display sliders).
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version`; rebuild `.release`.
+1. [x] `pnpm validate` green (86). Bumped 0.9.23. `.toc` `## Version`; rebuild `.release`.
 2. [ ] **In-game (human, required):** two heights, tight border, opacity sliders, text offsets; skins round-trip.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
