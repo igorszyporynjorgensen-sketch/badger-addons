@@ -293,8 +293,9 @@ local function buildSkin(db)
             newSkinName = {
                 type = "input",
                 name = "New skin name",
-                desc = "Type a name, then press Save to capture the current Skin + Display settings as a"
-                    .. " reusable skin.",
+                desc = "Type a name, then press Save to capture the current look (Skin + the Display size /"
+                    .. " scale / colours / readout) as a reusable skin. Your bar position and lock are kept"
+                    .. " — a skin never moves the bars.",
                 order = 2,
                 get = function()
                     return pendingSkinName
@@ -306,8 +307,9 @@ local function buildSkin(db)
             saveSkin = {
                 type = "execute",
                 name = "Save current as skin",
-                desc = "Save all current Skin and Display settings as a new skin under the name above. It"
-                    .. " appears in the picker and persists across /reload.",
+                desc = "Save the current look (Skin + Display size / scale / colours / readout — not bar"
+                    .. " position or lock) as a new skin under the name above. It appears in the picker and"
+                    .. " persists across /reload.",
                 order = 3,
                 disabled = function()
                     return strtrim(pendingSkinName or "") == ""
