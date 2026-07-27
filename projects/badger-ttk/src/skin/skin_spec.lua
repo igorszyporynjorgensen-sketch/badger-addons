@@ -32,17 +32,37 @@ describe("Skin", function()
         assert.equals("keep", p.statusbar)
     end)
 
-    it("applies font sizes and a Display block when the skin carries them", function()
+    it("applies font sizes and the Display LOOK, but never frame position/lock", function()
         ns.Skin.RegisterSkin("Big", {
             fontSizeMain = 24,
-            display = { barWidth = 300, scale = 1.5, anchorPoint = "LEFT" },
+            -- A skin table may still name position/lock, but apply must IGNORE them (excluded fields).
+            display = {
+                barWidth = 300,
+                scale = 1.5,
+                anchorPoint = "LEFT",
+                posX = 99,
+                posY = 77,
+                locked = false,
+            },
         })
-        local p = { barWidth = 180, scale = 1.0, anchorPoint = "RIGHT", fontSizeMain = 16 }
+        local p = {
+            barWidth = 180,
+            scale = 1.0,
+            anchorPoint = "RIGHT",
+            posX = 0,
+            posY = -12,
+            locked = true,
+            fontSizeMain = 16,
+        }
         ns.Skin.apply(p, "Big")
         assert.equals(24, p.fontSizeMain)
         assert.equals(300, p.barWidth)
         assert.equals(1.5, p.scale)
-        assert.equals("LEFT", p.anchorPoint)
+        -- Position + lock untouched — a skin never moves the bars or changes the lock.
+        assert.equals("RIGHT", p.anchorPoint)
+        assert.equals(0, p.posX)
+        assert.equals(-12, p.posY)
+        assert.equals(true, p.locked)
     end)
 
     it("leaves layout untouched for a media-only skin (no Display block)", function()
@@ -53,7 +73,7 @@ describe("Skin", function()
     end)
 
     it(
-        "saveCurrent snapshots media, colours and the full Display config into a new skin",
+        "saveCurrent snapshots media, colours and the Display LOOK — but not position/lock",
         function()
             local p = {
                 statusbar = "Flat",
@@ -67,17 +87,23 @@ describe("Skin", function()
                 colorReady = { 0, 0, 0, 1 },
                 colorUsed = { 0, 0, 0, 1 },
                 barWidth = 222,
+                scale = 1.4,
                 anchorPoint = "CENTER",
                 posX = 10,
                 posY = -5,
+                locked = false,
             }
             local skin = ns.Skin.saveCurrent(p, "MySkin")
             assert.equals("Flat", skin.statusbar)
             assert.equals(20, skin.fontSizeMain)
             assert.same({ 0.1, 0.2, 0.3, 1 }, skin.colors.target)
             assert.equals(222, skin.display.barWidth)
-            assert.equals("CENTER", skin.display.anchorPoint)
-            assert.equals(10, skin.display.posX)
+            assert.equals(1.4, skin.display.scale)
+            -- Frame position + lock are NOT captured.
+            assert.is_nil(skin.display.anchorPoint)
+            assert.is_nil(skin.display.posX)
+            assert.is_nil(skin.display.posY)
+            assert.is_nil(skin.display.locked)
             -- Registered so it lists and re-applies.
             assert.equals("MySkin", ns.Skin.ListSkins().MySkin)
         end
@@ -92,31 +118,37 @@ describe("Skin", function()
         assert.equals(100, skin.display.barWidth)
     end)
 
-    it("round-trips: saveCurrent then apply restores the captured config", function()
-        local src = {
-            statusbar = "Flat",
-            font = "Arial",
-            border = "None",
-            fontSizeMain = 18,
-            fontSizeOther = 11,
-            colorTarget = { 0.4, 0.5, 0.6, 1 },
-            colorUtility = { 0, 0, 0, 1 },
-            colorWaiting = { 0, 0, 0, 1 },
-            colorReady = { 0, 0, 0, 1 },
-            colorUsed = { 0, 0, 0, 1 },
-            barWidth = 210,
-            barHeight = 24,
-            scale = 1.25,
-            anchorPoint = "TOPRIGHT",
-        }
-        ns.Skin.saveCurrent(src, "RT")
-        local dst = { colorTarget = { 0, 0, 0, 1 } }
-        ns.Skin.apply(dst, "RT")
-        assert.equals("Flat", dst.statusbar)
-        assert.equals(18, dst.fontSizeMain)
-        assert.same({ 0.4, 0.5, 0.6, 1 }, dst.colorTarget)
-        assert.equals(210, dst.barWidth)
-        assert.equals(1.25, dst.scale)
-        assert.equals("TOPRIGHT", dst.anchorPoint)
-    end)
+    it(
+        "round-trips the LOOK: saveCurrent then apply restores it without touching position",
+        function()
+            local src = {
+                statusbar = "Flat",
+                font = "Arial",
+                border = "None",
+                fontSizeMain = 18,
+                fontSizeOther = 11,
+                colorTarget = { 0.4, 0.5, 0.6, 1 },
+                colorUtility = { 0, 0, 0, 1 },
+                colorWaiting = { 0, 0, 0, 1 },
+                colorReady = { 0, 0, 0, 1 },
+                colorUsed = { 0, 0, 0, 1 },
+                barWidth = 210,
+                barHeight = 24,
+                scale = 1.25,
+                anchorPoint = "TOPRIGHT", -- captured from src? no — position is excluded
+            }
+            ns.Skin.saveCurrent(src, "RT")
+            -- dst sits at its OWN position; applying the skin must keep it there.
+            local dst = { colorTarget = { 0, 0, 0, 1 }, anchorPoint = "LEFT", posX = 42 }
+            ns.Skin.apply(dst, "RT")
+            assert.equals("Flat", dst.statusbar)
+            assert.equals(18, dst.fontSizeMain)
+            assert.same({ 0.4, 0.5, 0.6, 1 }, dst.colorTarget)
+            assert.equals(210, dst.barWidth)
+            assert.equals(1.25, dst.scale)
+            -- dst's own placement is preserved (the skin carried none).
+            assert.equals("LEFT", dst.anchorPoint)
+            assert.equals(42, dst.posX)
+        end
+    )
 end)

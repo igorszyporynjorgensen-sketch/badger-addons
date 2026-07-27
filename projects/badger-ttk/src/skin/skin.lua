@@ -14,11 +14,12 @@ local _, ns = ...
 --     border       = "<LSM border name>",      -- e.g. "None"
 --     fontSizeMain = <n>, fontSizeOther = <n>, -- optional bar-text sizes
 --     colors       = { target=, utility=, waiting=, ready=, used= },  -- each { r, g, b, a }
---     display      = { <Display-node field> = <value>, ... },         -- optional full Display config
+--     display      = { <Display-node LOOK field> = <value>, ... },     -- optional geometry/readout look
 --   }
 -- All fields are OPTIONAL: apply() only writes what a skin carries, so a bare media/colour skin (the
--- built-ins) restyles WITHOUT touching your layout, while a "save current config" skin (D-008) also
--- carries the Display block and restores geometry/position on apply.
+-- built-ins) restyles WITHOUT touching your layout, while a "save current config" skin (D-008, amended by
+-- D-010) also carries the Display LOOK. Frame POSITION and lock are NEVER captured — applying a skin
+-- restyles the bars without moving them (see DISPLAY_FIELDS).
 
 local Skin = {}
 
@@ -36,14 +37,11 @@ local COLOR_FIELD = {
 -- Skin-node scalar fields captured/restored alongside the colours (media + bar-text sizes).
 local MEDIA_FIELDS = { "statusbar", "font", "border", "fontSizeMain", "fontSizeOther" }
 
--- The full Display-node config a "save current config" skin captures + restores (D-008). Includes
--- position/lock, so applying such a skin restores the exact saved layout; built-in skins omit this
--- block entirely and therefore never move your bars.
+-- The Display-node LOOK a "save current config" skin captures + restores (D-008, amended by D-010). This
+-- is the geometry + readout look ONLY — frame position (anchorPoint/posX/posY) and lock are deliberately
+-- EXCLUDED, so applying a skin restyles the bars without moving them or changing whether they're locked.
+-- (A skin already saved with those fields is harmless: apply() iterates this list, so they're ignored.)
 local DISPLAY_FIELDS = {
-    "anchorPoint",
-    "locked",
-    "posX",
-    "posY",
     "scale",
     "growthDirection",
     "barWidth",
@@ -78,8 +76,9 @@ function Skin.ListSkins()
 end
 
 -- Apply a named skin's values onto `profile`. Only writes what the skin carries: media/sizes (present),
--- the six colours (present), and the Display block (present) — so a bare built-in restyles without
--- touching layout, and a saved-config skin also restores geometry/position. No-op for an unknown skin.
+-- the six colours (present), and the Display LOOK block (present) — so a bare built-in restyles without
+-- touching layout, and a saved skin also restores the geometry/readout look. Frame position/lock are never
+-- in DISPLAY_FIELDS, so a skin never moves the bars. No-op for an unknown skin.
 function Skin.apply(profile, name)
     local skin = registry[name]
     if not skin then
@@ -107,9 +106,9 @@ function Skin.apply(profile, name)
     end
 end
 
--- PURE: snapshot the current profile as a new skin table (media/sizes + the six colours + the full
--- Display config), register it under `name`, and return it so the caller can persist it (db.global).
--- Captures a value copy of every field, so later profile edits don't mutate the saved skin.
+-- PURE: snapshot the current profile as a new skin table (media/sizes + the six colours + the Display
+-- LOOK — geometry/readout, NOT frame position/lock), register it under `name`, and return it so the caller
+-- can persist it (db.global). Captures a value copy of every field, so later profile edits don't mutate it.
 function Skin.saveCurrent(profile, name)
     local skin = { colors = {}, display = {} }
     for i = 1, #MEDIA_FIELDS do

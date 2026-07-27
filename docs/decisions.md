@@ -62,13 +62,24 @@ _As of 2026-07-25._
 - **Inspiration assets.** `assets/` (repo root) holds internet-gathered reference material — see
   `assets/README.md`. Drops land via a lightweight lane: `chore` branch + PR (human merges), **no work
   order**; images are optimized before the first commit (see D-002-IJ).
-- **Next id:** D-010-IJ.
+- **Next id:** D-011-IJ.
 
 ---
 
 ## Decision log
 
 ### 2026-07-27
+
+- **[D-010-IJ] `badger-ttk` — skins exclude frame position & lock (amends D-008).** A saved skin captures
+  the Skin-node fields (media, colours, font sizes) and the Display **look** (size, scale, opacity, strata,
+  growth, the readout toggles) — but **not** `anchorPoint / posX / posY / locked`. So applying a skin (or
+  switching skins) **restyles the bars without moving them or changing whether they're locked**;
+  `DISPLAY_FIELDS` in `skin.lua` no longer lists the four placement fields, so both `saveCurrent` (capture)
+  and `apply` (restore) follow from the one list. Backward-compatible: a skin already saved under D-008 may
+  still hold those fields, but `apply` iterates `DISPLAY_FIELDS` and simply ignores them — no migration.
+  *Why:* the human decided placement is not part of a "look" — a skin should re-theme the bars in place,
+  not teleport them; the "save current config" faithfulness that motivated D-008's inclusion is outweighed
+  by the foot-gun of a skin moving your frame. Recorded by WO-031-IJ.
 
 - **[D-009-IJ] `badger-ttk` — the preview is ONE scenario: the static view is it frozen, the dynamic
   Play/Stop just animates/re-freezes that same setup; closing the config stops the preview.** Collapsed
@@ -84,7 +95,8 @@ _As of 2026-07-25._
   lingers after the config is dismissed. Builds on D-007 (fixed-timeline geometry). Recorded by WO-030-IJ.
 
 - **[D-008-IJ] `badger-ttk` — a "skin" is a saved preset of the Skin *and* Display config; user skins
-  persist in `db.global`.** The skin format (still data-only, no code) gains two OPTIONAL blocks on top of
+  persist in `db.global`.** *Amended by [D-010-IJ] — frame position/lock are NO LONGER captured.* The skin
+  format (still data-only, no code) gains two OPTIONAL blocks on top of
   media + colours: bar-text sizes and a **full Display block** (geometry, scale/opacity/strata, growth,
   the readout toggles — **and** frame position/lock). `Skin.apply` writes **only what a skin carries**, so
   the built-ins (media + colours, no Display block) restyle **without touching your layout**, while a
