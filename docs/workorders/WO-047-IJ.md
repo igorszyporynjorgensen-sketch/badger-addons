@@ -1,8 +1,8 @@
 ---
 wo: WO-047-IJ
-status: Accepted         # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # PR URL once opened
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/50
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on: []
 related:
@@ -31,10 +31,10 @@ related:
   the fallback is an explicit full-width line-break between the pairs; confirm with a `/reload`.
 
 **Phase 1 — Layout**
-1. [ ] `config.lua`: `width = "half"` on `ttkTextX` / `ttkTextY` / `utilTextX` / `utilTextY`.
+1. [x] `config.lua`: `width = "half"` on `ttkTextX` / `ttkTextY` / `utilTextX` / `utilTextY`.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green; bump badger-ttk `.toc` `## Version` (0.9.28); rebuild `.release`. PR for
+1. [x] `pnpm validate` green; bumped 0.9.28.; rebuild `.release`. PR for
    human merge.
 2. [ ] **In-game (human, required):** the two TTK sliders share a line above the two Utility sliders.
 
