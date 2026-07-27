@@ -100,18 +100,45 @@ local DEFAULTS = {
     },
 }
 
+-- Bring the ACTIVE profile up to date. Runs on init AND on every profile switch/reset/copy — AceDB points
+-- db.profile at a different table on those and never migrates inactive profiles on its own. Renames the
+-- retired "Badger" skin (WO-038), drops the removed barHeight field (WO-041), points any unknown/deleted
+-- skin at the built-in so nothing references a missing skin (audit #7), and clears any persisted preview
+-- state so a fresh session/profile never starts stuck in a preview the render path won't draw (audit #3).
+local function normalizeProfile(p)
+    if p.skin == "Badger" then
+        p.skin = ns.Skin.BUILTIN
+    end
+    p.barHeight = nil
+    if not ns.Skin.GetSkin(p.skin) then
+        p.skin = ns.Skin.BUILTIN
+    end
+    p.simStatic = false
+    p.simPlaying = false
+end
+
 function BadgerTTK:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("BadgerTTKDB", DEFAULTS, true)
-    -- The built-in skin was renamed "Badger" → "Default" (WO-038); carry old profiles across.
-    if self.db.profile.skin == "Badger" then
-        self.db.profile.skin = ns.Skin.BUILTIN
-    end
-    -- `barHeight` was split into ttkBarHeight / utilityBarHeight (WO-041); drop the retired field.
-    self.db.profile.barHeight = nil
-    -- Re-register persisted user skins into the runtime registry so they list + re-apply after a reload.
+    -- Re-register persisted user skins into the runtime registry (so they list + re-apply after a reload)
+    -- BEFORE normalizing, so a profile pointing at a saved skin validates instead of being reset.
     for name, skin in pairs(self.db.global.skins or {}) do
         ns.Skin.RegisterSkin(name, skin)
     end
+    normalizeProfile(self.db.profile)
+    -- Re-apply the container (scale / position / size / strata) and refresh the panel whenever the active
+    -- profile changes, resets, or is copied. AceDB swaps db.profile under us and nothing else re-applies it,
+    -- so the display would otherwise keep the previous profile's geometry (audit #4 — the "bars not aligned
+    -- after clearing my profile" bug).
+    local function onProfile()
+        normalizeProfile(self.db.profile)
+        if ns.Display then
+            ns.Display.refresh()
+        end
+        LibStub("AceConfigRegistry-3.0"):NotifyChange(ADDON_NAME)
+    end
+    self.db:RegisterCallback("OnProfileChanged", onProfile)
+    self.db:RegisterCallback("OnProfileReset", onProfile)
+    self.db:RegisterCallback("OnProfileCopied", onProfile)
     ns.buildOptions(self)
     self:RegisterChatCommand("badgerttk", "OpenOptions")
     self:RegisterChatCommand("bttk", "OpenOptions")
