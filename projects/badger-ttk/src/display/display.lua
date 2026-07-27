@@ -103,13 +103,11 @@ function Display.applyContainer()
     if targetBar then
         targetBar:SetSize(p.barWidth, p.barHeight)
     end
-    -- Border on the outset frame so it wraps the bars without overlapping them (and isn't clipped).
+    -- Border on the outset child frame so it wraps the bars without overlapping them. Scale / alpha /
+    -- strata are INHERITED from the container (it's a child now), so we only set the backdrop + anchors.
     if borderFrame then
         local edge = (p.border and p.border ~= "None") and media("border", p.border, nil) or nil
         if edge then
-            borderFrame:SetScale(p.scale)
-            borderFrame:SetAlpha(p.opacity)
-            borderFrame:SetFrameStrata(p.strata)
             borderFrame:ClearAllPoints()
             borderFrame:SetPoint("TOPLEFT", container, "TOPLEFT", -BORDER_INSET, BORDER_INSET)
             borderFrame:SetPoint(
@@ -140,7 +138,6 @@ function Display.init()
         return
     end
     container = CreateFrame("Frame", "BadgerTTKFrame", UIParent)
-    container:SetClipsChildren(true) -- a fill can never render past the bar area (stays inside the border)
     container:SetMovable(true)
     container:RegisterForDrag("LeftButton")
     container:SetScript("OnDragStart", function(self)
@@ -155,10 +152,11 @@ function Display.init()
         p.anchorPoint, p.posX, p.posY = point, x, y
     end)
 
-    -- The border lives on a SEPARATE frame outset around the container, so it wraps the bars rather than
-    -- overlapping them (and isn't clipped by the container). A sibling of the container so the clip above
-    -- can't cut it; anchored to the container so it follows moves/resizes.
-    borderFrame = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+    -- The border lives on its OWN frame outset around the bar area, so it wraps the bars rather than
+    -- overlapping them. A CHILD of the container (not a sibling): its visibility then tracks the
+    -- container's — so it hides with the bars and never lingers on screen when nothing is shown. It's
+    -- anchored beyond the container (12px outset) and nothing clips it (the container no longer clips).
+    borderFrame = CreateFrame("Frame", nil, container, "BackdropTemplate")
 
     targetBar = CreateFrame("StatusBar", nil, container)
     targetBar:SetReverseFill(true) -- fills from the right (death); empties on the left as health drops
