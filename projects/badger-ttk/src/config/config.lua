@@ -197,6 +197,25 @@ local function buildGeneral(db)
                 get = getter(db, "enabled"),
                 set = setter(db, "enabled"),
             },
+            howto = {
+                type = "description",
+                fontSize = "medium",
+                order = 3,
+                name = "\n|cfff5c542How it works|r\n"
+                    .. "Target an enemy and the main bar shows the estimated time until it dies — the right"
+                    .. " edge is death, and it drains left as the target's health falls. In a raid encounter"
+                    .. " (or on any target, if you allow it) utility bars stack above it: each one signals the"
+                    .. " moment to fire that cooldown so its buff lands on the kill — |cff4d80ccwaiting|r"
+                    .. " (not yet) → |cff26d940fire now|r → |cff8c8c8cused|r.\n\n"
+                    .. "|cfff5c542Where things live|r\n"
+                    .. "|cffffffffBehavior|r — when the bars appear (combat, hostile, raids only, …).\n"
+                    .. "|cffffffffSkin|r — the look: bar texture, font, border, colours, and saved skins.\n"
+                    .. "|cffffffffDisplay|r — size, position, scale, growth, and which text shows.\n"
+                    .. "|cffffffffEstimator|r — how steady vs. reactive the time-to-kill reads.\n"
+                    .. "|cffffffffRaids|r — which encounters show the utility bars.\n"
+                    .. "|cffffffffAbilities|r — the tracked cooldowns (per class) and their timing.\n"
+                    .. "|cffffffffPreview|r — try the look with no target; animate a sample fight.",
+            },
         },
     }
 end
@@ -208,6 +227,12 @@ local function buildBehavior(db)
         order = 2,
         icon = ICON .. "INV_Misc_Spyglass_02",
         args = {
+            about = {
+                type = "description",
+                name = "Choose when the bars appear on screen.",
+                fontSize = "medium",
+                order = 0.5,
+            },
             header = { type = "header", name = "When to show", order = 1 },
             inCombatOnly = {
                 type = "toggle",
@@ -254,7 +279,10 @@ local function buildBehavior(db)
             minTTK = {
                 type = "range",
                 name = "Minimum time-to-kill",
-                desc = "Hide the bars until the estimate is at least this many seconds (kills trash flicker).",
+                desc = "Gates the bars' FIRST appearance: they don't show until the estimate reaches this"
+                    .. " many seconds, so quick trash never flashes them up. Once shown they stay for the"
+                    .. " rest of that target — even as the estimate drops below this — so there's no"
+                    .. " flicker at the end of a fight.",
                 order = 6,
                 min = 0,
                 max = 120,
@@ -882,6 +910,14 @@ local function buildRaids(db)
             args = args,
         }
     end
+    raidArgs.about = {
+        type = "description",
+        name = "Pick which raid encounters show the utility cooldown bars. Choose a raid below; each one has"
+            .. " a master toggle plus a per-encounter list. (Outside a raid, utility bars follow the Behavior"
+            .. " setting.)",
+        fontSize = "medium",
+        order = 0,
+    }
     return {
         type = "group",
         name = "Raids",
@@ -947,6 +983,14 @@ local function buildAbilities(db)
         order = 7,
         icon = ICON .. "Ability_Warrior_Trauma",
         args = {
+            about = {
+                type = "description",
+                name = "The cooldowns Badger can time for you, grouped by class (Warrior below). Each entry"
+                    .. " has an enable toggle and a fire-timing offset — editable even for abilities you"
+                    .. " can't currently use, so you can pre-configure for gear or specs you don't have yet.",
+                fontSize = "medium",
+                order = 0,
+            },
             warrior = {
                 type = "group",
                 name = "Warrior",
