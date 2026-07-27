@@ -2,7 +2,7 @@
 ## Title: Badger Arena
 ## Notes: Lightweight arena unit-frames and on-screen info for WoW Classic (TBC Anniversary).
 ## Author: Igor Szyporyn
-## Version: 0.1.0
+## Version: 0.1.1
 ## SavedVariables: BadgerArenaDB
 ## X-Category: Arena
 ## X-License: MIT

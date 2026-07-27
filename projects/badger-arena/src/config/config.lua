@@ -43,7 +43,8 @@ function ns.buildOptions(addon)
 
     LibStub("BadgerConfigUI-1.0"):Register(ADDON_NAME, options, {
         title = "Badger Arena",
-        banner = { title = "Badger Arena", subtitle = "Arena unit-frames and on-screen info" },
+        -- One global header above the tree (BadgerConfigUI-1.0 MINOR 6). No controls — arena has no preview.
+        header = { title = "Badger Arena", subtitle = "Arena unit-frames and on-screen info" },
         blizzard = true,
         status = "Reopen with /badgerarena or /ba",
     })
