@@ -85,7 +85,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
-- **WO-051-IJ** — **fix: profile switch/reset leaves display stale** (audit #4 = the "bars not aligned after clearing profile" bug) + reset preview state on init (#3) + normalize unknown skin on inactive profiles (#7); AceDB profile callbacks in core.lua (see `docs/workorders/WO-051-IJ.md`). Status: Accepted (pre-approved) — implementing.
+- **WO-051-IJ** — **fix: profile switch/reset leaves display stale** (audit #4 = the "bars not aligned after clearing profile" bug) + reset preview state on init (#3) + normalize unknown skin on inactive profiles (#7); AceDB profile callbacks in core.lua (see `docs/workorders/WO-051-IJ.md`). Status: In progress — PR #54.
 - **WO-050-IJ** — **Text-offsets one row**: `width = 0.25` on the four TTK/Utility text-offset sliders so all four share a row (see `docs/workorders/WO-050-IJ.md`). Status: Done — PR #53 merged; main green.
 - **WO-049-IJ** — **default profile tuning**: fresh-profile defaults (bar 220, bg opacity 45%, Blizzard Raid Bar, Arial Narrow, util size 10, TTK size 13, util-waiting black) + built-in Default skin match (see `docs/workorders/WO-049-IJ.md`). Status: In progress — PR #52 opened.
 
