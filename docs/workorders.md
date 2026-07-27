@@ -86,10 +86,16 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-036-IJ** — **badger-arena up to speed with the global header**: switch its config from `banner` to
+  `header` and rebuild its `.release` to embed BadgerConfigUI MINOR 6 (see `docs/workorders/WO-036-IJ.md`).
+  Status: Proposed.
+- **WO-035-IJ** — **Reset rewinds the sim to 100% (0:50), independent of Play**: Reset returns to the
+  timeline start (full health) instead of the 0:25 still, and no longer stops playback (see
+  `docs/workorders/WO-035-IJ.md`). Status: Proposed.
 - **WO-034-IJ** — **persistent global header in BadgerConfigUI**: replace the identical per-node banner with
   one global header (title/subtitle) rendered above the tree via root-level AceConfig args, and add a **Show
   preview** toggle to it (kept in the Simulation node too; native two-way sync). Shared lib (MINOR 5→6),
-  `opts.banner` kept as an alias (see `docs/workorders/WO-034-IJ.md`). Status: In progress — PR #37 open.
+  `opts.banner` kept as an alias (see `docs/workorders/WO-034-IJ.md`). Status: Done — PR #37 merged; main green.
 - **WO-033-IJ** — **simulation: Play → Play/Pause + a Reset button**: Pause freezes the animation in place
   (Play resumes from there — pausing never resets the timeline); a new Reset button returns to the frozen
   0:25 still (see `docs/workorders/WO-033-IJ.md`). Status: Done — PR #36 merged; main green.

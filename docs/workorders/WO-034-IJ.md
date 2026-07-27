@@ -1,6 +1,6 @@
 ---
 wo: WO-034-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/37
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -82,7 +82,7 @@ related:
   render are the Ace edge; shared lib bumps `MINOR`; no `_G` leaks.
 - **Decisions produced:** — (candidate: the config header is one global, root-level element; consumers
   declare it via `opts.header`, `opts.banner` kept as an alias.)
-- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/37 (open, awaiting human merge)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/37 (merged; main green)
 - **Outcome:** Branch `feature/WO-034-IJ-global-header`, PR #37. `normalize` now injects ONE root-level
   header (title/subtitle + controls + spacer) — which AceConfigDialog renders above the tree — instead of
   the per-page banner; `opts.header` API + `opts.banner` alias; lib MINOR 5→6. badger-ttk gains a header
