@@ -66,11 +66,11 @@ end
 -- (fired + draining, gray). Maps a layout bar to its db.profile colour key.
 local function utilityColorKey(bar)
     if bar.state == "active" then
-        return "colorUsed"
+        return "colorUsed" -- Utility (fired)
     elseif bar.ready then
-        return "colorReady"
+        return "colorReady" -- Utility (fire)
     end
-    return "colorWaiting"
+    return "colorUtility" -- Utility (waiting)
 end
 
 -- m:ss (or raw seconds) per the config; "" when TTK is unknown.
@@ -205,6 +205,7 @@ function Display.render(model, health)
     local p = profile()
     local tex = media("statusbar", p.statusbar, FALLBACK_TEX)
     local font = media("font", p.font, FALLBACK_FONT)
+    local fc = p.colorFont or { 1, 1, 1, 1 } -- bar text colour
     local layout = ns.Layout.compute(
         model,
         { width = p.barWidth, height = p.barHeight, spacing = p.barSpacing }
@@ -213,6 +214,7 @@ function Display.render(model, health)
     targetBar:SetSize(p.barWidth, p.barHeight)
     targetBar:SetStatusBarTexture(tex)
     targetBar.text:SetFont(font, p.fontSizeMain, "OUTLINE")
+    targetBar.text:SetTextColor(fc[1], fc[2], fc[3], fc[4])
     paint(targetBar, "colorTarget")
     local tc = p.colorTarget
     targetBar.bg:SetTexture(tex) -- faint background track, tinted from the target colour
@@ -235,6 +237,7 @@ function Display.render(model, health)
             bar:SetSize(math.max(1, right - left), p.barHeight)
             bar:SetStatusBarTexture(tex)
             bar.text:SetFont(font, p.fontSizeOther, "OUTLINE")
+            bar.text:SetTextColor(fc[1], fc[2], fc[3], fc[4])
             -- Colour by action state (waiting/ready/used); the track (bg) is the same texture at a dim
             -- tint, so the steady segment stays visible while the fill drains within it once used.
             local c = p[utilityColorKey(b)] or p.colorUtility

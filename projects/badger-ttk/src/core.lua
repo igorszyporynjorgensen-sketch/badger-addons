@@ -52,12 +52,12 @@ local DEFAULTS = {
         border = "None",
         fontSizeMain = 16,
         fontSizeOther = 12,
-        colorTarget = { 0.85, 0.15, 0.15, 1 },
-        colorUtility = { 0.25, 0.50, 0.90, 1 }, -- fallback tint
-        -- Utility-bar action signal: waiting (fire moment ahead) → ready (fire now) → used (draining).
-        colorWaiting = { 0.30, 0.50, 0.80, 1 },
-        colorReady = { 0.15, 0.85, 0.25, 1 },
-        colorUsed = { 0.55, 0.55, 0.55, 1 },
+        colorTarget = { 0.85, 0.15, 0.15, 1 }, -- Target (TTK) bar
+        -- Utility-bar action signal (WO-040): waiting (fire moment ahead) → fire (fire now) → fired (draining).
+        colorUtility = { 0.30, 0.50, 0.80, 1 }, -- Utility (waiting)
+        colorReady = { 0.15, 0.85, 0.25, 1 }, -- Utility (fire)
+        colorUsed = { 0.55, 0.55, 0.55, 1 }, -- Utility (fired)
+        colorFont = { 1, 1, 1, 1 }, -- bar text colour
 
         -- Estimator (v1 live-only; the math lands in the engine WO).
         reactivity = 0.5,

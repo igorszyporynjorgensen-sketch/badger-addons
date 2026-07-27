@@ -26,12 +26,14 @@ local Skin = {}
 local registry = {}
 
 -- Colour key in the skin → its db.profile field.
+-- Consolidated (WO-040): Target (TTK) + three utility states — utility=waiting, ready=fire, used=fired —
+-- plus the bar-text (font) colour. The old separate "waiting" colour is gone (waiting uses `utility`).
 local COLOR_FIELD = {
     target = "colorTarget",
     utility = "colorUtility",
-    waiting = "colorWaiting",
     ready = "colorReady",
     used = "colorUsed",
+    font = "colorFont",
 }
 
 -- Skin-node scalar fields captured/restored alongside the colours (media + bar-text sizes).
@@ -148,11 +150,11 @@ Skin.RegisterSkin(Skin.BUILTIN, {
     font = "Friz Quadrata TT",
     border = "None",
     colors = {
-        target = { 0.85, 0.15, 0.15, 1 },
-        utility = { 0.25, 0.50, 0.90, 1 },
-        waiting = { 0.30, 0.50, 0.80, 1 },
-        ready = { 0.15, 0.85, 0.25, 1 },
-        used = { 0.55, 0.55, 0.55, 1 },
+        target = { 0.85, 0.15, 0.15, 1 }, -- Target (TTK)
+        utility = { 0.30, 0.50, 0.80, 1 }, -- Utility (waiting)
+        ready = { 0.15, 0.85, 0.25, 1 }, -- Utility (fire)
+        used = { 0.55, 0.55, 0.55, 1 }, -- Utility (fired)
+        font = { 1, 1, 1, 1 }, -- bar text
     },
 })
 

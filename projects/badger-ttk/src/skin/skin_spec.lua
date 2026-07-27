@@ -28,12 +28,13 @@ describe("Skin", function()
         assert.is_false(ns.Skin.deleteSkin("Nope")) -- unknown
     end)
 
-    it("applies a skin's media + colours onto the profile", function()
+    it("applies a skin's media + colours (incl. font) onto the profile", function()
         local p = { colorTarget = { 0, 0, 0, 1 } }
         ns.Skin.apply(p, "Default")
         assert.equals("Blizzard", p.statusbar)
         assert.equals("Friz Quadrata TT", p.font)
         assert.same({ 0.85, 0.15, 0.15, 1 }, p.colorTarget)
+        assert.same({ 1, 1, 1, 1 }, p.colorFont) -- WO-040 font colour
     end)
 
     it("is a no-op for an unknown skin", function()
@@ -93,10 +94,12 @@ describe("Skin", function()
                 fontSizeOther = 14,
                 colorTarget = { 0.1, 0.2, 0.3, 1 },
                 colorUtility = { 0, 0, 0, 1 },
-                colorWaiting = { 0, 0, 0, 1 },
                 colorReady = { 0, 0, 0, 1 },
                 colorUsed = { 0, 0, 0, 1 },
+                colorFont = { 0.9, 0.8, 0.7, 1 },
                 barWidth = 222,
+                barHeight = 26,
+                barSpacing = 3,
                 scale = 1.4,
                 anchorPoint = "CENTER",
                 posX = 10,
@@ -107,7 +110,12 @@ describe("Skin", function()
             assert.equals("Flat", skin.statusbar)
             assert.equals(20, skin.fontSizeMain)
             assert.same({ 0.1, 0.2, 0.3, 1 }, skin.colors.target)
+            assert.same({ 0.9, 0.8, 0.7, 1 }, skin.colors.font) -- font colour captured
+            assert.is_nil(skin.colors.waiting) -- the old separate waiting colour is gone
+            -- Bar spacing / width / height are captured (#22).
             assert.equals(222, skin.display.barWidth)
+            assert.equals(26, skin.display.barHeight)
+            assert.equals(3, skin.display.barSpacing)
             assert.equals(1.4, skin.display.scale)
             -- Frame position + lock are NOT captured.
             assert.is_nil(skin.display.anchorPoint)
@@ -139,9 +147,9 @@ describe("Skin", function()
                 fontSizeOther = 11,
                 colorTarget = { 0.4, 0.5, 0.6, 1 },
                 colorUtility = { 0, 0, 0, 1 },
-                colorWaiting = { 0, 0, 0, 1 },
                 colorReady = { 0, 0, 0, 1 },
                 colorUsed = { 0, 0, 0, 1 },
+                colorFont = { 0.2, 0.3, 0.4, 1 },
                 barWidth = 210,
                 barHeight = 24,
                 scale = 1.25,
