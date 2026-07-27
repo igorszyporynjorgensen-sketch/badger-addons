@@ -86,7 +86,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
-- **WO-039-IJ** — **config copy** (pre-1.0 batch 2): deeper General how-to (#3/#13), a Behavior intro line (#26), intro text on the Raids + Abilities parent nodes (#6), sharper minTTK tooltip (#7) (see `docs/workorders/WO-039-IJ.md`). Status: Accepted.
+- **WO-039-IJ** — **config copy** (pre-1.0 batch 2): deeper General how-to (#3/#13), a Behavior intro line (#26), intro text on the Raids + Abilities parent nodes (#6), sharper minTTK tooltip (#7) (see `docs/workorders/WO-039-IJ.md`). Status: In progress — PR #42 open.
 - **WO-038-IJ** — **config structure & labels** (pre-1.0 batch 1): title → "Badger Time To Kill (TTK)"
   (#10); Raids moved above Abilities (#11); Simulation → **Preview** (#12); Profiles icon (#8); a header
   **Play/Pause** button (#14); Skin node — picker on its own line + New/Save/**Delete** row (#18/#21),
