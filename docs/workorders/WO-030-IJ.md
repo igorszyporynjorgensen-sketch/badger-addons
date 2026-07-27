@@ -1,9 +1,9 @@
 ---
 wo: WO-030-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
-decision: ~             # D-0xx-II once a decision is produced, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/33
+decision: D-009-IJ      # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-018-IJ.md
 related:
@@ -52,23 +52,31 @@ related:
   0:25; closing the config stops any preview.
 
 **Phase 1 — One scenario / unified Sim**
-1. [ ] `sim.lua` + `scenario.lua`: one scenario is the single source; `showPreview` renders it frozen at the
-       0:25 moment, `playSim` animates/loops the same scenario, Stop re-freezes it. Update sim/scenario specs.
+1. [x] `sim.lua`: `Sim.staticPreview()` is now the warrior scenario frozen at 0:25 (`Sim.run(scenario,
+       total−25)`) — one source. `display.lua`: `showPreview` renders that frozen still, `playSim` loops the
+       same scenario, Stop re-freezes (not hide); `refresh` no longer restarts playback. `sim_spec` updated.
 
 **Phase 2 — Config + close hook**
-1. [ ] `config.lua` Simulation node: reword controls to "show the preview" + "play/stop the shown preview".
-2. [ ] `BadgerConfigUI-1.0.lua`: a close callback; badger-ttk turns off the preview + resumes the driver when
-       the window closes.
+1. [x] `config.lua` Simulation node: "Show preview" toggle + a Play/Stop button (label flips, disabled until
+       shown).
+2. [x] `BadgerConfigUI-1.0.lua`: `SetCloseCallback` + `chainClose` (wraps the AceGUI Frame `OnClose`, MINOR
+       4→5); badger-ttk turns off the preview + resumes the driver on window close.
 
 **Phase 3 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version` (next patch), rebuild `.release`.
+1. [x] `pnpm validate` green (85/20/9/4 successes, 0 failures; luacheck 0/0). `.toc` `## Version` → **0.9.13**;
+       `.release` rebuilt with the re-embedded BadgerConfigUI-1.0 (MINOR 5); parity + load graph verified.
 2. [ ] **In-game (human, required):** one preview (frozen 0:25 → Play loops same bars → Stop re-freezes);
        closing the config kills the preview and the live display resumes.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
 - **Constitution check:** Principles OK — unified `Sim` stays pure/spec-tested; the close hook + preview
   toggles are edge; no `_G` leaks.
-- **Decisions produced:** — (candidate: the sim is one scenario; static = frozen view, dynamic = looped view
-  of the same setup.)
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **Decisions produced:** D-009-IJ — the preview is one scenario (static = it frozen at 0:25, dynamic =
+  looped/re-frozen view of the same setup); closing the config stops the preview.
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/33 (open, awaiting human merge)
+- **Outcome:** Branch `feature/WO-030-IJ-sim-unify`, PR #33. `Sim.staticPreview` = the warrior scenario
+  frozen at 0:25; `Display.showPreview`/`playSim` reworked (frozen still ↔ looped animation, Stop
+  re-freezes); Simulation node reworded ("Show preview" + Play/Stop button). `BadgerConfigUI-1.0` gains
+  `SetCloseCallback` + an `OnClose` chain (MINOR 5); badger-ttk stops the preview + resumes the driver on
+  window close. Decision D-009. `.toc` → 0.9.13; gate green; `.release` rebuilt + verified. Awaiting human
+  merge + in-game re-test.

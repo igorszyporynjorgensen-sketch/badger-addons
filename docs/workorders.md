@@ -88,7 +88,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 - **WO-030-IJ** — **simulation rework**: make the sim ONE thing — the static preview is the single source
   of the UI, and Play/Stop just loops/freezes that same setup; the preview reads **0:25**; and closing the
-  config window **shuts down** any preview (see `docs/workorders/WO-030-IJ.md`). Status: Accepted.
+  config window **shuts down** any preview (see `docs/workorders/WO-030-IJ.md`). Status: In progress — PR #33 open.
 - **WO-029-IJ** — **config improvements**: Warrior node rework (separators + in-game tooltip text +
   always-editable regardless of availability); **Save current config as a skin** (name + button; captures
   Skin + Display); more **header/body spacing** on every page (BadgerConfigUI, MINOR→4) (see
