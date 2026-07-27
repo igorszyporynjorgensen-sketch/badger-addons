@@ -12,9 +12,12 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local FALLBACK_TEX = "Interface\\TargetingFrame\\UI-StatusBar"
 local FALLBACK_FONT = "Fonts\\FRIZQT__.TTF"
 
-local container -- movable parent frame
+local container -- movable parent frame (clips its children to the bar area)
+local borderFrame -- separate frame OUTSET around the container so the border wraps the bars, never overlaps
 local targetBar -- the TTK / health bar
 local pool = {} -- reusable utility bar frames
+local BORDER_INSET = 12 -- px the border frame extends beyond the bar area on each side (matches edgeSize)
+local BG_ALPHA = 0.1 -- faint background track opacity (both TTK + utility bars)
 local play -- dynamic-playback state, or nil
 local simFrame -- dedicated ticker for dynamic playback — ALWAYS shown, never hidden, so its OnUpdate
 -- can't stall (a hidden frame's OnUpdate stops firing; the container gets hidden, so it must NOT host this)
@@ -92,11 +95,36 @@ function Display.applyContainer()
     container:SetFrameStrata(p.strata)
     container:SetSize(p.barWidth, p.barHeight)
     container:ClearAllPoints()
+    -- Anchored by a right-side point (RIGHT by default), so a width change grows leftward and the death
+    -- (right) edge stays fixed.
     container:SetPoint(p.anchorPoint, UIParent, p.anchorPoint, p.posX, p.posY)
     container:EnableMouse(not p.locked)
-    if container.SetBackdrop then
+    -- The main bar tracks the container size immediately; utility bars re-layout on the next render.
+    if targetBar then
+        targetBar:SetSize(p.barWidth, p.barHeight)
+    end
+    -- Border on the outset frame so it wraps the bars without overlapping them (and isn't clipped).
+    if borderFrame then
         local edge = (p.border and p.border ~= "None") and media("border", p.border, nil) or nil
-        container:SetBackdrop(edge and { edgeFile = edge, edgeSize = 12 } or nil)
+        if edge then
+            borderFrame:SetScale(p.scale)
+            borderFrame:SetAlpha(p.opacity)
+            borderFrame:SetFrameStrata(p.strata)
+            borderFrame:ClearAllPoints()
+            borderFrame:SetPoint("TOPLEFT", container, "TOPLEFT", -BORDER_INSET, BORDER_INSET)
+            borderFrame:SetPoint(
+                "BOTTOMRIGHT",
+                container,
+                "BOTTOMRIGHT",
+                BORDER_INSET,
+                -BORDER_INSET
+            )
+            borderFrame:SetBackdrop({ edgeFile = edge, edgeSize = 12 })
+            borderFrame:Show()
+        else
+            borderFrame:SetBackdrop(nil)
+            borderFrame:Hide()
+        end
     end
 end
 
@@ -111,7 +139,8 @@ function Display.init()
     if container then
         return
     end
-    container = CreateFrame("Frame", "BadgerTTKFrame", UIParent, "BackdropTemplate")
+    container = CreateFrame("Frame", "BadgerTTKFrame", UIParent)
+    container:SetClipsChildren(true) -- a fill can never render past the bar area (stays inside the border)
     container:SetMovable(true)
     container:RegisterForDrag("LeftButton")
     container:SetScript("OnDragStart", function(self)
@@ -126,10 +155,17 @@ function Display.init()
         p.anchorPoint, p.posX, p.posY = point, x, y
     end)
 
+    -- The border lives on a SEPARATE frame outset around the container, so it wraps the bars rather than
+    -- overlapping them (and isn't clipped by the container). A sibling of the container so the clip above
+    -- can't cut it; anchored to the container so it follows moves/resizes.
+    borderFrame = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+
     targetBar = CreateFrame("StatusBar", nil, container)
     targetBar:SetReverseFill(true) -- fills from the right (death); empties on the left as health drops
     targetBar:SetMinMaxValues(0, 1)
     targetBar:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", 0, 0)
+    targetBar.bg = targetBar:CreateTexture(nil, "BACKGROUND") -- faint background track (like the utility bars)
+    targetBar.bg:SetAllPoints(targetBar)
     targetBar.text = targetBar:CreateFontString(nil, "OVERLAY")
     targetBar.text:SetPoint("LEFT", targetBar, "LEFT", 4, 0)
 
@@ -180,6 +216,9 @@ function Display.render(model, health)
     targetBar:SetStatusBarTexture(tex)
     targetBar.text:SetFont(font, p.fontSizeMain, "OUTLINE")
     paint(targetBar, "colorTarget")
+    local tc = p.colorTarget
+    targetBar.bg:SetTexture(tex) -- faint background track, tinted from the target colour
+    targetBar.bg:SetVertexColor(tc[1] * 0.3, tc[2] * 0.3, tc[3] * 0.3, BG_ALPHA)
     targetBar.__target = health or 0 -- the smoother eases the fill toward this
     targetBar.text:SetText(Display.formatTime(model.ttk))
 
@@ -203,7 +242,7 @@ function Display.render(model, health)
             local c = p[utilityColorKey(b)] or p.colorUtility
             bar:SetStatusBarColor(c[1], c[2], c[3], c[4])
             bar.bg:SetTexture(tex)
-            bar.bg:SetVertexColor(c[1] * 0.3, c[2] * 0.3, c[3] * 0.3, (c[4] or 1) * 0.5)
+            bar.bg:SetVertexColor(c[1] * 0.3, c[2] * 0.3, c[3] * 0.3, BG_ALPHA)
             bar.__target = b.fill or 1 -- the smoother eases the fill toward this
             -- Label: the entry's name (showBarNames) + remaining seconds while active (showTimers, off by
             -- default). Read from the sorted bar, not model.entries (the layout reorders by duration).

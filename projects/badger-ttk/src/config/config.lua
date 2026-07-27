@@ -55,17 +55,8 @@ local function colorSetter(db, key)
     end
 end
 
--- Setter for container-level display settings — persists, then re-applies to the live frame.
-local function setterC(db, key)
-    return function(_, value)
-        db.profile[key] = value
-        if ns.Display then
-            ns.Display.applyContainer()
-        end
-    end
-end
-
 -- Setter that persists, then refreshes the display (re-applies + re-renders the preview if active).
+-- All Display-node settings use this so every change (not just width) is instant.
 local function setterR(db, key)
     return function(_, value)
         db.profile[key] = value
@@ -309,7 +300,7 @@ local function buildSkin(db)
                 max = 32,
                 step = 1,
                 get = getter(db, "fontSizeMain"),
-                set = setter(db, "fontSizeMain"),
+                set = setterR(db, "fontSizeMain"),
             },
             fontSizeOther = {
                 type = "range",
@@ -320,7 +311,7 @@ local function buildSkin(db)
                 max = 24,
                 step = 1,
                 get = getter(db, "fontSizeOther"),
-                set = setter(db, "fontSizeOther"),
+                set = setterR(db, "fontSizeOther"),
             },
             colorHeader = { type = "header", name = "State colours", order = 20 },
             colorTarget = {
@@ -387,7 +378,7 @@ local function buildDisplay(db)
                 order = 2,
                 values = ANCHORS,
                 get = getter(db, "anchorPoint"),
-                set = setterC(db, "anchorPoint"),
+                set = setterR(db, "anchorPoint"),
             },
             locked = {
                 type = "toggle",
@@ -395,7 +386,7 @@ local function buildDisplay(db)
                 desc = "Lock the bars in place; unlock to drag them with the mouse.",
                 order = 3,
                 get = getter(db, "locked"),
-                set = setterC(db, "locked"),
+                set = setterR(db, "locked"),
             },
             posX = {
                 type = "range",
@@ -406,7 +397,7 @@ local function buildDisplay(db)
                 max = 800,
                 step = 1,
                 get = getter(db, "posX"),
-                set = setterC(db, "posX"),
+                set = setterR(db, "posX"),
             },
             posY = {
                 type = "range",
@@ -417,7 +408,7 @@ local function buildDisplay(db)
                 max = 800,
                 step = 1,
                 get = getter(db, "posY"),
-                set = setterC(db, "posY"),
+                set = setterR(db, "posY"),
             },
             scale = {
                 type = "range",
@@ -428,7 +419,7 @@ local function buildDisplay(db)
                 max = 2.0,
                 step = 0.05,
                 get = getter(db, "scale"),
-                set = setterC(db, "scale"),
+                set = setterR(db, "scale"),
             },
             growthDirection = {
                 type = "select",
@@ -437,7 +428,7 @@ local function buildDisplay(db)
                 order = 7,
                 values = GROWTH,
                 get = getter(db, "growthDirection"),
-                set = setter(db, "growthDirection"),
+                set = setterR(db, "growthDirection"),
             },
             barWidth = {
                 type = "range",
@@ -448,7 +439,7 @@ local function buildDisplay(db)
                 max = 400,
                 step = 1,
                 get = getter(db, "barWidth"),
-                set = setter(db, "barWidth"),
+                set = setterR(db, "barWidth"),
             },
             barHeight = {
                 type = "range",
@@ -459,7 +450,7 @@ local function buildDisplay(db)
                 max = 40,
                 step = 1,
                 get = getter(db, "barHeight"),
-                set = setter(db, "barHeight"),
+                set = setterR(db, "barHeight"),
             },
             barSpacing = {
                 type = "range",
@@ -470,7 +461,7 @@ local function buildDisplay(db)
                 max = 20,
                 step = 1,
                 get = getter(db, "barSpacing"),
-                set = setter(db, "barSpacing"),
+                set = setterR(db, "barSpacing"),
             },
             maxBars = {
                 type = "range",
@@ -481,7 +472,7 @@ local function buildDisplay(db)
                 max = 20,
                 step = 1,
                 get = getter(db, "maxBars"),
-                set = setter(db, "maxBars"),
+                set = setterR(db, "maxBars"),
             },
             opacity = {
                 type = "range",
@@ -493,7 +484,7 @@ local function buildDisplay(db)
                 step = 0.05,
                 isPercent = true,
                 get = getter(db, "opacity"),
-                set = setter(db, "opacity"),
+                set = setterR(db, "opacity"),
             },
             strata = {
                 type = "select",
@@ -502,7 +493,7 @@ local function buildDisplay(db)
                 order = 13,
                 values = STRATA,
                 get = getter(db, "strata"),
-                set = setter(db, "strata"),
+                set = setterR(db, "strata"),
             },
             resetPosition = {
                 type = "execute",
@@ -522,7 +513,7 @@ local function buildDisplay(db)
                 desc = "Show each utility's name on its bar.",
                 order = 21,
                 get = getter(db, "showBarNames"),
-                set = setter(db, "showBarNames"),
+                set = setterR(db, "showBarNames"),
             },
             showTimers = {
                 type = "toggle",
@@ -531,7 +522,7 @@ local function buildDisplay(db)
                     .. " how much of the buff remains.",
                 order = 22,
                 get = getter(db, "showTimers"),
-                set = setter(db, "showTimers"),
+                set = setterR(db, "showTimers"),
             },
             showIcons = {
                 type = "toggle",
@@ -539,7 +530,7 @@ local function buildDisplay(db)
                 desc = "Show each ability/item icon on its bar.",
                 order = 23,
                 get = getter(db, "showIcons"),
-                set = setter(db, "showIcons"),
+                set = setterR(db, "showIcons"),
             },
             timeFormat = {
                 type = "select",
@@ -548,7 +539,7 @@ local function buildDisplay(db)
                 order = 24,
                 values = TIMEFMT,
                 get = getter(db, "timeFormat"),
-                set = setter(db, "timeFormat"),
+                set = setterR(db, "timeFormat"),
             },
             showTrendBand = {
                 type = "toggle",
@@ -556,7 +547,7 @@ local function buildDisplay(db)
                 desc = "A translucent band around the estimate showing its historical spread (once history exists).",
                 order = 25,
                 get = getter(db, "showTrendBand"),
-                set = setter(db, "showTrendBand"),
+                set = setterR(db, "showTrendBand"),
             },
             showConfidence = {
                 type = "toggle",
@@ -564,7 +555,7 @@ local function buildDisplay(db)
                 desc = "Show how confident the current estimate is.",
                 order = 26,
                 get = getter(db, "showConfidence"),
-                set = setter(db, "showConfidence"),
+                set = setterR(db, "showConfidence"),
             },
         },
     }
