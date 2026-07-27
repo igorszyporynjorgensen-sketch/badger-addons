@@ -1,8 +1,8 @@
 ---
 wo: WO-028-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/31
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-019-IJ.md
@@ -42,17 +42,26 @@ related:
   border; width changes are instant and keep the right edge fixed.
 
 **Phase 1 — Fixes**
-1. [ ] `display.lua`: TTK-bar `bg` track; both backgrounds alpha 0.1; outset border frame +
+1. [x] `display.lua`: TTK-bar `bg` track; both backgrounds alpha 0.1; outset border frame +
        `SetClipsChildren`; death-corner anchoring; width/height/spacing setters apply + re-render at once.
+       Widened per human ask: **every** Display-node setting routes through `setterR` (instant), not just
+       width — `config.lua`; dead `setterC` removed.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version` → **0.9.11**, rebuild `.release`.
-2. [ ] **In-game (human, required):** faint backgrounds; no border overflow; width change is instant and
-       keeps the right edge fixed.
+1. [x] `pnpm validate` green — 79 successes / 0 failures / 0 errors; luacheck 0 warnings. `.toc` `## Version`
+       → **0.9.11**; `.release/BadgerTTK` rebuilt (source sha256 parity; `.toc` load graph 29/29 resolves).
+2. [ ] **In-game (human, required):** faint backgrounds; no border overflow; width (and every other Display
+       setting) change is instant and keeps the right edge fixed.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
 - **Constitution check:** Principles OK — frame/edge changes in display.lua; no `_G` leaks; pure geometry
   untouched.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/31 (merged; main green)
+- **Outcome:** Branch `feature/WO-028-IJ-display-fixes`, PR #31. `display.lua` — TTK bar now has a faint
+  background track (tinted from `colorTarget`); both TTK + utility backgrounds at `BG_ALPHA = 0.1`; border
+  moved to an outset `borderFrame` + `container:SetClipsChildren(true)` (no overflow); `applyContainer`
+  resizes `targetBar` immediately and keeps the RIGHT (death) edge fixed on a width change. `config.lua` —
+  all Display-node settings route through `setterR` for instant apply (human: "not just width"); dead
+  `setterC` removed. `.toc` → 0.9.11. Gate green; `.release` rebuilt + verified. Awaiting human merge +
+  in-game re-test.

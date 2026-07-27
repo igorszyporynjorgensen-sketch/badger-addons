@@ -88,20 +88,20 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 - **WO-030-IJ** — **simulation rework**: make the sim ONE thing — the static preview is the single source
   of the UI, and Play/Stop just loops/freezes that same setup; the preview reads **0:25**; and closing the
-  config window **shuts down** any preview (see `docs/workorders/WO-030-IJ.md`). Status: Proposed.
+  config window **shuts down** any preview (see `docs/workorders/WO-030-IJ.md`). Status: Accepted.
 - **WO-029-IJ** — **config improvements**: Warrior node rework (separators + in-game tooltip text +
   always-editable regardless of availability); **Save current config as a skin** (name + button; captures
   Skin + Display); more **header/body spacing** on every page (BadgerConfigUI, MINOR→4) (see
-  `docs/workorders/WO-029-IJ.md`). Status: Proposed.
+  `docs/workorders/WO-029-IJ.md`). Status: Accepted.
 - **WO-028-IJ** — **display/frame fixes**: give the TTK bar a background track and set **both** backgrounds
   to a faint 10% opacity; keep bar fills **inside a border** (no overflow, clipped); make a **Bar width**
   change apply immediately and keep the **right (death) edge fixed** (see `docs/workorders/WO-028-IJ.md`).
-  Status: Accepted.
+  Status: Done — PR #31 merged; main green. (In-game re-test with the human.)
 - **WO-027-IJ** — **polish batch** (one build): (1) a hint (`desc`) on **every changeable config option**;
   (2) nest warrior abilities under a **Warrior** node; (3) `.toc` flavor "Era / Hardcore" (drop Anniversary)
   + `## Category: Combat`; (4) config-banner **subtitle smaller than title** (BadgerConfigUI, MINOR→3); (5)
   **smoother** status bars (per-frame fill easing); (6) record kill rate from **first-damage → death** to fix
-  the huge start-TTK. See `docs/workorders/WO-027-IJ.md`. Status: Proposed.
+  the huge start-TTK. See `docs/workorders/WO-027-IJ.md`. Status: Done — PR merged; main green.
 - **WO-026-IJ** — **Behavior toggle: show utility bars outside a raid?**: a new option next to *Show on any
   target* — when off and the target is **not a raid boss**, only the main TTK bar shows (utility bars hidden
   as noise on random mobs). "raid" = an active **encounter** (`ENCOUNTER_START`/`END`) **or** a
