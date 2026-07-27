@@ -9,7 +9,7 @@ local _, ns = ...
 -- Obtain the shared instance with:  local BCUI = LibStub("BadgerConfigUI-1.0")
 -- Consumers register a UNIQUE appName (their ADDON_NAME) so status/registry tables never collide.
 
-local MAJOR, MINOR = "BadgerConfigUI-1.0", 5
+local MAJOR, MINOR = "BadgerConfigUI-1.0", 6
 assert(LibStub, MAJOR .. " requires LibStub")
 
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
@@ -67,7 +67,10 @@ local function polishTree(frame)
 end
 
 -- Register an addon's options table, seed its dialog size, and optionally add a Blizzard-panel stub.
--- opts = {banner, width, height, title, status, blizzard}. Returns the normalized options table.
+-- opts = {header, banner, width, height, title, status, blizzard}. `header` = { title, subtitle, image…,
+-- controls = { <AceConfig option tables> } } becomes ONE persistent header above the tree (see
+-- normalize); `banner` is the back-compat alias for `header` (title/subtitle only). Returns the normalized
+-- options table.
 function lib:Register(appName, options, opts)
     opts = opts or {}
 

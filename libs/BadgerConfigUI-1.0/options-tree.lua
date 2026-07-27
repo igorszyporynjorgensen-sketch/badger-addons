@@ -21,10 +21,10 @@ local function shallowCopy(t)
     return copy
 end
 
--- Build the banner TITLE element for a page's content pane: a large-font, full-width type="description".
--- The subtitle is a SEPARATE, smaller description (see subtitleArg) so it reads smaller than the title.
--- The image* fields are passed straight through so real artwork later is a data change, not code.
--- `banner` may carry {title, subtitle, image, imageCoords, imageWidth, imageHeight}; title -> "Badger".
+-- Build the global-header TITLE element: a large-font, full-width type="description". The subtitle is a
+-- SEPARATE, smaller description (see subtitleArg) so it reads smaller than the title. The image* fields are
+-- passed straight through so real artwork later is a data change, not code. `banner` may carry {title,
+-- subtitle, image, imageCoords, imageWidth, imageHeight}; title -> "Badger".
 function OptionsTree.bannerArg(banner, order)
     banner = banner or {}
     return {
@@ -51,9 +51,8 @@ function OptionsTree.subtitleArg(subtitle, order)
     }
 end
 
--- A blank, full-width spacer that separates a page's HEADER block (banner + subtitle) from its BODY (the
--- options). A large-font single space reads as clear vertical margin. Injected by normalize just below the
--- subtitle, above the first real option, so every page reads header-then-body.
+-- A blank, full-width spacer. A large-font single space reads as clear vertical margin. Used at the foot
+-- of the global header so it sits clear of the tree below.
 function OptionsTree.spacerArg(order)
     return {
         type = "description",
@@ -64,33 +63,45 @@ function OptionsTree.spacerArg(order)
     }
 end
 
--- Return a normalized copy of `root` with childGroups forced to "tree" and a banner injected at
--- order 0 into every non-inline child group's args. NON-MUTATING: root, each touched page, and its
--- .args are shallow-copied before any write, so the caller's tables are left untouched. Non-group,
--- inline, and non-table args are carried over by reference. `opts.banner` defaults to {title=root.name}.
+-- A shallow copy of an option table with its order set — so a header control the CALLER supplied is placed
+-- at a known order without mutating the caller's table (its get/set are carried by reference, never called).
+local function withOrder(option, order)
+    local copy = shallowCopy(option)
+    copy.order = order
+    return copy
+end
+
+-- Return a normalized copy of `root` with childGroups forced to "tree" and ONE global header injected as
+-- root-level (non-group) args — which AceConfigDialog feeds ABOVE the left-nav tree, on every page, by its
+-- own design (it feeds a group's own controls before building the tree, and skips non-inline subgroups).
+-- So the header is a single persistent band for the whole window, not the old per-page banner. The header
+-- is `opts.header` = { title, subtitle, image…, controls = { <option tables> } }; `opts.banner` is kept as
+-- a back-compat alias (header wins). NON-MUTATING: root and its .args are shallow-copied; child pages are
+-- left untouched; supplied control tables are copied (only their order is set).
 function OptionsTree.normalize(root, opts)
     opts = opts or {}
-    local banner = opts.banner or { title = root.name }
+    local header = opts.header or opts.banner or { title = root.name }
 
     local normalized = shallowCopy(root)
     normalized.childGroups = root.childGroups or "tree"
 
     if type(root.args) == "table" then
         local args = shallowCopy(root.args)
-        for key, child in pairs(root.args) do
-            if type(child) == "table" and child.type == "group" and not child.inline then
-                local page = shallowCopy(child)
-                page.args = shallowCopy(child.args or {})
-                page.args.badgerBanner = OptionsTree.bannerArg(banner, 0)
-                if banner.subtitle then
-                    page.args.badgerBannerSub = OptionsTree.subtitleArg(banner.subtitle, 0.001)
-                end
-                -- Spacer between the header block and the options (order sits above the subtitle, below the
-                -- first option, which is >= 1). Injected on every page for consistent header/body separation.
-                page.args.badgerBannerSpacer = OptionsTree.spacerArg(0.002)
-                args[key] = page
+        -- Root-level header items. Orders only sort the header among itself (the tree is added after all of
+        -- these regardless of order); child config nodes are groups, so they never collide with these keys.
+        args.badgerHeaderTitle = OptionsTree.bannerArg(header, 1)
+        local order = 2
+        if header.subtitle then
+            args.badgerHeaderSub = OptionsTree.subtitleArg(header.subtitle, order)
+            order = order + 1
+        end
+        if type(header.controls) == "table" then
+            for i = 1, #header.controls do
+                args["badgerHeaderCtrl" .. i] = withOrder(header.controls[i], order)
+                order = order + 1
             end
         end
+        args.badgerHeaderSpacer = OptionsTree.spacerArg(order) -- gap between the header and the tree
         normalized.args = args
     end
 
