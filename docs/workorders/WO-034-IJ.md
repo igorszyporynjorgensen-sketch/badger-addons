@@ -1,8 +1,8 @@
 ---
 wo: WO-034-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/37
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-029-IJ.md
@@ -60,15 +60,20 @@ related:
   re-applied via the existing `polishTree`/`chainClose` hooks). Confirm the root-level render in-game first.
 
 **Phase 1 — Header API + root-level render (shared lib)**
-1. [ ] `options-tree.lua`: root-level header args (title/subtitle/controls) instead of per-page banner;
-       `BadgerConfigUI-1.0.lua`: `opts.header` (+`banner` alias), `MINOR` 5→6. Update `options-tree_spec`.
+1. [x] `options-tree.lua`: root-level header args (title/subtitle + controls + foot spacer) instead of the
+       per-page banner; `BadgerConfigUI-1.0.lua`: `opts.header` (+`banner` alias), `MINOR` 5→6.
+       `options-tree_spec` rewritten (root-level header; controls placed+copied; alias; non-mutating).
+       Approach confirmed against the vendored Ace source (`FeedGroup`→`FeedOptions` feeds root args above
+       the tree, skips non-inline subgroups).
 
 **Phase 2 — Consumers**
-1. [ ] `badger-ttk config.lua`: pass `opts.header` with title/subtitle + a Show-preview toggle bound to
-       `simStatic`; keep the Simulation-node toggle. Confirm badger-arena via the `banner` alias.
+1. [x] `badger-ttk config.lua`: shared `showPreviewSetter` for the Simulation node AND a header Show-preview
+       toggle bound to the same `simStatic`; `Register` passes `opts.header`. badger-arena rides the `banner`
+       alias (title/subtitle, no controls).
 
 **Phase 3 — Verify**
-1. [ ] `pnpm validate` green. Bump badger-ttk `.toc` `## Version`; rebuild `.release` (re-embed the lib).
+1. [x] `pnpm validate` green (85/21/9/4 successes, 0 failures; luacheck 0/0). badger-ttk `.toc` → **0.9.17**;
+       `.release` rebuilt with the re-embedded BadgerConfigUI-1.0 (MINOR 6); parity + load-graph verified.
 2. [ ] **In-game (human, required):** one header above the tree on every page (both addons); the header
        Show-preview toggle works and stays in sync with the Simulation-node toggle.
 
@@ -77,5 +82,11 @@ related:
   render are the Ace edge; shared lib bumps `MINOR`; no `_G` leaks.
 - **Decisions produced:** — (candidate: the config header is one global, root-level element; consumers
   declare it via `opts.header`, `opts.banner` kept as an alias.)
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/37 (open, awaiting human merge)
+- **Outcome:** Branch `feature/WO-034-IJ-global-header`, PR #37. `normalize` now injects ONE root-level
+  header (title/subtitle + controls + spacer) — which AceConfigDialog renders above the tree — instead of
+  the per-page banner; `opts.header` API + `opts.banner` alias; lib MINOR 5→6. badger-ttk gains a header
+  Show-preview toggle sharing `showPreviewSetter` with the Simulation node (native two-way sync). Approach
+  verified against the vendored Ace source. `.toc` → 0.9.17; gate green; `.release` rebuilt + verified.
+  Note: badger-arena embeds its own lib copy — a rebuild ships MINOR 6 (LibStub uses the highest loaded).
+  Awaiting human merge + in-game re-test.
