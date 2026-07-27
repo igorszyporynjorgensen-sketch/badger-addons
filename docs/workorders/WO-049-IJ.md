@@ -1,6 +1,6 @@
 ---
 wo: WO-049-IJ
-status: Accepted
+status: In progress
 assigned: IJ
 mr: ~
 decision: ~
