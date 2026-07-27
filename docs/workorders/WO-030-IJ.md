@@ -1,6 +1,6 @@
 ---
 wo: WO-030-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/33
 decision: D-009-IJ      # D-0xx-II once a decision is produced, else ~
@@ -73,7 +73,7 @@ related:
   toggles are edge; no `_G` leaks.
 - **Decisions produced:** D-009-IJ — the preview is one scenario (static = it frozen at 0:25, dynamic =
   looped/re-frozen view of the same setup); closing the config stops the preview.
-- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/33 (open, awaiting human merge)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/33 (merged; main green)
 - **Outcome:** Branch `feature/WO-030-IJ-sim-unify`, PR #33. `Sim.staticPreview` = the warrior scenario
   frozen at 0:25; `Display.showPreview`/`playSim` reworked (frozen still ↔ looped animation, Stop
   re-freezes); Simulation node reworded ("Show preview" + Play/Stop button). `BadgerConfigUI-1.0` gains

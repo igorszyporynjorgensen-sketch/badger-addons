@@ -86,9 +86,13 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-031-IJ** — **skins exclude frame position & lock** (amends D-008): a saved skin no longer captures
+  `anchorPoint/posX/posY/locked`, so applying a skin restyles the bars **without moving them or changing
+  the lock** (the geometry/readout *look* still applies). Records **D-010-IJ** (see
+  `docs/workorders/WO-031-IJ.md`). Status: Proposed.
 - **WO-030-IJ** — **simulation rework**: make the sim ONE thing — the static preview is the single source
   of the UI, and Play/Stop just loops/freezes that same setup; the preview reads **0:25**; and closing the
-  config window **shuts down** any preview (see `docs/workorders/WO-030-IJ.md`). Status: In progress — PR #33 open.
+  config window **shuts down** any preview (see `docs/workorders/WO-030-IJ.md`). Status: Done — PR #33 merged; main green.
 - **WO-029-IJ** — **config improvements**: Warrior node rework (separators + in-game tooltip text +
   always-editable regardless of availability); **Save current config as a skin** (name + button; captures
   Skin + Display); more **header/body spacing** on every page (BadgerConfigUI, MINOR→4) (see
