@@ -62,13 +62,26 @@ _As of 2026-07-25._
 - **Inspiration assets.** `assets/` (repo root) holds internet-gathered reference material — see
   `assets/README.md`. Drops land via a lightweight lane: `chore` branch + PR (human merges), **no work
   order**; images are optimized before the first commit (see D-002-IJ).
-- **Next id:** D-009-IJ.
+- **Next id:** D-010-IJ.
 
 ---
 
 ## Decision log
 
 ### 2026-07-27
+
+- **[D-009-IJ] `badger-ttk` — the preview is ONE scenario: the static view is it frozen, the dynamic
+  Play/Stop just animates/re-freezes that same setup; closing the config stops the preview.** Collapsed
+  the two previously-separate previews (a bespoke 4-bar static stack + a different warrior playback) into a
+  single source: `Sim.staticPreview()` now returns the warrior scenario **frozen at the moment it reads
+  0:25** (`Sim.run(scenario, total − 25)`), and dynamic playback loops that exact scenario — so the bars
+  you style static are the bars that animate. The config controls became **"Show preview"** (show/hide the
+  frozen still) + a **Play/Stop button** (disabled until the preview is shown; Stop re-freezes to the 0:25
+  still rather than hiding). A new `BadgerConfigUI-1.0` close callback (`SetCloseCallback`, MINOR 4→5,
+  chaining the AceGUI Frame's `OnClose`) lets badger-ttk **turn the preview off + resume the live driver
+  when the window closes**. *Why:* the human observed the static and dynamic previews were "two different
+  things" and wanted one setup as the single source of the UI representation, plus a preview that never
+  lingers after the config is dismissed. Builds on D-007 (fixed-timeline geometry). Recorded by WO-030-IJ.
 
 - **[D-008-IJ] `badger-ttk` — a "skin" is a saved preset of the Skin *and* Display config; user skins
   persist in `db.global`.** The skin format (still data-only, no code) gains two OPTIONAL blocks on top of

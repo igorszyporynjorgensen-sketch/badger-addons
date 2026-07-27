@@ -43,19 +43,14 @@ function Sim.run(scenario, t)
     return RenderModel.build(ttk, entries, total), ttk, health
 end
 
--- A frozen, representative model for styling: a planned pop-line plus active bars that fit, over-cover
--- (Diamond Flask 60s outlasts the 50s kill → clamped to full width, demonstrating the width cap), and fall
--- short — on the same fixed 50s timeline as the dynamic sim so the preview matches its scale.
+-- The frozen preview and the dynamic playback are ONE scenario (WO-030): the static view is simply that
+-- scenario frozen at the moment it reads 0:25, and Play animates the very same setup. So the bars you style
+-- static are exactly the bars that animate. Returns (model, ttk, health) like Sim.run.
+local FREEZE_TTK = 25 -- the frozen preview reads 0:25 (total − t = 25)
+
 function Sim.staticPreview()
-    local total = 50
-    local ttk = 30
-    local entries = {
-        { id = "planned", name = "Recklessness", duration = 20, cooldown = 180, offset = 0 },
-        { id = "fits", name = "Death Wish", active = true, remaining = 30, offset = 0 },
-        { id = "over", name = "Diamond Flask", active = true, remaining = 60, offset = 0 },
-        { id = "short", name = "Earthstrike", active = true, remaining = 12, offset = 0 },
-    }
-    return RenderModel.build(ttk, entries, total)
+    local scenario = ns.SimScenario.warriorBurst
+    return Sim.run(scenario, scenario.total - FREEZE_TTK)
 end
 
 ns.Sim = Sim

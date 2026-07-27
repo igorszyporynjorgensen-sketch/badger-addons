@@ -733,17 +733,22 @@ local function buildSimulation(db)
         args = {
             about = {
                 type = "description",
-                name = "Preview the bars with no live target — style the display or watch a scripted fight.",
+                name = "Preview the bars with no live target. One setup: show it frozen to style the"
+                    .. " display, then press Play to animate that same setup on a loop.",
                 order = 1,
             },
             static = {
                 type = "toggle",
-                name = "Static preview",
-                desc = "Show a frozen representative stack (planned + fits/over/short) for styling.",
+                name = "Show preview",
+                desc = "Show the preview bars — a frozen warrior setup reading 0:25. Style the display"
+                    .. " against it; press Play to animate the same bars.",
                 order = 2,
                 get = getter(db, "simStatic"),
                 set = function(_, v)
                     db.profile.simStatic = v
+                    if not v then
+                        db.profile.simPlaying = false -- hiding the preview also stops playback
+                    end
                     if ns.Display then
                         ns.Display.showPreview(v)
                     end
@@ -751,9 +756,16 @@ local function buildSimulation(db)
             },
             play = {
                 type = "execute",
-                name = "Play / stop dynamic",
-                desc = "Animate a scripted warrior-burst fight through the bars.",
+                -- A start/stop button that flips its label with the state.
+                name = function()
+                    return db.profile.simPlaying and "Stop" or "Play"
+                end,
+                desc = "Animate the shown preview on a loop; Stop returns to the frozen 0:25 still (the"
+                    .. " same bars either way).",
                 order = 3,
+                disabled = function()
+                    return not db.profile.simStatic -- only meaningful once the preview is shown
+                end,
                 func = function()
                     db.profile.simPlaying = not db.profile.simPlaying
                     if ns.Display then
@@ -921,7 +933,8 @@ function ns.buildOptions(addon)
     local getMeta = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
     local version = (getMeta and getMeta(ADDON_NAME, "Version")) or "?"
 
-    LibStub("BadgerConfigUI-1.0"):Register(ADDON_NAME, options, {
+    local BCUI = LibStub("BadgerConfigUI-1.0")
+    BCUI:Register(ADDON_NAME, options, {
         title = "Badger TTK  v" .. version,
         banner = {
             title = "Badger TTK",
@@ -930,4 +943,14 @@ function ns.buildOptions(addon)
         blizzard = true,
         status = "Reopen with /bttk or /badgerttk",
     })
+    -- Closing the config window shuts down any preview and hands control back to the live driver (WO-030).
+    BCUI:SetCloseCallback(ADDON_NAME, function()
+        local p = db.profile
+        if p.simStatic or p.simPlaying then
+            p.simStatic, p.simPlaying = false, false
+            if ns.Display then
+                ns.Display.showPreview(false)
+            end
+        end
+    end)
 end

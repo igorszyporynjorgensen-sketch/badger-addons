@@ -265,11 +265,21 @@ function Display.render(model, health)
     container:Show()
 end
 
--- Re-apply container settings and re-render the static preview if it is on (called from the config UI).
+-- Render the ONE preview scenario frozen at 0:25 (the single source the dynamic playback animates).
+local function renderFrozen()
+    local model, _, health = ns.Sim.staticPreview()
+    Display.render(model, health)
+end
+
+-- Re-apply container settings and re-render the preview if it's up (called from the config UI on any
+-- setting change). During playback the loop already re-renders every frame with the new settings, so we
+-- only need the container re-apply; otherwise re-draw the frozen still.
 function Display.refresh()
     Display.applyContainer()
-    if profile().simStatic then
-        Display.showPreview(true)
+    if profile().simPlaying then
+        return
+    elseif profile().simStatic then
+        renderFrozen()
     end
 end
 
@@ -280,19 +290,31 @@ function Display.hide()
     end
 end
 
--- Static preview: render the frozen representative model. Suspends the live driver while it's up.
+-- Show / hide the preview (WO-030). While shown it's either the frozen 0:25 still or, if playback is on,
+-- the animated loop of that SAME scenario. Turning it off stops any playback and resumes the live driver.
 function Display.showPreview(on)
     if on then
-        Display.render(ns.Sim.staticPreview(), 0.6)
-    elseif container then
-        container:Hide()
+        if profile().simPlaying then
+            Display.playSim(true, profile().simSpeed) -- shown + playing → animate the same setup
+        else
+            renderFrozen() -- shown, not playing → the frozen 0:25 still
+            syncDriver()
+        end
+    else
+        play = nil
+        if simFrame then
+            simFrame:SetScript("OnUpdate", nil)
+        end
+        if container then
+            container:Hide()
+        end
+        syncDriver()
     end
-    syncDriver()
 end
 
--- Dynamic playback: step the warrior-burst scenario over real time, animating the bars. The OnUpdate
--- lives on the dedicated always-shown simFrame (NOT the container) so a container hide can't stall it;
--- render() re-shows the container each tick. Suspends the live driver while playing.
+-- Play / stop the shown preview (WO-030): Play animates the one scenario on a loop; Stop re-freezes it to
+-- the same 0:25 still (NOT hide). The OnUpdate lives on the dedicated always-shown simFrame (NOT the
+-- container) so a container hide can't stall it; render() re-shows the container each tick.
 function Display.playSim(on, speed)
     if not simFrame then
         simFrame = CreateFrame("Frame")
@@ -301,13 +323,11 @@ function Display.playSim(on, speed)
         play = nil
         simFrame:SetScript("OnUpdate", nil)
         if profile().simStatic then
-            Display.showPreview(true) -- hand back to the frozen static preview if it's still on
-        else
-            if container then
-                container:Hide()
-            end
-            syncDriver()
+            renderFrozen() -- re-freeze to the same setup (still shown)
+        elseif container then
+            container:Hide()
         end
+        syncDriver()
         return
     end
     Display.init()
