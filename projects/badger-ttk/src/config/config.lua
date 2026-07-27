@@ -293,6 +293,7 @@ local function buildSkin(db)
                     .. " the box below, or add one in code with BadgerTTK:RegisterSkin — see"
                     .. " src/skin/skin.lua.",
                 order = 1,
+                width = "full", -- the picker sits on its own line; the save/delete row follows below
                 values = function()
                     return ns.Skin.ListSkins()
                 end,
@@ -321,11 +322,12 @@ local function buildSkin(db)
             },
             saveSkin = {
                 type = "execute",
-                name = "Save current as skin",
+                name = "Save",
                 desc = "Save the current look (Skin + Display size / scale / colours / readout — not bar"
                     .. " position or lock) as a new skin under the name above. It appears in the picker and"
                     .. " persists across /reload.",
                 order = 3,
+                width = "half",
                 disabled = function()
                     return strtrim(pendingSkinName or "") == ""
                 end,
@@ -337,6 +339,30 @@ local function buildSkin(db)
                         db.global.skins[nm] = skin
                         db.profile.skin = nm
                         pendingSkinName = ""
+                    end
+                end,
+            },
+            deleteSkin = {
+                type = "execute",
+                name = "Delete",
+                desc = "Delete the currently selected skin. The built-in Default skin can't be deleted.",
+                order = 3.5,
+                width = "half",
+                confirm = true,
+                disabled = function()
+                    return db.profile.skin == ns.Skin.BUILTIN
+                end,
+                func = function()
+                    local nm = db.profile.skin
+                    if ns.Skin.deleteSkin(nm) then
+                        if db.global.skins then
+                            db.global.skins[nm] = nil
+                        end
+                        db.profile.skin = ns.Skin.BUILTIN
+                        ns.Skin.apply(db.profile, ns.Skin.BUILTIN)
+                        if ns.Display then
+                            ns.Display.refresh()
+                        end
                     end
                 end,
             },
@@ -394,7 +420,7 @@ local function buildSkin(db)
             },
             fontSizeOther = {
                 type = "range",
-                name = "Other bars size",
+                name = "Utility size",
                 desc = "Font size of the text on the utility bars.",
                 order = 12,
                 min = 8,
@@ -740,11 +766,11 @@ local function buildEstimator(db)
     }
 end
 
--- Simulation node — drives the display preview (WO-012): a frozen static preview + dynamic playback.
+-- Preview node — drives the display preview (WO-012): a frozen static preview + dynamic playback.
 local function buildSimulation(db)
     return {
         type = "group",
-        name = "Simulation",
+        name = "Preview",
         order = 8,
         icon = ICON .. "INV_Gizmo_02",
         args = {
@@ -859,7 +885,7 @@ local function buildRaids(db)
     return {
         type = "group",
         name = "Raids",
-        order = 3,
+        order = 6.5, -- just above Abilities (7); General 1, Behavior 2, Skin 4, Display 5, Estimator 6
         icon = ICON .. "INV_Misc_Head_Dragon_01",
         args = raidArgs,
     }
@@ -938,7 +964,7 @@ function ns.buildOptions(addon)
     local db = addon.db
     local options = {
         type = "group",
-        name = "Badger TTK",
+        name = "Badger Time To Kill (TTK)", -- window title + AceConfig root name
         args = {
             general = buildGeneral(db),
             behavior = buildBehavior(db),
@@ -953,6 +979,7 @@ function ns.buildOptions(addon)
 
     options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(db)
     options.args.profiles.order = 9
+    options.args.profiles.icon = ICON .. "INV_Misc_Book_09" -- give the generated Profiles node an icon
 
     -- Single-source the version from the .toc (`## Version`), so what the window shows can never drift from
     -- the packaged build. Surfacing it lets a tester confirm they're on the latest .release every time.
@@ -961,21 +988,42 @@ function ns.buildOptions(addon)
 
     local BCUI = LibStub("BadgerConfigUI-1.0")
     BCUI:Register(ADDON_NAME, options, {
+        -- `title` feeds the Blizzard options-panel entry (the "stub") — deliberately kept as "Badger TTK"
+        -- so that entry's name doesn't change; the window title + header use the full name (options.name /
+        -- header.title above).
         title = "Badger TTK  v" .. version,
-        -- One persistent header above the tree (replaces the old per-page banner), carrying a global
-        -- Show-preview toggle. It binds the SAME simStatic as the Simulation node's toggle, so the two stay
-        -- in sync automatically.
+        -- One persistent header above the tree (replaces the old per-page banner), carrying global
+        -- Show-preview + Play/Pause controls. They bind the SAME simStatic / simPlaying as the Preview node,
+        -- so header and node stay in sync automatically.
         header = {
-            title = "Badger TTK",
+            title = "Badger Time To Kill (TTK)",
             subtitle = "Time-to-kill and optimal cooldown timing  —  v" .. version,
             controls = {
                 {
                     type = "toggle",
                     name = "Show preview",
                     desc = "Show the preview bars (a frozen warrior setup reading 0:25) from any page.",
-                    width = "full",
+                    width = "normal",
                     get = getter(db, "simStatic"),
                     set = showPreviewSetter(db),
+                },
+                {
+                    type = "execute",
+                    name = function()
+                        return db.profile.simPlaying and "Pause" or "Play"
+                    end,
+                    desc = "Play or pause the shown preview (same as the Preview node). Pause freezes the"
+                        .. " bars where they are; Play resumes.",
+                    width = "normal",
+                    disabled = function()
+                        return not db.profile.simStatic
+                    end,
+                    func = function()
+                        db.profile.simPlaying = not db.profile.simPlaying
+                        if ns.Display then
+                            ns.Display.playSim(db.profile.simPlaying, db.profile.simSpeed)
+                        end
+                    end,
                 },
             },
         },
