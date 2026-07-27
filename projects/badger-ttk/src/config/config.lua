@@ -786,13 +786,14 @@ local function buildSimulation(db)
             reset = {
                 type = "execute",
                 name = "Reset",
-                desc = "Return the preview to the frozen 0:25 start and stop playback.",
+                desc = "Rewind the preview to the start — 100% health (0:50). Independent of Play: a running"
+                    .. " animation just continues from the start.",
                 order = 3.5,
                 disabled = function()
                     return not db.profile.simStatic -- nothing to reset unless the preview is shown
                 end,
                 func = function()
-                    db.profile.simPlaying = false -- so the Play/Pause button returns to "Play"
+                    -- Reset only rewinds the position; it never touches the play/pause state.
                     if ns.Display then
                         ns.Display.resetSim()
                     end

@@ -343,18 +343,15 @@ function Display.playSim(on, speed)
     syncDriver()
 end
 
--- Reset the preview to the frozen 0:25 start (WO-033): discard any in-progress run and redraw the still.
--- The caller (config) also clears db.profile.simPlaying so the Play/Pause button returns to "Play".
+-- Reset rewinds the run to the START of the timeline — t=0, so TTK 0:50 at 100% health (WO-035). It is
+-- INDEPENDENT of play/pause: it never stops or starts playback. If the animation is playing it just keeps
+-- playing from the start (via its own loop); if paused/idle we render the 0:50 frame and keep the (now
+-- start-positioned) `play` so a later Play/refresh continues from there.
 function Display.resetSim()
-    play = nil
-    if simFrame then
-        simFrame:SetScript("OnUpdate", nil)
-    end
-    if profile().simStatic then
-        renderFrozen()
-    elseif container then
-        container:Hide()
-    end
+    play = play or { t = 0, speed = profile().simSpeed or 1 }
+    play.t = 0
+    local model, _, health = ns.Sim.run(ns.SimScenario.warriorBurst, 0)
+    Display.render(model, health)
     syncDriver()
 end
 
