@@ -1,6 +1,6 @@
 ---
 wo: WO-033-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/36
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -55,7 +55,7 @@ related:
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
 - **Constitution check:** Principles OK — frame/edge changes; no `_G` leaks; pure sim/layout untouched.
 - **Decisions produced:** —
-- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/36 (open, awaiting human merge)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/36 (merged; main green)
 - **Outcome:** Branch `feature/WO-033-IJ-sim-play-pause-reset`, PR #36. `playSim(false)` now pauses (keeps
   `play` + the current frame); `playSim(true)` resumes; `Display.resetSim()` returns to the 0:25 still;
   `refresh()` redraws a paused frame at `play.t`. Config Simulation node: Play⇄Pause label + a Reset button

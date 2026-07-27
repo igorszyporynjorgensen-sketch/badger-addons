@@ -86,9 +86,13 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-034-IJ** — **persistent global header in BadgerConfigUI**: replace the identical per-node banner with
+  one global header (title/subtitle) rendered above the tree via root-level AceConfig args, and add a **Show
+  preview** toggle to it (kept in the Simulation node too; native two-way sync). Shared lib (MINOR 5→6),
+  `opts.banner` kept as an alias (see `docs/workorders/WO-034-IJ.md`). Status: Proposed.
 - **WO-033-IJ** — **simulation: Play → Play/Pause + a Reset button**: Pause freezes the animation in place
   (Play resumes from there — pausing never resets the timeline); a new Reset button returns to the frozen
-  0:25 still (see `docs/workorders/WO-033-IJ.md`). Status: In progress — PR #36 open.
+  0:25 still (see `docs/workorders/WO-033-IJ.md`). Status: Done — PR #36 merged; main green.
 - **WO-032-IJ** — **fix two WO-028 display regressions** (found testing 0.9.14): utility bars vanished
   (container `SetClipsChildren` clips the bars stacked above the one-bar-tall container) and editing a
   Display value pops a stray border box (the sibling `borderFrame` isn't tied to container visibility). One
