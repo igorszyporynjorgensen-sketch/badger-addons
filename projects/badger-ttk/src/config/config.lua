@@ -66,6 +66,21 @@ local function setterR(db, key)
     end
 end
 
+-- Show-preview toggle behavior, shared by the Simulation node AND the global-header control so both stay in
+-- sync (they bind the same simStatic; AceConfig re-reads every get on any change). Turning it off also
+-- stops playback.
+local function showPreviewSetter(db)
+    return function(_, v)
+        db.profile.simStatic = v
+        if not v then
+            db.profile.simPlaying = false
+        end
+        if ns.Display then
+            ns.Display.showPreview(v)
+        end
+    end
+end
+
 -- Per-entry ability config (db.profile.abilities[id] = { enabled, offset }; default enabled / 0).
 local function abilityGet(db, id, field, default)
     return function()
@@ -743,18 +758,10 @@ local function buildSimulation(db)
                 type = "toggle",
                 name = "Show preview",
                 desc = "Show the preview bars — a frozen warrior setup reading 0:25. Style the display"
-                    .. " against it; press Play to animate the same bars.",
+                    .. " against it; press Play to animate the same bars. (Also in the window header.)",
                 order = 2,
                 get = getter(db, "simStatic"),
-                set = function(_, v)
-                    db.profile.simStatic = v
-                    if not v then
-                        db.profile.simPlaying = false -- hiding the preview also stops playback
-                    end
-                    if ns.Display then
-                        ns.Display.showPreview(v)
-                    end
-                end,
+                set = showPreviewSetter(db),
             },
             play = {
                 type = "execute",
@@ -954,9 +961,22 @@ function ns.buildOptions(addon)
     local BCUI = LibStub("BadgerConfigUI-1.0")
     BCUI:Register(ADDON_NAME, options, {
         title = "Badger TTK  v" .. version,
-        banner = {
+        -- One persistent header above the tree (replaces the old per-page banner), carrying a global
+        -- Show-preview toggle. It binds the SAME simStatic as the Simulation node's toggle, so the two stay
+        -- in sync automatically.
+        header = {
             title = "Badger TTK",
             subtitle = "Time-to-kill and optimal cooldown timing  —  v" .. version,
+            controls = {
+                {
+                    type = "toggle",
+                    name = "Show preview",
+                    desc = "Show the preview bars (a frozen warrior setup reading 0:25) from any page.",
+                    width = "full",
+                    get = getter(db, "simStatic"),
+                    set = showPreviewSetter(db),
+                },
+            },
         },
         blizzard = true,
         status = "Reopen with /bttk or /badgerttk",

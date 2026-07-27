@@ -38,42 +38,77 @@ describe("BadgerConfigUI options-tree", function()
         assert.equals("Arena info", arg.name)
     end)
 
-    it("injects the subtitle description below the banner when opts.banner has one", function()
+    it("injects the title + subtitle as ROOT-LEVEL header args (one global header)", function()
         local root = {
             name = "Root",
             type = "group",
             args = { general = { type = "group", name = "General", args = {} } },
         }
         local normalized = ns.BadgerConfigUIOptionsTree.normalize(root, {
-            banner = { title = "T", subtitle = "S" },
+            header = { title = "T", subtitle = "S" },
         })
-        local sub = normalized.args.general.args.badgerBannerSub
-        assert.is_table(sub)
-        assert.equals("medium", sub.fontSize)
-        assert.equals("S", sub.name)
+        -- At root, NOT injected into each page.
+        assert.is_table(normalized.args.badgerHeaderTitle)
+        assert.is_truthy(normalized.args.badgerHeaderTitle.name:find("T", 1, true))
+        assert.is_table(normalized.args.badgerHeaderSub)
+        assert.equals("medium", normalized.args.badgerHeaderSub.fontSize)
+        assert.equals("S", normalized.args.badgerHeaderSub.name)
+        assert.is_nil(normalized.args.general.args.badgerHeaderTitle) -- not per-page
     end)
 
-    it("builds a full-width spacer description above the first option", function()
-        local arg = ns.BadgerConfigUIOptionsTree.spacerArg(0.002)
+    it("builds a full-width spacer description", function()
+        local arg = ns.BadgerConfigUIOptionsTree.spacerArg(9)
         assert.equals("description", arg.type)
         assert.equals("full", arg.width)
-        assert.equals(0.002, arg.order)
+        assert.equals(9, arg.order)
     end)
 
-    it("injects a header/body spacer between the header block and the options", function()
+    it("appends a spacer at the foot of the root header, after the controls", function()
         local root = {
             name = "Root",
             type = "group",
             args = { general = { type = "group", name = "General", args = {} } },
         }
         local normalized = ns.BadgerConfigUIOptionsTree.normalize(root, {
-            banner = { title = "T", subtitle = "S" },
+            header = {
+                title = "T",
+                subtitle = "S",
+                controls = { { type = "toggle", name = "C" } },
+            },
         })
-        local spacer = normalized.args.general.args.badgerBannerSpacer
+        local spacer = normalized.args.badgerHeaderSpacer
         assert.is_table(spacer)
         assert.equals("description", spacer.type)
-        -- Sits below the subtitle (0.001) and above any real option (>= 1).
-        assert.is_true(spacer.order > 0.001 and spacer.order < 1)
+        -- Ordered after the title(1)/subtitle(2)/control(3).
+        assert.is_true(spacer.order > normalized.args.badgerHeaderCtrl1.order)
+    end)
+
+    it("places header controls at root with an injected order, copied (not mutated)", function()
+        local ctrl = { type = "toggle", name = "Show preview", get = function() end }
+        local root = {
+            name = "Root",
+            type = "group",
+            args = { general = { type = "group", name = "General", args = {} } },
+        }
+        local normalized = ns.BadgerConfigUIOptionsTree.normalize(root, {
+            header = { title = "T", controls = { ctrl } },
+        })
+        local placed = normalized.args.badgerHeaderCtrl1
+        assert.is_table(placed)
+        assert.equals("toggle", placed.type)
+        assert.equals("Show preview", placed.name)
+        assert.equals(ctrl.get, placed.get) -- get carried by reference, never called
+        assert.is_not_nil(placed.order)
+        assert.is_nil(ctrl.order) -- caller's control table left unmutated
+    end)
+
+    it("supports opts.banner as a back-compat alias for opts.header", function()
+        local root = { name = "Root", type = "group", args = {} }
+        local normalized = ns.BadgerConfigUIOptionsTree.normalize(root, {
+            banner = { title = "Aliased", subtitle = "Sub" },
+        })
+        assert.is_truthy(normalized.args.badgerHeaderTitle.name:find("Aliased", 1, true))
+        assert.equals("Sub", normalized.args.badgerHeaderSub.name)
     end)
 
     it("passes banner image fields straight through", function()
@@ -103,7 +138,7 @@ describe("BadgerConfigUI options-tree", function()
         assert.equals("tree", normalized.childGroups)
     end)
 
-    it("injects an order-0 banner into a non-inline page, preserving its args", function()
+    it("defaults the header title to root.name, and leaves child pages un-injected", function()
         local root = {
             type = "group",
             name = "Root",
@@ -116,15 +151,16 @@ describe("BadgerConfigUI options-tree", function()
             },
         }
         local normalized = ns.BadgerConfigUIOptionsTree.normalize(root, {})
-        local banner = normalized.args.general.args.badgerBanner
-        assert.is_table(banner)
-        assert.equals("description", banner.type)
-        assert.equals(0, banner.order)
-        assert.is_truthy(banner.name:find("Root", 1, true))
+        local title = normalized.args.badgerHeaderTitle
+        assert.is_table(title)
+        assert.equals("description", title.type)
+        assert.is_truthy(title.name:find("Root", 1, true)) -- default = root.name
+        -- The page keeps its own args and gets NO injected header (it's global now).
         assert.is_table(normalized.args.general.args.enabled)
+        assert.is_nil(normalized.args.general.args.badgerHeaderTitle)
     end)
 
-    it("uses a custom opts.banner title for the injected banner", function()
+    it("uses a custom header title for the root header", function()
         local root = {
             type = "group",
             name = "Root",
@@ -133,28 +169,9 @@ describe("BadgerConfigUI options-tree", function()
             },
         }
         local normalized = ns.BadgerConfigUIOptionsTree.normalize(root, {
-            banner = { title = "Custom Title" },
+            header = { title = "Custom Title" },
         })
-        assert.is_truthy(
-            normalized.args.general.args.badgerBanner.name:find("Custom Title", 1, true)
-        )
-    end)
-
-    it("does not banner an inline group", function()
-        local root = {
-            type = "group",
-            name = "Root",
-            args = {
-                inlineBits = {
-                    type = "group",
-                    name = "Inline",
-                    inline = true,
-                    args = {},
-                },
-            },
-        }
-        local normalized = ns.BadgerConfigUIOptionsTree.normalize(root, {})
-        assert.is_nil(normalized.args.inlineBits.args.badgerBanner)
+        assert.is_truthy(normalized.args.badgerHeaderTitle.name:find("Custom Title", 1, true))
     end)
 
     it("leaves the caller's root and nested tables unmutated", function()
@@ -171,7 +188,8 @@ describe("BadgerConfigUI options-tree", function()
         }
         ns.BadgerConfigUIOptionsTree.normalize(root, {})
         assert.is_nil(root.childGroups)
-        assert.is_nil(root.args.general.args.badgerBanner)
+        assert.is_nil(root.args.badgerHeaderTitle) -- header went onto the COPY, not the caller's root
+        assert.is_nil(root.args.badgerHeaderSpacer)
     end)
 
     it("blizStub builds a group whose open button runs the supplied opener", function()
