@@ -9,8 +9,9 @@ power-of-two PNG, then a dependency-free PNG decoder + uncompressed-TGA encoder.
 Usage:
     tools/png-to-tga.py <in.png> <out.tga> [size]      # size default 256 (square, power-of-two)
 
-If the icon renders upside-down in-game, flip the TGA descriptor 0x28 -> 0x08 and write rows
-bottom-to-top (see the memory note `png-to-wow-tga`).
+Output is bottom-origin (descriptor 0x08, rows bottom-to-top) — the WoW-canonical orientation
+(WO-048; WoW rejects top-origin 0x28 files). If a texture somehow renders upside-down, flip back to
+0x28 + top-to-bottom rows (see the memory note `png-to-wow-tga`).
 """
 import sys
 import os
@@ -88,13 +89,19 @@ def decode_png(path):
 
 
 def write_tga(path, W, H, ch, px):
-    # uncompressed truecolor (2), 32bpp, top-origin + 8 alpha bits (descriptor 0x28); pixels as BGRA.
-    hdr = struct.pack("<BBBHHBHHHHBB", 0, 0, 2, 0, 0, 0, 0, 0, W, H, 32, 0x28)
+    # Uncompressed truecolor (2), 32bpp, BOTTOM-origin + 8 alpha bits (descriptor 0x08 — origin
+    # bottom-left, the WoW-canonical orientation). WoW's loader rejects top-origin (0x28) files, so both
+    # the AddOns-list icon and header texture fail to load (WO-048). The PNG decodes top-to-bottom, so we
+    # write the rows in REVERSE (bottom row first). Pixels are BGRA.
+    hdr = struct.pack("<BBBHHBHHHHBB", 0, 0, 2, 0, 0, 0, 0, 0, W, H, 32, 0x08)
+    stride = W * ch
     body = bytearray()
-    for p in range(0, len(px), ch):
-        r, g, b = px[p], px[p + 1], px[p + 2]
-        a = px[p + 3] if ch == 4 else 255
-        body += bytes((b, g, r, a))
+    for y in range(H - 1, -1, -1):
+        row = px[y * stride : (y + 1) * stride]
+        for p in range(0, stride, ch):
+            r, g, b = row[p], row[p + 1], row[p + 2]
+            a = row[p + 3] if ch == 4 else 255
+            body += bytes((b, g, r, a))
     open(path, "wb").write(hdr + bytes(body))
 
 
