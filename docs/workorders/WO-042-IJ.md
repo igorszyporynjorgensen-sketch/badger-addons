@@ -1,8 +1,8 @@
 ---
 wo: WO-042-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/46
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-040-IJ.md
@@ -33,10 +33,10 @@ related:
 - **Behavior delta:** MODIFIED (in-game) — a per-ability waiting colour.
 
 **Phase 1 — Per-ability colour**
-1. [ ] `config.lua` per-entry colour picker; `display.lua` waiting-state per-ability lookup.
+1. [x] `config.lua` per-entry colour picker; `display.lua` waiting-state per-ability lookup.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version`; rebuild `.release`.
+1. [x] `pnpm validate` green (86). Bumped 0.9.24. `.toc` `## Version`; rebuild `.release`.
 2. [ ] **In-game (human, required):** a per-ability colour recolours that bar while waiting.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
