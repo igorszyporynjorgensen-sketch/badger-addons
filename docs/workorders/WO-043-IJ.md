@@ -1,8 +1,8 @@
 ---
 wo: WO-043-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/47
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-034-IJ.md
@@ -30,10 +30,10 @@ related:
 - **Behavior delta:** MODIFIED (in-game) — the status bar + Close button align with the content.
 
 **Phase 1 — Align**
-1. [ ] `BadgerConfigUI-1.0.lua`: `polishStatusBar` in `lib:Open`; `MINOR` 7→8.
+1. [x] `BadgerConfigUI-1.0.lua`: `polishStatusBar` in `lib:Open`; `MINOR` 7→8.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green. Bump badger-ttk `.toc` `## Version`; rebuild `.release` (re-embed the lib).
+1. [x] `pnpm validate` green (86). Bumped 0.9.25; badger-ttk `.toc` `## Version`; rebuild `.release` (re-embed the lib).
 2. [ ] **In-game (human, required):** status bar + Close button align L/R with the content.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
