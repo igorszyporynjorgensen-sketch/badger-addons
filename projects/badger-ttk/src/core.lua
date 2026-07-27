@@ -30,11 +30,20 @@ local DEFAULTS = {
         scale = 1.0,
         growthDirection = "UP",
         barWidth = 180,
-        barHeight = 20,
+        ttkBarHeight = 30, -- main TTK bar height (WO-041)
+        utilityBarHeight = 20, -- utility bars height (WO-041)
         barSpacing = 2,
         maxBars = 8,
-        opacity = 1.0,
+        opacity = 1.0, -- overall container opacity
+        barFgOpacity = 1.0, -- bar fill opacity (WO-041)
+        barBgOpacity = 0.1, -- bar background-track opacity (WO-041)
         strata = "MEDIUM",
+        -- Bar-text offsets from their current anchor (WO-041): TTK text (left-anchored) + utility text
+        -- (right-anchored). X = horizontal, Y = vertical.
+        ttkTextX = 0,
+        ttkTextY = 0,
+        utilTextX = 0,
+        utilTextY = 0,
 
         -- Display: readout.
         showBarNames = true,
@@ -97,6 +106,8 @@ function BadgerTTK:OnInitialize()
     if self.db.profile.skin == "Badger" then
         self.db.profile.skin = ns.Skin.BUILTIN
     end
+    -- `barHeight` was split into ttkBarHeight / utilityBarHeight (WO-041); drop the retired field.
+    self.db.profile.barHeight = nil
     -- Re-register persisted user skins into the runtime registry so they list + re-apply after a reload.
     for name, skin in pairs(self.db.global.skins or {}) do
         ns.Skin.RegisterSkin(name, skin)

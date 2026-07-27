@@ -98,7 +98,8 @@ describe("Skin", function()
                 colorUsed = { 0, 0, 0, 1 },
                 colorFont = { 0.9, 0.8, 0.7, 1 },
                 barWidth = 222,
-                barHeight = 26,
+                ttkBarHeight = 34,
+                utilityBarHeight = 26,
                 barSpacing = 3,
                 scale = 1.4,
                 anchorPoint = "CENTER",
@@ -114,7 +115,8 @@ describe("Skin", function()
             assert.is_nil(skin.colors.waiting) -- the old separate waiting colour is gone
             -- Bar spacing / width / height are captured (#22).
             assert.equals(222, skin.display.barWidth)
-            assert.equals(26, skin.display.barHeight)
+            assert.equals(34, skin.display.ttkBarHeight)
+            assert.equals(26, skin.display.utilityBarHeight)
             assert.equals(3, skin.display.barSpacing)
             assert.equals(1.4, skin.display.scale)
             -- Frame position + lock are NOT captured.
@@ -151,7 +153,7 @@ describe("Skin", function()
                 colorUsed = { 0, 0, 0, 1 },
                 colorFont = { 0.2, 0.3, 0.4, 1 },
                 barWidth = 210,
-                barHeight = 24,
+                ttkBarHeight = 24,
                 scale = 1.25,
                 anchorPoint = "TOPRIGHT", -- captured from src? no — position is excluded
             }
