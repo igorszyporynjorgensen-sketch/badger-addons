@@ -1,8 +1,8 @@
 ---
 wo: WO-046-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/43
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on: []
 related:
@@ -32,10 +32,10 @@ related:
 - **Behavior delta:** none (docs).
 
 **Phase 1 — README**
-1. [ ] Rewrite `README.md` in the reference style; badger-ttk first; multi-flavor target.
+1. [x] Rewrote `README.md` in the reference style; badger-ttk first; multi-flavor target.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green (unchanged Lua). PR for human merge.
+1. [x] `pnpm validate` green (86 tests; docs-only). PR for human merge.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge.
 - **Constitution check:** Principles OK — docs only; no code/`_G` impact.
