@@ -1,9 +1,9 @@
 ---
 wo: WO-029-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
-decision: ~             # D-0xx-II once a decision is produced, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/32
+decision: D-008-IJ      # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-027-IJ.md
 related:
@@ -51,28 +51,35 @@ related:
   entries; a Save-as-skin control; more header/body spacing on every page.
 
 **Phase 1 — Warrior node**
-1. [ ] `config.lua` `buildAbilities`: per-entry description (tooltip text) + separator; remove the
-       availability `disabled` gate on the toggle + offset (keep the availability dim on the label).
+1. [x] `config.lua` `buildAbilities`: per-entry description (`GetSpellDescription`, else a composed hint
+       from the table data) + a full-width rule between entries; removed the availability `disabled` gate on
+       the toggle + offset — availability now only DIMS the label (greyed + "(unavailable)").
 
 **Phase 2 — Save-as-skin**
-1. [ ] `skin.lua`: extend the skin format + `apply` to include Display fields; add `Skin.saveCurrent(profile,
-       name)` (pure) building + registering a skin from the profile; persist user skins in `db.global`.
-       `config.lua` Skin node: a name input + Save button.
+1. [x] `skin.lua`: extended the skin format + `apply` to carry optional font-size + full Display blocks
+       (apply writes only what a skin carries); added pure `Skin.saveCurrent(profile, name)` (snapshot +
+       register + return). `core.lua`: `db.global.skins` default + re-register on `OnInitialize`.
+       `config.lua` Skin node: a name input + "Save current as skin" button persisting to `db.global`.
 
 **Phase 3 — Header/body spacing (BadgerConfigUI)**
-1. [ ] `options-tree.lua`: a spacer after the subtitle for header/body separation; `MINOR` 3 → 4; update
-       `options-tree_spec`.
+1. [x] `options-tree.lua`: `spacerArg` injected by `normalize` between the header block and the options on
+       every page; `MINOR` 3 → 4; `options-tree_spec` updated.
 
 **Phase 4 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version` (next patch), rebuild `.release` (re-embed
-       BadgerConfigUI).
+1. [x] `pnpm validate` green (84/20/9/4 successes, 0 failures; luacheck 0/0). `.toc` `## Version` → **0.9.12**;
+       `.release` rebuilt with the re-embedded BadgerConfigUI-1.0 (MINOR 4); source parity + load graph verified.
 2. [ ] **In-game (human, required):** Warrior separators/descriptions/always-editable; Save-as-skin works +
-       persists; clearer header/body spacing.
+       persists across `/reload`; clearer header/body spacing.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
 - **Constitution check:** Principles OK — skin capture is pure/spec-tested; options-tree spacing is
   pure/spec-tested; per-entry tooltip reads are edge; shared lib bumps `MINOR`; no `_G` leaks.
-- **Decisions produced:** — (candidate: a "skin" is a saved preset of Skin + Display options; user skins in
-  db.global.)
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **Decisions produced:** D-008-IJ — a "skin" is a saved preset of Skin + full Display config (incl.
+  position); user skins persist in `db.global`, built-ins stay code-defined.
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/32 (open, awaiting human merge)
+- **Outcome:** Branch `feature/WO-029-IJ-config-improvements`, PR #32. Warrior node — rule between entries,
+  a description under each (spell tooltip / composed data), toggle+offset always editable (availability only
+  dims the label). Save-as-skin — skin format carries optional font-size + full Display blocks; pure
+  `Skin.saveCurrent`; name input + Save button persisting to `db.global.skins` (re-registered on init).
+  Header/body spacer in BadgerConfigUI (MINOR 4). `.toc` → 0.9.12; gate green; `.release` rebuilt + verified.
+  Awaiting human merge + in-game re-test.

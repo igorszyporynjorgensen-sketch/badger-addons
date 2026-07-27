@@ -92,7 +92,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 - **WO-029-IJ** — **config improvements**: Warrior node rework (separators + in-game tooltip text +
   always-editable regardless of availability); **Save current config as a skin** (name + button; captures
   Skin + Display); more **header/body spacing** on every page (BadgerConfigUI, MINOR→4) (see
-  `docs/workorders/WO-029-IJ.md`). Status: Accepted.
+  `docs/workorders/WO-029-IJ.md`). Status: In progress — PR #32 open.
 - **WO-028-IJ** — **display/frame fixes**: give the TTK bar a background track and set **both** backgrounds
   to a faint 10% opacity; keep bar fills **inside a border** (no overflow, clipped); make a **Bar width**
   change apply immediately and keep the **right (death) edge fixed** (see `docs/workorders/WO-028-IJ.md`).
