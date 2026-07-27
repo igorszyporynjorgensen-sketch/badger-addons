@@ -58,16 +58,26 @@ describe("Sim", function()
         assert.is_not_nil(ns.Sim.run(s, 36).entries[2].active) -- TTK 14 → used
     end)
 
-    it("static preview covers planned + fits/over/short, with names", function()
-        local m = ns.Sim.staticPreview()
-        local byId = {}
-        for i = 1, #m.entries do
-            byId[m.entries[i].id] = m.entries[i]
+    it(
+        "static preview is the one scenario frozen at 0:25 — the same bars the dynamic sim animates",
+        function()
+            local m, ttk = ns.Sim.staticPreview()
+            assert.equals(25, ttk) -- reads 0:25
+            assert.equals(25, m.ttk)
+            -- Same single warrior scenario, not a separate stack: one entry per pop, in scenario order.
+            assert.equals(#ns.SimScenario.warriorBurst.pops, #m.entries)
+            assert.equals("Death Wish", m.entries[1].name)
+            assert.is_not_nil(m.entries[1].active) -- Death Wish already fired at t=20
+            assert.equals("Earthstrike", m.entries[2].name)
+            assert.is_not_nil(m.entries[2].planned) -- Earthstrike not yet fired at t=25
         end
-        assert.is_not_nil(byId.planned.planned.popLines)
-        assert.equals("fits", byId.fits.active.coverage)
-        assert.equals("over", byId.over.active.coverage)
-        assert.equals("short", byId.short.active.coverage)
-        assert.equals("Death Wish", byId.fits.name)
+    )
+
+    it("the frozen static preview matches Sim.run at the same moment (single source)", function()
+        local s = ns.SimScenario.warriorBurst
+        local frozen = ns.Sim.staticPreview()
+        local viaRun = ns.Sim.run(s, s.total - 25)
+        assert.equals(frozen.ttk, viaRun.ttk)
+        assert.equals(#frozen.entries, #viaRun.entries)
     end)
 end)

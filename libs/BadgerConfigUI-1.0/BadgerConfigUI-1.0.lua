@@ -9,7 +9,7 @@ local _, ns = ...
 -- Obtain the shared instance with:  local BCUI = LibStub("BadgerConfigUI-1.0")
 -- Consumers register a UNIQUE appName (their ADDON_NAME) so status/registry tables never collide.
 
-local MAJOR, MINOR = "BadgerConfigUI-1.0", 4
+local MAJOR, MINOR = "BadgerConfigUI-1.0", 5
 assert(LibStub, MAJOR .. " requires LibStub")
 
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
@@ -107,6 +107,35 @@ function lib:Register(appName, options, opts)
     return normalized
 end
 
+-- Register a callback fired when this app's window closes (X button or :Close/:CloseAll) — used by
+-- consumers to tear down transient UI state (e.g. a live preview) when the config is dismissed.
+function lib:SetCloseCallback(appName, fn)
+    local app = self.apps[appName]
+    if app then
+        app.onClose = fn
+    end
+end
+
+-- Chain the AceGUI Frame's OnClose so app.onClose fires whenever the window closes. Ace re-sets the
+-- widget's OnClose to its own teardown on every Open (AceConfigDialog), so we re-wrap after each Open,
+-- capturing Ace's handler (`prev`) and calling it first — never replacing the cleanup, only extending it.
+local function chainClose(self, appName, frame)
+    if not frame then
+        return
+    end
+    local prev = frame.events and frame.events["OnClose"]
+    frame:SetCallback("OnClose", function(widget, event, ...)
+        if prev then
+            prev(widget, event, ...)
+        end
+        local name = (widget.GetUserData and widget:GetUserData("appName")) or appName
+        local app = self.apps[name]
+        if app and app.onClose then
+            app.onClose(name)
+        end
+    end)
+end
+
 -- Open (building Ace's own frame if needed) and best-effort seed the status bar. Ace overwrites the
 -- status text on validation, so this is only the initial hint.
 function lib:Open(appName)
@@ -119,6 +148,7 @@ function lib:Open(appName)
         frame:SetStatusText(app.status)
     end
     polishTree(frame)
+    chainClose(self, appName, frame)
 end
 
 function lib:Close(appName)
