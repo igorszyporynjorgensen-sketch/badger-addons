@@ -12,8 +12,8 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local FALLBACK_TEX = "Interface\\TargetingFrame\\UI-StatusBar"
 local FALLBACK_FONT = "Fonts\\FRIZQT__.TTF"
 
-local container -- movable parent frame (clips its children to the bar area)
-local borderFrame -- separate frame OUTSET around the container so the border wraps the bars, never overlaps
+local container -- movable parent frame that hosts the bars + the border child
+local borderFrame -- outset child of the container so the border wraps the bars (never overlaps them)
 local targetBar -- the TTK / health bar
 local pool = {} -- reusable utility bar frames
 local BORDER_INSET = 12 -- px the border frame extends beyond the bar area on each side (matches edgeSize)
