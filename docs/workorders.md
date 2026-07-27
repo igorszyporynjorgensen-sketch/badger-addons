@@ -86,6 +86,11 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-032-IJ** — **fix two WO-028 display regressions** (found testing 0.9.14): utility bars vanished
+  (container `SetClipsChildren` clips the bars stacked above the one-bar-tall container) and editing a
+  Display value pops a stray border box (the sibling `borderFrame` isn't tied to container visibility). One
+  fix: drop the clip + re-parent the border to the container (see `docs/workorders/WO-032-IJ.md`).
+  Status: Proposed.
 - **WO-031-IJ** — **skins exclude frame position & lock** (amends D-008): a saved skin no longer captures
   `anchorPoint/posX/posY/locked`, so applying a skin restyles the bars **without moving them or changing
   the lock** (the geometry/readout *look* still applies). Records **D-010-IJ** (see
