@@ -9,7 +9,7 @@ local _, ns = ...
 -- Obtain the shared instance with:  local BCUI = LibStub("BadgerConfigUI-1.0")
 -- Consumers register a UNIQUE appName (their ADDON_NAME) so status/registry tables never collide.
 
-local MAJOR, MINOR = "BadgerConfigUI-1.0", 9
+local MAJOR, MINOR = "BadgerConfigUI-1.0", 10
 assert(LibStub, MAJOR .. " requires LibStub")
 
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
@@ -127,12 +127,17 @@ local function polishHeader(frame, app)
     -- Push the native content (control row + tree) below the band. Absolute offset → idempotent.
     frame.content:SetPoint("TOPLEFT", 17, -27 - bandH)
 
-    if frame.frame.__badgerHeaderBuilt then
+    -- Keep the band by reference (it survives ReleaseChildren — a raw child, not an AceGUI widget) and
+    -- reshow it after a close-time teardown. Keyed by the band ref, not a build-once flag, so a torn-down
+    -- band is re-shown on the next open rather than left hidden.
+    local band = frame.frame.__badgerHeaderBand
+    if band then
+        band:Show()
         return
     end
-    frame.frame.__badgerHeaderBuilt = true
 
-    local band = CreateFrame("Frame", nil, frame.frame)
+    band = CreateFrame("Frame", nil, frame.frame)
+    frame.frame.__badgerHeaderBand = band
     band:SetPoint("TOPLEFT", 17, -27)
     band:SetPoint("TOPRIGHT", -17, -27)
     band:SetHeight(bandH)
@@ -157,6 +162,20 @@ local function polishHeader(frame, app)
         sub:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -6)
         sub:SetPoint("RIGHT", band, "RIGHT", -HEADER_PAD, 0)
         sub:SetText(header.subtitle)
+    end
+end
+
+-- Return a pooled Frame to a clean state on close: hide the brand band and restore content's original
+-- TOPLEFT. AceGUI pools Frame widgets globally by type, so without this a recycled frame would show a
+-- stale band + depressed content in the next standalone window to reuse it — even another addon's (the
+-- WO-045 regression, audit #1). Idempotent; no-ops when there's no band. polishHeader reshows on reopen.
+local function teardownHeader(widget)
+    local raw = widget and widget.frame
+    if raw and raw.__badgerHeaderBand then
+        raw.__badgerHeaderBand:Hide()
+    end
+    if widget and widget.content then
+        widget.content:SetPoint("TOPLEFT", 17, -27)
     end
 end
 
@@ -247,6 +266,8 @@ local function hookHide(self, appName, widget)
     end
     frame.__badgerHideHooked = true
     frame:HookScript("OnHide", function()
+        -- Clean the header off the frame BEFORE it returns to the shared pool (audit #1).
+        teardownHeader(widget)
         local app = self.apps[appName]
         if app and app.onClose then
             app.onClose(appName)
