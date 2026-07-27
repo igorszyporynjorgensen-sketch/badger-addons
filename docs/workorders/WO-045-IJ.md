@@ -1,8 +1,8 @@
 ---
 wo: WO-045-IJ
-status: Accepted         # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # PR URL once opened
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/49
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-044-IJ.md
@@ -65,11 +65,11 @@ related:
   click (re-Open) and a resize. `LayoutFinished`/pooling notes captured in research if the inset drifts.
 
 **Phase 1 — Band + inset**
-1. [ ] `options-tree.lua` `hasBand` branch (+ spec); `BadgerConfigUI-1.0.lua` `polishHeader` + `MINOR` 9;
+1. [x] `options-tree.lua` `hasBand` branch (+ spec); `BadgerConfigUI-1.0.lua` `polishHeader` + `MINOR` 9;
    `config.lua` header image fields.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green; bump badger-ttk `.toc` `## Version` (0.9.27); rebuild `.release` (re-embed
+1. [x] `pnpm validate` green; bumped 0.9.27; lib re-embedded (MINOR 9). badger-ttk `.toc` `## Version` (0.9.27); rebuild `.release` (re-embed
    the lib). PR for human merge.
 2. [ ] **In-game (human, required):** two-column header renders; band holds across control-click + resize;
    badger-arena unchanged.
