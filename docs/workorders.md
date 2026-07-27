@@ -90,7 +90,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
   (#10); Raids moved above Abilities (#11); Simulation → **Preview** (#12); Profiles icon (#8); a header
   **Play/Pause** button (#14); Skin node — picker on its own line + New/Save/**Delete** row (#18/#21),
   "Utility size" (#19), built-in skin **Badger → Default** (#21) (see `docs/workorders/WO-038-IJ.md`).
-  Status: Accepted.
+  Status: In progress — PR #41 open (stacked on #40).
 - **WO-037-IJ** — **fix: config close callback + header margin**: the window's close callback only fired on
   the X button (ESC / slash-toggle / `:Close` go through Ace's deferred hide and never fire `OnClose`), so
   the preview lingered — hook the frame `OnHide` instead; and halve the global-header bottom spacer. Shared

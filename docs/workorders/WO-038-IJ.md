@@ -1,8 +1,8 @@
 ---
 wo: WO-038-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/41
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-037-IJ.md
@@ -54,18 +54,23 @@ related:
   delete/rename, skin-node layout.
 
 **Phase 1 — Structure & labels**
-1. [ ] `config.lua`: title (#10), node orders (#11), Preview rename (#12), Profiles icon (#8), header
-       play/pause (#14), Skin layout (#18) + "Utility size" (#19) + Delete button (#21).
-       `skin.lua`: built-in → "Default" + `Skin.deleteSkin`. `core.lua`: default `skin = "Default"`.
-       BadgerConfigUI: fixed Blizzard-stub title (keep "Badger TTK"). `.toc` `## Title`.
+1. [x] `config.lua`: title via `options.name` + `header.title` (#10), Raids order 6.5 (#11), Preview rename
+       (#12), Profiles icon (#8), header Play/Pause control (#14), Skin picker full-width + Save/Delete row
+       (#18) + "Utility size" (#19) + Delete button (#21). `skin.lua`: built-in → "Default" (`Skin.BUILTIN`)
+       + pure `Skin.deleteSkin`. `core.lua`: default `skin = "Default"` + `"Badger"→"Default"` migration.
+       No lib change needed — the Blizzard stub keeps `opts.title` = "Badger TTK". `.toc` `## Title`.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version`; rebuild `.release` (re-embed the lib if touched).
+1. [x] `pnpm validate` green (86/21/9/4 successes, 0 failures; luacheck 0/0). `.toc` `## Title` updated,
+       `## Version` → **0.9.20**; `.release` rebuilt (lib MINOR 7 from the WO-037 stack); parity verified.
 2. [ ] **In-game (human, required):** titles, tree order (Raids above Abilities), Preview name, Profiles
        icon, header Play/Pause, skin delete/rename, skin-node layout.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
 - **Constitution check:** Principles OK — config glue + a pure `Skin.deleteSkin` (spec-tested); no `_G` leaks.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/41 (open; stacked on #40)
+- **Outcome:** Branch `feature/WO-038-IJ-config-structure` (stacked on the WO-037 fix branch), PR #41. All 8
+  items done (config.lua + skin.lua + core.lua + `.toc`); built-in skin "Badger"→"Default" with migration;
+  pure `Skin.deleteSkin`. `.toc` Title updated + 0.9.20; gate green (86 successes); `.release` rebuilt.
+  Merge #40 first, then #41. Awaiting human merge + in-game re-test.
