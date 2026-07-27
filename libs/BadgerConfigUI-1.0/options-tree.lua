@@ -78,9 +78,16 @@ end
 -- is `opts.header` = { title, subtitle, image…, controls = { <option tables> } }; `opts.banner` is kept as
 -- a back-compat alias (header wins). NON-MUTATING: root and its .args are shallow-copied; child pages are
 -- left untouched; supplied control tables are copied (only their order is set).
+--
+-- When `header.image` is set the consumer's LibStub glue draws a RAW two-column brand band (image left,
+-- title/subtitle right) directly on the frame (BadgerConfigUI-1.0.lua polishHeader), so we OMIT the
+-- title/subtitle descriptions here — the band owns them. The controls stay native root-level args (they
+-- flow just below the band, keeping AceConfig's automatic get-re-read sync). No image → the text banner is
+-- emitted as before (badger-arena's path is unchanged).
 function OptionsTree.normalize(root, opts)
     opts = opts or {}
     local header = opts.header or opts.banner or { title = root.name }
+    local hasBand = header.image ~= nil
 
     local normalized = shallowCopy(root)
     normalized.childGroups = root.childGroups or "tree"
@@ -89,11 +96,14 @@ function OptionsTree.normalize(root, opts)
         local args = shallowCopy(root.args)
         -- Root-level header items. Orders only sort the header among itself (the tree is added after all of
         -- these regardless of order); child config nodes are groups, so they never collide with these keys.
-        args.badgerHeaderTitle = OptionsTree.bannerArg(header, 1)
-        local order = 2
-        if header.subtitle then
-            args.badgerHeaderSub = OptionsTree.subtitleArg(header.subtitle, order)
+        local order = 1
+        if not hasBand then
+            args.badgerHeaderTitle = OptionsTree.bannerArg(header, order)
             order = order + 1
+            if header.subtitle then
+                args.badgerHeaderSub = OptionsTree.subtitleArg(header.subtitle, order)
+                order = order + 1
+            end
         end
         if type(header.controls) == "table" then
             for i = 1, #header.controls do

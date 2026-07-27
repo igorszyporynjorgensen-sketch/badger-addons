@@ -9,7 +9,7 @@ local _, ns = ...
 -- Obtain the shared instance with:  local BCUI = LibStub("BadgerConfigUI-1.0")
 -- Consumers register a UNIQUE appName (their ADDON_NAME) so status/registry tables never collide.
 
-local MAJOR, MINOR = "BadgerConfigUI-1.0", 8
+local MAJOR, MINOR = "BadgerConfigUI-1.0", 9
 assert(LibStub, MAJOR .. " requires LibStub")
 
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
@@ -100,6 +100,66 @@ local function polishStatusBar(frame)
     end
 end
 
+-- ── Two-column brand header ──────────────────────────────────────────────────────────────────────
+-- When an app registers `header.image`, draw a self-contained brand band across the top of the window:
+-- the image on the LEFT (with a right margin) and the title + subtitle stacked, left-aligned, on the
+-- RIGHT. The band is RAW (a frame + texture + two FontStrings on frame.frame, NOT AceGUI children), so
+-- AceConfig's ReleaseChildren — fired on every value-change re-Open — never destroys it; built once,
+-- guarded by a plain (non-userdata) flag that survives widget Release. The native content (the control
+-- row + tree) is pushed BELOW the band by re-pointing content's TOPLEFT down by the band height: content
+-- is anchored TOPLEFT(17,-27)/BOTTOMRIGHT at Frame construction and never re-pointed afterwards (resize
+-- only calls content:SetWidth/SetHeight), so this single absolute SetPoint holds across re-Open + resize.
+-- Fully defensive: no-ops unless header.image is present and the frame shape is as expected. When no app
+-- registers an image (badger-arena), normalize keeps the text banner and this never runs.
+local HEADER_PAD = 10 -- inset of the band's artwork/text from the band's top-left
+local HEADER_BRAND = { 0.961, 0.773, 0.259 } -- Badger brand gold (f5c542)
+
+local function polishHeader(frame, app)
+    local header = app and app.header
+    if not (frame and frame.frame and frame.content and header and header.image) then
+        return
+    end
+    local imgW = header.imageWidth or 72
+    local imgH = header.imageHeight or 72
+    local margin = header.imageMargin or 14
+    local bandH = HEADER_PAD + imgH + HEADER_PAD
+
+    -- Push the native content (control row + tree) below the band. Absolute offset → idempotent.
+    frame.content:SetPoint("TOPLEFT", 17, -27 - bandH)
+
+    if frame.frame.__badgerHeaderBuilt then
+        return
+    end
+    frame.frame.__badgerHeaderBuilt = true
+
+    local band = CreateFrame("Frame", nil, frame.frame)
+    band:SetPoint("TOPLEFT", 17, -27)
+    band:SetPoint("TOPRIGHT", -17, -27)
+    band:SetHeight(bandH)
+
+    -- LEFT container: the artwork, sized to itself, with a right margin (the text starts past it).
+    local tex = band:CreateTexture(nil, "ARTWORK")
+    tex:SetTexture(header.image)
+    tex:SetSize(imgW, imgH)
+    tex:SetPoint("TOPLEFT", HEADER_PAD, -HEADER_PAD)
+
+    -- RIGHT container: title over subtitle, both left-aligned, filling the remaining width.
+    local title = band:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    title:SetJustifyH("LEFT")
+    title:SetPoint("TOPLEFT", tex, "TOPRIGHT", margin, -2)
+    title:SetPoint("RIGHT", band, "RIGHT", -HEADER_PAD, 0)
+    title:SetText(header.title or "")
+    title:SetTextColor(HEADER_BRAND[1], HEADER_BRAND[2], HEADER_BRAND[3])
+
+    if header.subtitle then
+        local sub = band:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        sub:SetJustifyH("LEFT")
+        sub:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -6)
+        sub:SetPoint("RIGHT", band, "RIGHT", -HEADER_PAD, 0)
+        sub:SetText(header.subtitle)
+    end
+end
+
 -- Register an addon's options table, seed its dialog size, and optionally add a Blizzard-panel stub.
 -- opts = {header, banner, width, height, title, status, blizzard}. `header` = { title, subtitle, image…,
 -- controls = { <AceConfig option tables> } } becomes ONE persistent header above the tree (see
@@ -117,6 +177,9 @@ function lib:Register(appName, options, opts)
     local app = {
         title = opts.title or options.name or appName,
         status = opts.status,
+        -- Kept for polishHeader: when this carries an `image`, normalize omitted the text banner and we
+        -- draw the two-column brand band instead (title/subtitle/image live here).
+        header = opts.header or opts.banner,
     }
     self.apps[appName] = app
 
@@ -204,6 +267,7 @@ function lib:Open(appName)
     end
     polishTree(frame)
     polishStatusBar(frame)
+    polishHeader(frame, app)
     chainClose(self, appName, frame)
     hookHide(self, appName, frame)
 end
