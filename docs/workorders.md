@@ -86,6 +86,17 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
 
+- **WO-030-IJ** — **simulation rework**: make the sim ONE thing — the static preview is the single source
+  of the UI, and Play/Stop just loops/freezes that same setup; the preview reads **0:25**; and closing the
+  config window **shuts down** any preview (see `docs/workorders/WO-030-IJ.md`). Status: Proposed.
+- **WO-029-IJ** — **config improvements**: Warrior node rework (separators + in-game tooltip text +
+  always-editable regardless of availability); **Save current config as a skin** (name + button; captures
+  Skin + Display); more **header/body spacing** on every page (BadgerConfigUI, MINOR→4) (see
+  `docs/workorders/WO-029-IJ.md`). Status: Proposed.
+- **WO-028-IJ** — **display/frame fixes**: give the TTK bar a background track and set **both** backgrounds
+  to a faint 10% opacity; keep bar fills **inside a border** (no overflow, clipped); make a **Bar width**
+  change apply immediately and keep the **right (death) edge fixed** (see `docs/workorders/WO-028-IJ.md`).
+  Status: Proposed.
 - **WO-027-IJ** — **polish batch** (one build): (1) a hint (`desc`) on **every changeable config option**;
   (2) nest warrior abilities under a **Warrior** node; (3) `.toc` flavor "Era / Hardcore" (drop Anniversary)
   + `## Category: Combat`; (4) config-banner **subtitle smaller than title** (BadgerConfigUI, MINOR→3); (5)
