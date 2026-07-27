@@ -1,8 +1,8 @@
 ---
 wo: WO-036-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/39
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-034-IJ.md
@@ -32,15 +32,17 @@ related:
 - **Behavior delta:** none observable (explicit API adoption; the alias already produced the same header).
 
 **Phase 1 — Adopt header**
-1. [ ] `badger-arena config.lua`: `banner` → `header`. Bump `BadgerArena.toc` to 0.1.1.
+1. [x] `badger-arena config.lua`: `banner` → `header`. Bumped `BadgerArena.toc` to 0.1.1.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green.
+1. [x] `pnpm validate` green (85/21/9/4 successes, 0 failures; luacheck 0/0).
 2. [ ] **In-game:** deferred — arena has no `.release` build yet (see Out of scope). Its header renders via
        the shared lib once a build is produced.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge.
 - **Constitution check:** Principles OK — a config-glue edit; no `_G` leaks; uses the shared lib's public API.
 - **Decisions produced:** —
-- **MR:** —
-- **Outcome:** — (running notes; filled on completion)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/39 (open, awaiting human merge)
+- **Outcome:** Branch `feature/WO-036-IJ-arena-header`, PR #39. arena `config.lua` `banner` → explicit
+  `header` (BadgerConfigUI-1.0 MINOR 6); `BadgerArena.toc` → 0.1.1. Gate green. No arena `.release` built
+  (externals never fetched; deferred — offered on request). Awaiting human merge.
