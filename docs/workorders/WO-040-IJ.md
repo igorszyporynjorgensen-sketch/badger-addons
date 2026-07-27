@@ -1,8 +1,8 @@
 ---
 wo: WO-040-IJ
-status: Accepted        # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
-mr: ~                   # pull-request URL once opened, else ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/44
 decision: ~             # D-0xx-II once a decision is produced, else ~
 depends_on:
   - docs/workorders/WO-039-IJ.md
@@ -44,11 +44,11 @@ related:
   renamed "Utility (waiting)".
 
 **Phase 1 — Colours + font**
-1. [ ] `display.lua` (utilityColorKey + font colour), `skin.lua` (COLOR_FIELD + built-in), `core.lua`
+1. [x] `display.lua` (utilityColorKey + font colour), `skin.lua` (COLOR_FIELD + built-in), `core.lua`
        (defaults), `config.lua` (pickers), `skin_spec`.
 
 **Phase 2 — Verify**
-1. [ ] `pnpm validate` green. Bump `.toc` `## Version`; rebuild `.release`.
+1. [x] `pnpm validate` green (86). Bumped 0.9.22. `.toc` `## Version`; rebuild `.release`.
 2. [ ] **In-game (human, required):** four colours + font recolour live; skins round-trip them.
 
 - **Verification:** the acceptance criteria; `pnpm validate` green; PR for human merge; in-game re-test.
