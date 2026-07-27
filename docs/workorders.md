@@ -89,7 +89,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 - **WO-034-IJ** — **persistent global header in BadgerConfigUI**: replace the identical per-node banner with
   one global header (title/subtitle) rendered above the tree via root-level AceConfig args, and add a **Show
   preview** toggle to it (kept in the Simulation node too; native two-way sync). Shared lib (MINOR 5→6),
-  `opts.banner` kept as an alias (see `docs/workorders/WO-034-IJ.md`). Status: Proposed.
+  `opts.banner` kept as an alias (see `docs/workorders/WO-034-IJ.md`). Status: Accepted.
 - **WO-033-IJ** — **simulation: Play → Play/Pause + a Reset button**: Pause freezes the animation in place
   (Play resumes from there — pausing never resets the timeline); a new Reset button returns to the frozen
   0:25 still (see `docs/workorders/WO-033-IJ.md`). Status: Done — PR #36 merged; main green.
