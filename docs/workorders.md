@@ -96,7 +96,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 - **WO-028-IJ** — **display/frame fixes**: give the TTK bar a background track and set **both** backgrounds
   to a faint 10% opacity; keep bar fills **inside a border** (no overflow, clipped); make a **Bar width**
   change apply immediately and keep the **right (death) edge fixed** (see `docs/workorders/WO-028-IJ.md`).
-  Status: Proposed.
+  Status: Accepted.
 - **WO-027-IJ** — **polish batch** (one build): (1) a hint (`desc`) on **every changeable config option**;
   (2) nest warrior abilities under a **Warrior** node; (3) `.toc` flavor "Era / Hardcore" (drop Anniversary)
   + `## Category: Combat`; (4) config-banner **subtitle smaller than title** (BadgerConfigUI, MINOR→3); (5)
