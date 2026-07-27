@@ -1,6 +1,6 @@
 ---
 wo: WO-044-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/48
 decision: ~             # D-0xx-II once a decision is produced, else ~
