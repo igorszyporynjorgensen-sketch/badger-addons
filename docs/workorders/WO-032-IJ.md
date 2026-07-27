@@ -1,6 +1,6 @@
 ---
 wo: WO-032-IJ
-status: In progress     # Proposed | Accepted | In progress | Done | Blocked | Cancelled
+status: Done            # Proposed | Accepted | In progress | Done | Blocked | Cancelled
 assigned: IJ            # assignee initials — auto-filled from the committer (git email local-part)
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/35
 decision: ~             # D-0xx-II once a decision is produced, else ~
@@ -58,7 +58,7 @@ related:
 - **Constitution check:** Principles OK — frame/edge change in display.lua; no `_G` leaks; pure geometry
   (ns.Layout) untouched.
 - **Decisions produced:** —
-- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/35 (open, awaiting human merge)
+- **MR:** https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/35 (merged; main green)
 - **Outcome:** Branch `fix/WO-032-IJ-display-regressions`, PR #35. Removed `container:SetClipsChildren(true)`
   (was clipping the utility bars stacked above the one-bar-tall container) and re-parented `borderFrame`
   from `UIParent` to the container (so its visibility tracks the bars — no stray border box on Display
