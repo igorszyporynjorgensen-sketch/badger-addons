@@ -1,8 +1,8 @@
 ---
 wo: WO-055-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/58
 decision: ~
 depends_on: []
 related:
@@ -19,15 +19,14 @@ related:
   - Give each pooled utility bar + the target bar an `icon` Texture (OVERLAY, TexCoord-trimmed).
   - In `render`, when `p.showIcons`:
     - **Utility bars:** resolve the ability icon from the bar's `b.id` via `ns.AbilityTable` (idType →
-      `GetSpellTexture`/`GetItemIcon`), cached; anchor a bar-height square at the bar's LEFT; hide if
-      unresolved (the sim's synthetic string ids won't resolve — preview icons are a follow-up, audit #6).
-    - **TTK bar:** `SetPortraitTexture(icon, "target")` when a target exists; anchor a bar-height square at
-      the LEFT and shift the time text right by the icon width so they don't overlap.
+      `GetSpellTexture`/`GetItemIcon`), cached; hide if unresolved (sim string ids don't resolve — follow-up).
+    - **TTK bar:** `SetPortraitTexture(icon, "target")` when a target exists.
+    - Icons sit OUTSIDE the bar on the ANCHOR side (right for a right-ish anchor, left for LEFT), flush, square at the bar's height.
   - Hide all icons when `showIcons` is off or unresolved.
 - **Acceptance:** in real combat with Show icons on, utility bars show ability icons and the TTK bar shows
   the target's portrait, updating as the target changes; `pnpm validate` green.
 - **Behavior delta:** ADDED (in-game) — bar icons.
 - **Constitution check:** Principles OK — display edge (no spec); no `_G`/pure-logic change.
 
-**Phase 1** 1. [ ] display.lua icon textures + render wiring.
-**Phase 2** 1. [ ] gate green; bump 0.9.36; rebuild `.release`. PR. 2. [ ] in-game: utility icons + target portrait show with Show icons on.
+**Phase 1** 1. [x] display.lua icon textures + render wiring; anchor-side placement.
+**Phase 2** 1. [x] gate green; bumped 0.9.36; rebuilt `.release`. PR #58. 2. [ ] in-game: utility icons + target portrait show with Show icons on.
