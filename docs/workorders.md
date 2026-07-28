@@ -85,7 +85,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
-- **WO-053-IJ** — **Skin node: Delete on the picker's line + block saving over "Default"** (audit #2); config layout (picker 0.75 + delete 0.25) + `saveCurrent` refuses the built-in name (see `docs/workorders/WO-053-IJ.md`). Status: In progress — PR #56.
+- **WO-053-IJ** — **Skin node: Delete on the picker's line + block saving over "Default"** (audit #2); config layout (picker 0.75 + delete 0.25) + `saveCurrent` refuses the built-in name (see `docs/workorders/WO-053-IJ.md`). Status: Done — PR #56 merged; main green.
 - **WO-052-IJ** — **fix: header band leaks across the AceGUI frame pool** (audit #1, my WO-045 regression) + **master-switch gate** (audit #5); BadgerConfigUI teardown (MINOR 9→10) + driver enabled early-return (see `docs/workorders/WO-052-IJ.md`). Status: Done — PR #55 merged; main green.
 - **WO-051-IJ** — **fix: profile switch/reset leaves display stale** (audit #4 = the "bars not aligned after clearing profile" bug) + reset preview state on init (#3) + normalize unknown skin on inactive profiles (#7); AceDB profile callbacks in core.lua (see `docs/workorders/WO-051-IJ.md`). Status: Done — PR #54 merged; main green.
 - **WO-050-IJ** — **Text-offsets one row**: `width = 0.25` on the four TTK/Utility text-offset sliders so all four share a row (see `docs/workorders/WO-050-IJ.md`). Status: Done — PR #53 merged; main green.
