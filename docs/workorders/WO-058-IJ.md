@@ -1,8 +1,8 @@
 ---
 wo: WO-058-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/60
 decision: ~
 depends_on:
   - docs/workorders/WO-057-IJ.md
@@ -24,5 +24,5 @@ related:
 - **Behavior delta:** MODIFIED (in-game) — config rows + header control order.
 - **Constitution check:** Principles OK — data-only widths/ordering.
 
-**Phase 1** 1. [ ] config.lua widths + header reorder.
+**Phase 1** 1. [x] config.lua widths + header reorder.
 **Phase 2** 1. [ ] gate green; bump 0.9.38; rebuild `.release`. PR. 2. [ ] **In-game (human):** rows + header order.
