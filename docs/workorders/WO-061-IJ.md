@@ -1,8 +1,8 @@
 ---
 wo: WO-061-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/64
 decision: ~
 depends_on:
   - docs/workorders/WO-056-IJ.md
@@ -43,5 +43,5 @@ related:
   no end-of-fight blanking. History-backed pulls show instantly again.
 - **Constitution check:** Principles OK — pure estimator + spec'd; the GUID cache is driver edge.
 
-**Phase 1** 1. [ ] estimator floor-release + prior-conf + 0.05 clamp; driver GUID cache; adopt gap specs.
+**Phase 1** 1. [x] estimator floor-release + prior-conf + 0.05 clamp; driver GUID cache; adopt gap specs.
 **Phase 2** 1. [ ] gate green; bump 0.9.42; rebuild `.release`. PR. 2. [ ] **In-game (human):** retarget test; slow-solo of a history mob.
