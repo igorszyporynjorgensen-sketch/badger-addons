@@ -304,7 +304,7 @@ local function buildBehavior(db)
                     .. " rest of that target — even as the estimate drops below this — so there's no"
                     .. " flicker at the end of a fight.",
                 order = 6,
-                width = 0.5, -- Minimum time-to-kill · Minimum confidence share a line (WO-054)
+                width = "full", -- a row of its own (WO-057)
                 min = 0,
                 max = 120,
                 step = 1,
@@ -316,7 +316,7 @@ local function buildBehavior(db)
                 name = "Minimum confidence",
                 desc = "Hide the estimate until it is at least this confident.",
                 order = 7,
-                width = 0.5,
+                width = "full", -- a row of its own (WO-057)
                 min = 0,
                 max = 1,
                 step = 0.05,
@@ -343,7 +343,8 @@ local function buildSkin(db)
                     .. " the box below, or add one in code with BadgerTTK:RegisterSkin — see"
                     .. " src/skin/skin.lua.",
                 order = 1,
-                width = 0.75, -- picker + Delete share this line; New-skin + Save share the next (WO-053)
+                width = "relative", -- picker + Delete own this row (0.74+0.25); New-skin + Save own the next (WO-057)
+                relWidth = 0.74,
                 values = function()
                     return ns.Skin.ListSkins()
                 end,
@@ -363,7 +364,8 @@ local function buildSkin(db)
                     .. " scale / colours / readout) as a reusable skin. Your bar position and lock are kept"
                     .. " — a skin never moves the bars.",
                 order = 2,
-                width = 0.75, -- New-skin input + Save share a line, mirroring the picker + Delete line
+                width = "relative", -- input + Save own this row, mirroring the picker + Delete row
+                relWidth = 0.74,
                 get = function()
                     return pendingSkinName
                 end,
@@ -378,7 +380,8 @@ local function buildSkin(db)
                     .. " position or lock) as a new skin under the name above. It appears in the picker and"
                     .. " persists across /reload.",
                 order = 3,
-                width = 0.25,
+                width = "relative",
+                relWidth = 0.25,
                 disabled = function()
                     local nm = strtrim(pendingSkinName or "")
                     return nm == "" or nm == ns.Skin.BUILTIN -- can't save over the built-in Default (#2)
@@ -402,7 +405,8 @@ local function buildSkin(db)
                 name = "Delete",
                 desc = "Delete the skin selected in the picker. The built-in Default skin can't be deleted.",
                 order = 1.5, -- sits on the picker's line, to its right
-                width = 0.25,
+                width = "relative",
+                relWidth = 0.25,
                 confirm = true,
                 disabled = function()
                     return db.profile.skin == ns.Skin.BUILTIN
@@ -549,7 +553,10 @@ local function buildDisplay(db)
                 name = "Screen anchor",
                 desc = "Which screen point the bar container is pinned to.",
                 order = 2,
-                width = 0.4,
+                -- Row fractions need width="relative"+relWidth — a NUMERIC width is a multiple of 170px
+                -- (WO-057). This row: anchor 0.4 · lock 0.3 · reset 0.29 (≤0.99 so Flow can't wrap it).
+                width = "relative",
+                relWidth = 0.4,
                 values = ANCHORS,
                 get = getter(db, "anchorPoint"),
                 set = setterR(db, "anchorPoint"),
@@ -559,7 +566,8 @@ local function buildDisplay(db)
                 name = "Lock position",
                 desc = "Lock the bars in place; unlock to drag them with the mouse.",
                 order = 2.3,
-                width = 0.3,
+                width = "relative",
+                relWidth = 0.3,
                 get = getter(db, "locked"),
                 set = setterR(db, "locked"),
             },
@@ -568,7 +576,7 @@ local function buildDisplay(db)
                 name = "Horizontal offset",
                 desc = "Fine-tune the horizontal position from the anchor.",
                 order = 3,
-                width = 0.5,
+                width = "full", -- a row of its own (WO-057)
                 min = -800,
                 max = 800,
                 step = 1,
@@ -580,7 +588,7 @@ local function buildDisplay(db)
                 name = "Vertical offset",
                 desc = "Fine-tune the vertical position from the anchor.",
                 order = 3.5,
-                width = 0.5,
+                width = "full", -- a row of its own (WO-057)
                 min = -800,
                 max = 800,
                 step = 1,
@@ -592,7 +600,7 @@ local function buildDisplay(db)
                 name = "Scale",
                 desc = "Overall size of the bar display.",
                 order = 4,
-                width = 0.5,
+                width = "full", -- a row of its own (WO-057)
                 min = 0.5,
                 max = 2.0,
                 step = 0.05,
@@ -604,7 +612,6 @@ local function buildDisplay(db)
                 name = "Growth direction",
                 desc = "Which way the utility bars stack from the target bar.",
                 order = 4.5,
-                width = 0.5,
                 values = GROWTH,
                 get = getter(db, "growthDirection"),
                 set = setterR(db, "growthDirection"),
@@ -701,14 +708,15 @@ local function buildDisplay(db)
                 set = setterR(db, "barBgOpacity"),
             },
             textHeader = { type = "header", name = "Text offsets", order = 15 },
-            -- width="half": two half-width controls fill a row, so the flow wraps after each pair —
-            -- TTK X · TTK Y on one line, Utility X · Utility Y on the line below (WO-047).
+            -- A true 2×2: relWidth 0.49 pairs (TTK X · Y row, then Utility X · Y row). Numeric widths
+            -- are 170px multiples — they crammed all four onto one row (WO-057).
             ttkTextX = {
                 type = "range",
                 name = "TTK text X",
                 desc = "Horizontal offset of the TTK bar text from its anchor, in pixels.",
                 order = 15.1,
-                width = 0.5,
+                width = "relative",
+                relWidth = 0.49,
                 min = -60,
                 max = 60,
                 step = 1,
@@ -720,7 +728,8 @@ local function buildDisplay(db)
                 name = "TTK text Y",
                 desc = "Vertical offset of the TTK bar text from its anchor, in pixels.",
                 order = 15.2,
-                width = 0.5,
+                width = "relative",
+                relWidth = 0.49,
                 min = -30,
                 max = 30,
                 step = 1,
@@ -732,7 +741,8 @@ local function buildDisplay(db)
                 name = "Utility text X",
                 desc = "Horizontal offset of the utility bar text from its anchor, in pixels.",
                 order = 15.3,
-                width = 0.5,
+                width = "relative",
+                relWidth = 0.49,
                 min = -60,
                 max = 60,
                 step = 1,
@@ -744,7 +754,8 @@ local function buildDisplay(db)
                 name = "Utility text Y",
                 desc = "Vertical offset of the utility bar text from its anchor, in pixels.",
                 order = 15.4,
-                width = 0.5,
+                width = "relative",
+                relWidth = 0.49,
                 min = -30,
                 max = 30,
                 step = 1,
@@ -765,7 +776,8 @@ local function buildDisplay(db)
                 name = "Reset position",
                 desc = "Move the display back to the default screen position.",
                 order = 2.6, -- on the Screen anchor · Lock line (WO-054)
-                width = 0.3,
+                width = "relative",
+                relWidth = 0.29,
                 func = function()
                     if ns.Display then
                         ns.Display.resetPosition()
