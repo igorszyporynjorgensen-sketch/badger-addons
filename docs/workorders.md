@@ -85,7 +85,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
-- **WO-061-IJ** — **estimator verify follow-ups**: floor released after a slowdown flush, prior counts toward confidence + 90s per-GUID retarget cache (no more swap-back blackout), countdown floors at 0.05s (no display blanking), verify panel's mutation-tested gap specs adopted (see `docs/workorders/WO-061-IJ.md`). Status: In progress — PR #64.
+- **WO-061-IJ** — **estimator verify follow-ups**: floor released after a slowdown flush, prior counts toward confidence + 90s per-GUID retarget cache (no more swap-back blackout), countdown floors at 0.05s (no display blanking), verify panel's mutation-tested gap specs adopted (see `docs/workorders/WO-061-IJ.md`). Status: Done — PR #64 merged; main green.
 - **WO-060-IJ** — **skin export**: pure `Skin.serialize` (paste-ready `RegisterSkin` literal) + a read-only multiline Export box in the Skin node (see `docs/workorders/WO-060-IJ.md`). Status: Done — PR #63 merged; main green.
 - **WO-059-IJ** — **preview icons**: sim scenario switched to the REAL ability ids (Death Wish 12328, Earthstrike 21180) so icons + per-ability colours resolve in preview (closes audit #6), plus a Ragnaros stand-in on the TTK bar while previewing (see `docs/workorders/WO-059-IJ.md`). Status: Done — PR #61 merged; main green.
 - **WO-058-IJ** — **layout follow-up**: Behavior's two sliders share one row (0.49 each), Display's H·V·Scale share one row (0.33 each), header order Lock · Show preview · Play/Pause (see `docs/workorders/WO-058-IJ.md`). Status: Done — PR #60 merged; main green.
