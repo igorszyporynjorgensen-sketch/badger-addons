@@ -85,6 +85,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
+- **WO-055-IJ** — **show icons**: utility bars show their ability icon + the TTK bar shows the current target's portrait (SetPortraitTexture, live) when Show icons is on; display.lua only (see `docs/workorders/WO-055-IJ.md`). Status: Accepted (pre-approved) — implementing.
 - **WO-054-IJ** — **config layout grouping**: Lock in the header; Display anchor·lock·reset / H·V offset / scale·growth on shared lines; Behavior minTTK·confidence on one line (see `docs/workorders/WO-054-IJ.md`). Status: Done — PR #57 merged; main green.
 - **WO-053-IJ** — **Skin node: Delete on the picker's line + block saving over "Default"** (audit #2); config layout (picker 0.75 + delete 0.25) + `saveCurrent` refuses the built-in name (see `docs/workorders/WO-053-IJ.md`). Status: Done — PR #56 merged; main green.
 - **WO-052-IJ** — **fix: header band leaks across the AceGUI frame pool** (audit #1, my WO-045 regression) + **master-switch gate** (audit #5); BadgerConfigUI teardown (MINOR 9→10) + driver enabled early-return (see `docs/workorders/WO-052-IJ.md`). Status: Done — PR #55 merged; main green.
