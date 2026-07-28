@@ -160,6 +160,9 @@ function Display.init()
     targetBar.bg:SetAllPoints(targetBar)
     targetBar.text = targetBar:CreateFontString(nil, "OVERLAY")
     targetBar.text:SetPoint("LEFT", targetBar, "LEFT", 4, 0)
+    targetBar.icon = targetBar:CreateTexture(nil, "OVERLAY") -- the target's portrait (showIcons)
+    targetBar.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93) -- trim the stock icon border
+    targetBar.icon:Hide()
 
     -- Ease every bar's fill toward its target each frame, so the display glides rather than stepping at the
     -- live 0.15s cadence. Skips work while the display is hidden.
@@ -188,9 +191,52 @@ local function acquireBar(i)
         bar.text = bar:CreateFontString(nil, "OVERLAY")
         bar.text:SetPoint("RIGHT", bar, "RIGHT", -3, 0) -- right-aligned at the death edge
         bar.text:SetJustifyH("RIGHT")
+        bar.icon = bar:CreateTexture(nil, "OVERLAY") -- the ability's icon (showIcons)
+        bar.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+        bar.icon:Hide()
         pool[i] = bar
     end
     return bar
+end
+
+-- Resolve an ability's icon texture by its id — LIVE combat only: ns.AbilityTable is keyed by the real
+-- spell/item id, so the sim's synthetic string ids won't match and preview bars show no icon (a follow-up).
+-- Cached; a miss caches `false` so we don't re-scan the table every frame.
+local iconCache = {}
+local function abilityIconTexture(id)
+    if id == nil then
+        return nil
+    end
+    local hit = iconCache[id]
+    if hit ~= nil then
+        return hit or nil
+    end
+    local tex = false
+    local tbl = ns.AbilityTable
+    if tbl then
+        for i = 1, #tbl do
+            local e = tbl[i]
+            if e.id == id then
+                tex = ((e.idType == "spell") and GetSpellTexture(id) or GetItemIcon(id)) or false
+                break
+            end
+        end
+    end
+    iconCache[id] = tex
+    return tex or nil
+end
+
+-- Place a bar's icon flush against the ANCHOR side of the bar (OUTSIDE it), square at the bar's height:
+-- for a right-ish anchor it sits to the bar's right; for a left anchor, to its left (WO-055).
+local function placeIcon(icon, bar, rightSide, size)
+    icon:ClearAllPoints()
+    if rightSide then
+        icon:SetPoint("LEFT", bar, "RIGHT", 0, 0)
+    else
+        icon:SetPoint("RIGHT", bar, "LEFT", 0, 0)
+    end
+    icon:SetSize(size, size)
+    icon:Show()
 end
 
 -- Render a render-model + the current health fraction (0..1) into the frames, using the resolved skin.
@@ -218,6 +264,17 @@ function Display.render(model, health)
     targetBar.bg:SetVertexColor(tc[1] * 0.3, tc[2] * 0.3, tc[3] * 0.3, bgOp)
     targetBar.__target = health or 0 -- the smoother eases the fill toward this
     targetBar.text:SetText(Display.formatTime(model.ttk))
+
+    -- Icons sit OUTSIDE the bars on the anchor side (right for a right-ish anchor, left for a LEFT anchor).
+    local rightSide = not (p.anchorPoint or "RIGHT"):find("LEFT")
+    -- The TTK bar shows the current target's portrait, read live from the target unit (as the enemy target
+    -- frame does). No target (or in preview) → hidden.
+    if p.showIcons and UnitExists("target") then
+        SetPortraitTexture(targetBar.icon, "target")
+        placeIcon(targetBar.icon, targetBar, rightSide, ttkH)
+    else
+        targetBar.icon:Hide()
+    end
 
     local shown = 0
     for i = 1, #layout.bars do
@@ -264,6 +321,14 @@ function Display.render(model, health)
                 end
             end
             bar.text:SetText(label)
+            -- The ability's icon on the anchor side of the bar (live combat only — see abilityIconTexture).
+            local iconTex = p.showIcons and abilityIconTexture(b.id)
+            if iconTex then
+                bar.icon:SetTexture(iconTex)
+                placeIcon(bar.icon, bar, rightSide, utilH)
+            else
+                bar.icon:Hide()
+            end
             bar:Show()
         else
             bar:Hide()

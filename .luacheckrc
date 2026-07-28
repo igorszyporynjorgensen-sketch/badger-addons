@@ -65,6 +65,7 @@ read_globals = {
     "GetSpellInfo",
     "GetSpellCooldown",
     "GetSpellTexture",
+    "SetPortraitTexture",
     -- Libraries
     "LibStub",
     -- Flavor constants (present on every client; only WOW_PROJECT_ID's value differs per flavor)
