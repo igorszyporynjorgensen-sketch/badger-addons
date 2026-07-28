@@ -85,6 +85,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
+- **WO-056-IJ** — **estimator stability**: the TTK readout jumps between swings (spike-train sampling + EWMA decay + conf saturating in ticks killing the history prior); ultracode diagnose+design → rewrite of the pure estimator + simulation-proven (see `docs/workorders/WO-056-IJ.md`). Status: Accepted — in ultracode flight.
 - **WO-055-IJ** — **show icons**: utility bars show their ability icon + the TTK bar shows the current target's portrait (SetPortraitTexture, live) when Show icons is on; display.lua only (see `docs/workorders/WO-055-IJ.md`). Status: Done — PR #58 merged; main green.
 - **WO-054-IJ** — **config layout grouping**: Lock in the header; Display anchor·lock·reset / H·V offset / scale·growth on shared lines; Behavior minTTK·confidence on one line (see `docs/workorders/WO-054-IJ.md`). Status: Done — PR #57 merged; main green.
 - **WO-053-IJ** — **Skin node: Delete on the picker's line + block saving over "Default"** (audit #2); config layout (picker 0.75 + delete 0.25) + `saveCurrent` refuses the built-in name (see `docs/workorders/WO-053-IJ.md`). Status: Done — PR #56 merged; main green.
