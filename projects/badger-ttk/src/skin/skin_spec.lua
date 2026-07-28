@@ -137,6 +137,32 @@ describe("Skin", function()
         end
     )
 
+    it("serialize emits a paste-ready literal that round-trips through RegisterSkin", function()
+        ns.Skin.RegisterSkin("Exportable", {
+            statusbar = "Flat",
+            font = "Arial Narrow",
+            fontSizeMain = 13,
+            colors = { target = { 0.1, 0.2, 0.3, 1 }, font = { 1, 1, 1, 1 } },
+            display = { barWidth = 220, showBarNames = true, timeFormat = "mmss" },
+        })
+        local text = ns.Skin.serialize("Exportable")
+        assert.is_truthy(text:find('statusbar = "Flat"', 1, true))
+        assert.is_truthy(text:find("barWidth = 220", 1, true))
+        -- The export IS a RegisterSkin-ready literal: evaluate and re-register it.
+        local chunk = (loadstring or load)("return " .. text)
+        assert.is_truthy(chunk)
+        ns.Skin.RegisterSkin("Reimported", chunk())
+        local p2 = { colorTarget = { 0, 0, 0, 1 } }
+        ns.Skin.apply(p2, "Reimported")
+        assert.equals("Flat", p2.statusbar)
+        assert.equals(220, p2.barWidth)
+        assert.same({ 0.1, 0.2, 0.3, 1 }, p2.colorTarget)
+    end)
+
+    it("serialize returns an empty string for an unknown skin", function()
+        assert.equals("", ns.Skin.serialize("Nope"))
+    end)
+
     it("saveCurrent copies values so later profile edits don't mutate the saved skin", function()
         local p = { colorTarget = { 1, 0, 0, 1 }, barWidth = 100 }
         local skin = ns.Skin.saveCurrent(p, "Snap")

@@ -427,6 +427,20 @@ local function buildSkin(db)
                     end
                 end,
             },
+            exportHeader = { type = "header", name = "Export", order = 3.6 },
+            exportSkin = {
+                type = "input",
+                name = "Export skin (select all + copy)",
+                desc = "A paste-ready snippet of the skin selected in the picker — hand it over to have"
+                    .. " it baked in as a built-in. Edits here are discarded.",
+                order = 3.7,
+                multiline = 12,
+                width = "full",
+                get = function()
+                    return ns.Skin.serialize(db.profile.skin)
+                end,
+                set = function() end, -- read-only: the box exists to be copied from
+            },
             mediaHeader = { type = "header", name = "Media", order = 4 },
             -- The LSM30_* dialogControls (from AceGUI-3.0-SharedMediaWidgets, embedded via the .toc) render
             -- a visual preview per entry instead of a plain name list. If the widget is ever missing,
