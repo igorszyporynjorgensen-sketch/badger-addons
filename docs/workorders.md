@@ -85,6 +85,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
+- **WO-057-IJ** — **fix the WO-053/054 layout widths**: numeric AceConfig widths are 170px multiples (0.5 = an 85px sliver), not row fractions — switch to `width="relative"`+`relWidth` / `"full"` per the human's row list (see `docs/workorders/WO-057-IJ.md`). Status: Accepted — implementing.
 - **WO-056-IJ** — **estimator stability**: the TTK readout jumps between swings (spike-train sampling + EWMA decay + conf saturating in ticks killing the history prior); ultracode diagnose+design → rewrite of the pure estimator + simulation-proven (see `docs/workorders/WO-056-IJ.md`). Status: Accepted — in ultracode flight.
 - **WO-055-IJ** — **show icons**: utility bars show their ability icon + the TTK bar shows the current target's portrait (SetPortraitTexture, live) when Show icons is on; display.lua only (see `docs/workorders/WO-055-IJ.md`). Status: Done — PR #58 merged; main green.
 - **WO-054-IJ** — **config layout grouping**: Lock in the header; Display anchor·lock·reset / H·V offset / scale·growth on shared lines; Behavior minTTK·confidence on one line (see `docs/workorders/WO-054-IJ.md`). Status: Done — PR #57 merged; main green.
