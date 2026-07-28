@@ -304,6 +304,7 @@ local function buildBehavior(db)
                     .. " rest of that target — even as the estimate drops below this — so there's no"
                     .. " flicker at the end of a fight.",
                 order = 6,
+                width = 0.5, -- Minimum time-to-kill · Minimum confidence share a line (WO-054)
                 min = 0,
                 max = 120,
                 step = 1,
@@ -315,6 +316,7 @@ local function buildBehavior(db)
                 name = "Minimum confidence",
                 desc = "Hide the estimate until it is at least this confident.",
                 order = 7,
+                width = 0.5,
                 min = 0,
                 max = 1,
                 step = 0.05,
@@ -540,11 +542,14 @@ local function buildDisplay(db)
         icon = ICON .. "INV_Misc_PocketWatch_01",
         args = {
             layoutHeader = { type = "header", name = "Layout", order = 1 },
+            -- WO-054: Screen anchor · Lock · Reset share a line (Reset is order 2.6, see resetPosition);
+            -- Horizontal · Vertical offset share the next; Scale · Growth direction the next.
             anchorPoint = {
                 type = "select",
                 name = "Screen anchor",
                 desc = "Which screen point the bar container is pinned to.",
                 order = 2,
+                width = 0.4,
                 values = ANCHORS,
                 get = getter(db, "anchorPoint"),
                 set = setterR(db, "anchorPoint"),
@@ -553,7 +558,8 @@ local function buildDisplay(db)
                 type = "toggle",
                 name = "Lock position",
                 desc = "Lock the bars in place; unlock to drag them with the mouse.",
-                order = 3,
+                order = 2.3,
+                width = 0.3,
                 get = getter(db, "locked"),
                 set = setterR(db, "locked"),
             },
@@ -561,7 +567,8 @@ local function buildDisplay(db)
                 type = "range",
                 name = "Horizontal offset",
                 desc = "Fine-tune the horizontal position from the anchor.",
-                order = 4,
+                order = 3,
+                width = 0.5,
                 min = -800,
                 max = 800,
                 step = 1,
@@ -572,7 +579,8 @@ local function buildDisplay(db)
                 type = "range",
                 name = "Vertical offset",
                 desc = "Fine-tune the vertical position from the anchor.",
-                order = 5,
+                order = 3.5,
+                width = 0.5,
                 min = -800,
                 max = 800,
                 step = 1,
@@ -583,7 +591,8 @@ local function buildDisplay(db)
                 type = "range",
                 name = "Scale",
                 desc = "Overall size of the bar display.",
-                order = 6,
+                order = 4,
+                width = 0.5,
                 min = 0.5,
                 max = 2.0,
                 step = 0.05,
@@ -594,7 +603,8 @@ local function buildDisplay(db)
                 type = "select",
                 name = "Growth direction",
                 desc = "Which way the utility bars stack from the target bar.",
-                order = 7,
+                order = 4.5,
+                width = 0.5,
                 values = GROWTH,
                 get = getter(db, "growthDirection"),
                 set = setterR(db, "growthDirection"),
@@ -754,7 +764,8 @@ local function buildDisplay(db)
                 type = "execute",
                 name = "Reset position",
                 desc = "Move the display back to the default screen position.",
-                order = 14,
+                order = 2.6, -- on the Screen anchor · Lock line (WO-054)
+                width = 0.3,
                 func = function()
                     if ns.Display then
                         ns.Display.resetPosition()
@@ -1198,6 +1209,14 @@ function ns.buildOptions(addon)
                             ns.Display.playSim(db.profile.simPlaying, db.profile.simSpeed)
                         end
                     end,
+                },
+                {
+                    type = "toggle",
+                    name = "Lock position",
+                    desc = "Lock the bars in place; unlock to drag them with the mouse. (Also in Display.)",
+                    width = "normal",
+                    get = getter(db, "locked"),
+                    set = setterR(db, "locked"),
                 },
             },
         },
