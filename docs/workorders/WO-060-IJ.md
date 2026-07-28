@@ -1,8 +1,8 @@
 ---
 wo: WO-060-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/63
 decision: ~
 depends_on: []
 related:
@@ -24,5 +24,5 @@ related:
 - **Behavior delta:** ADDED (in-game) — Export box in the Skin node.
 - **Constitution check:** Principles OK — pure serializer + spec; config is the unspec'd edge.
 
-**Phase 1** 1. [ ] skin.lua serialize + spec; config.lua Export box.
+**Phase 1** 1. [x] skin.lua serialize + spec; config.lua Export box.
 **Phase 2** 1. [ ] gate green; bump 0.9.41; rebuild `.release`. PR (merge after #62). 2. [ ] **In-game (human):** copy an export.

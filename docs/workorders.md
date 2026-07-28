@@ -85,7 +85,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
-- **WO-060-IJ** — **skin export**: pure `Skin.serialize` (paste-ready `RegisterSkin` literal) + a read-only multiline Export box in the Skin node (see `docs/workorders/WO-060-IJ.md`). Status: Accepted — implementing.
+- **WO-060-IJ** — **skin export**: pure `Skin.serialize` (paste-ready `RegisterSkin` literal) + a read-only multiline Export box in the Skin node (see `docs/workorders/WO-060-IJ.md`). Status: In progress — PR #63.
 - **WO-059-IJ** — **preview icons**: sim scenario switched to the REAL ability ids (Death Wish 12328, Earthstrike 21180) so icons + per-ability colours resolve in preview (closes audit #6), plus a Ragnaros stand-in on the TTK bar while previewing (see `docs/workorders/WO-059-IJ.md`). Status: Done — PR #61 merged; main green.
 - **WO-058-IJ** — **layout follow-up**: Behavior's two sliders share one row (0.49 each), Display's H·V·Scale share one row (0.33 each), header order Lock · Show preview · Play/Pause (see `docs/workorders/WO-058-IJ.md`). Status: Done — PR #60 merged; main green.
 - **WO-057-IJ** — **fix the WO-053/054 layout widths**: numeric AceConfig widths are 170px multiples (0.5 = an 85px sliver), not row fractions — switch to `width="relative"`+`relWidth` / `"full"` per the human's row list (see `docs/workorders/WO-057-IJ.md`). Status: Done — PR #59 merged; main green.
