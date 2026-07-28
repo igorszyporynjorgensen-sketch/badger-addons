@@ -1,8 +1,8 @@
 ---
 wo: WO-056-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/62
 decision: ~
 depends_on: []
 related:
@@ -52,7 +52,15 @@ related:
   `cdev` = mean per-tick deviation from an ideal 1s/s countdown; `jump1s` = worst readout jump the user
   can see in one second. Target: jump1s on chunky traces down by ~an order of magnitude; adapt ≤ ~5s.
 
-**Phase 1 — Diagnose + design (workflow)** 1. [ ] Analysts + design panel + judges; winning design synthesized.
-**Phase 2 — Implement** 1. [ ] estimator.lua rewrite + extended specs; gate green.
-**Phase 3 — Verify** 1. [ ] Simulation harness old-vs-new numbers; adversarial verify workflow; bump 0.9.37; rebuild `.release`. PR.
+**Phase 1 — Diagnose + design (workflow)** 1. [x] 3 analysts + 4 designs + 3 judges (each ported all
+designs AND all 9 specs into executable harnesses). **Unanimous winner: Chunk-Clock** (event-interval
+fading ratio) with two mandated grafts: frozen jump baseline (the un-grafted detector measurably never
+fired on a ×3 burst) + run-evidence re-seed on flush. Rejected: D4's output governor (ttk() feeds the
+render-model's fire-timing geometry — the estimate must stay honest).
+**Phase 2 — Implement** 1. [x] estimator.lua rewritten + specs extended (9 frozen pass unmodified,
+10 new guards, 19 total); gate green.
+**Phase 3 — Verify** 1. [x] Harness old→new: chunky+prior worst-1s-jump **7.53→2.39s** (residual = the
+hit re-sync; countdown dev 0.61→**0.01s**/tick, rmse 4.42→**0.07s**); no-prior jump 13.19→**1.00s**;
+burst ×3 adoption 4.35→**0.45s** (flush); ×2 rides the window 8.4s (designed — crits must never flush).
+Bumped 0.9.40; rebuilt `.release`. PR #62; adversarial verify workflow running.
 2. [ ] **In-game (human):** stable readout on low-level mobs + normal raid feel.
