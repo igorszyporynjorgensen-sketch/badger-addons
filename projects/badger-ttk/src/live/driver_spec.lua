@@ -127,6 +127,32 @@ describe("LiveDriver", function()
             end
         )
 
+        it("conf gate SKIPS when context.conf is absent (WO-061 verify panel)", function()
+            local s = settings()
+            s.minConfidenceToShow = 0.5
+            local c = { hasTarget = true, inCombat = true, hostile = true, ttk = 30 }
+            assert.is_true(ns.LiveDriver.gate(s, c, false))
+        end)
+
+        it("conf gate SKIPS when the setting is absent or zero (WO-061 verify panel)", function()
+            local c = { hasTarget = true, inCombat = true, hostile = true, ttk = 30, conf = 0 }
+            assert.is_true(ns.LiveDriver.gate(settings(), c, false))
+            local s = settings()
+            s.minConfidenceToShow = 0
+            assert.is_true(ns.LiveDriver.gate(s, c, false))
+        end)
+
+        it(
+            "showAnyTarget bypasses the confidence qualification too (WO-061 verify panel)",
+            function()
+                local s = settings({ showAnyTarget = true })
+                s.minConfidenceToShow = 0.9
+                local c =
+                    { hasTarget = true, inCombat = true, hostile = false, ttk = 3, conf = 0.1 }
+                assert.is_true(ns.LiveDriver.gate(s, c, false))
+            end
+        )
+
         it("qualifies the initial show on confidence too, sticky once shown (WO-056)", function()
             local c = { hasTarget = true, inCombat = true, hostile = true, ttk = 30, conf = 0.2 }
             local s = settings()

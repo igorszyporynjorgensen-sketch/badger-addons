@@ -185,7 +185,9 @@ describe("Estimator", function()
                 e:sample(i * 0.15, 0.50, true)
                 local ttk, conf = e:ttk()
                 assert.is_true(math.abs(ttk - 10) < 1e-9) -- 0.50 / 0.05, every single tick
-                assert.equals(0, conf) -- zero-information ticks are not evidence
+                -- A full-strength history prior IS confidence (WO-061): conf = its evidence share,
+                -- so a history-backed pull qualifies instantly instead of sitting gated for ~3s.
+                assert.equals(1, conf)
             end
         end
     )
@@ -273,5 +275,180 @@ describe("Estimator", function()
             return math.abs(ttk - h / 0.04) -- distance from the NEW truth (0.10/2.5s)
         end
         assert.is_true(ride(1) < ride(0)) -- snappy tracks the change closer than smooth
+    end)
+
+    -- ── WO-061: verify-panel follow-ups ─────────────────────────────────────────────────────────
+
+    it(
+        "WO-061: a fight genuinely SLOWER than history converges to live truth (floor released)",
+        function()
+            -- Recorded with a group (0.10/s), now soloed at 0.01/s: the slowdown flush fires and the
+            -- prior floor must stop binding — the old clamp held the readout at ~2x history forever.
+            local e = ns.Estimator.new({ reactivity = 0.5, priorRate = 0.10 })
+            local h
+            for i = 1, 40 do
+                local t = i * 1.0
+                h = 1.0 - i * 0.01 -- 1% per second, sampled once a second for simplicity
+                e:sample(t, h, true)
+            end
+            local ttk = e:ttk()
+            -- Truth: 0.60 / 0.01 = 60s. The un-released floor capped this at 0.60 / 0.05 = 12s.
+            assert.is_true(ttk > 20, "still floor-capped: " .. tostring(ttk))
+            assert.is_true(ttk > 45 and ttk < 70, "did not converge: " .. tostring(ttk))
+        end
+    )
+
+    it("WO-061: an overdue countdown floors at 0.05s — never blanks a live target", function()
+        local e = ns.Estimator.new({ reactivity = 0.5, priorRate = 0.10 })
+        e:sample(0, 0.10, true)
+        e:sample(1, 0.06, true) -- one hard hit: ttk small
+        for i = 1, 40 do
+            e:sample(1 + i * 0.15, 0.06, true) -- silence: the countdown runs past the estimate
+        end
+        local ttk = e:ttk()
+        assert.is_not_nil(ttk)
+        assert.is_true(ttk >= 0.05) -- 0 would read as "no data" and blank the display
+    end)
+end)
+
+-- Mutation-tested gap cases contributed by the WO-056 adversarial verify panel (WO-061): each one
+-- kills a mutant that passed the entire suite above.
+describe("Estimator (verify-panel gap cases)", function()
+    local ns
+
+    before_each(function()
+        ns = mock.load("projects/badger-ttk/src/engine/estimator.lua")
+    end)
+
+    it("registers a post-heal hit as one clean chunk off the healed level", function()
+        local e = ns.Estimator.new({ reactivity = 0.5 })
+        e:sample(0, 1.00, true)
+        e:sample(2, 0.90, true)
+        e:sample(4, 0.80, true)
+        e:sample(5, 0.90, true) -- heal +10% inside the gap
+        local events = e.events
+        e:sample(6, 0.80, true) -- 10% off the HEALED level
+        assert.equals(events + 1, e.events)
+        local ttk = e:ttk()
+        assert.is_true(math.abs(ttk - 16) < 2.5)
+    end)
+
+    it("caps a late hit's span at SPAN_CAP after a long quiet stretch", function()
+        local e = ns.Estimator.new({ reactivity = 1 })
+        e:sample(0, 1.00, true)
+        e:sample(2, 0.90, true)
+        for i = 1, 199 do
+            e:sample(2 + i * 0.15, 0.90, true)
+        end
+        e:sample(32, 0.80, true)
+        local ttk = e:ttk()
+        assert.is_true(ttk ~= nil and ttk <= 130)
+    end)
+
+    it("flushes DOWN on the second out-of-band slow event (jumpLo path)", function()
+        local e = ns.Estimator.new({ reactivity = 0.5 })
+        e:sample(0, 1.00, true)
+        e:sample(1.25, 0.85, true)
+        e:sample(2.5, 0.70, true)
+        e:sample(3.75, 0.55, true)
+        e:sample(5.0, 0.40, true)
+        e:sample(7.5, 0.38, true)
+        e:sample(10.0, 0.36, true)
+        local ttk = e:ttk()
+        assert.is_true(ttk ~= nil and ttk > 30 and ttk < 60)
+    end)
+
+    it(
+        "a direction flip re-arms: spike then two slow events still flushes on the slow pair",
+        function()
+            local e = ns.Estimator.new({ reactivity = 0.5 })
+            e:sample(0, 1.00, true)
+            e:sample(1.25, 0.85, true)
+            e:sample(2.5, 0.70, true)
+            e:sample(3.75, 0.55, true)
+            e:sample(4.0, 0.40, true)
+            e:sample(6.5, 0.38, true)
+            e:sample(9.0, 0.36, true)
+            local ttk = e:ttk()
+            assert.is_true(ttk ~= nil and ttk > 25)
+        end
+    )
+
+    it("an in-band event disarms the flush run (non-consecutive crits never accumulate)", function()
+        local e = ns.Estimator.new({ reactivity = 0.5 })
+        local h = 1.0
+        local function hit(t, d)
+            h = h - d
+            e:sample(t, h, true)
+        end
+        hit(2.5, 0.02)
+        hit(5, 0.02)
+        hit(7.5, 0.02)
+        hit(10, 0.02)
+        hit(12.5, 0.20)
+        hit(15, 0.02)
+        hit(17.5, 0.20)
+        local ttk = e:ttk()
+        assert.is_true(ttk > 10 and ttk < 15)
+    end)
+
+    it("reset() restores the prior's FULL pseudo-weight, not the decayed remnant", function()
+        local e = ns.Estimator.new({ reactivity = 1, priorRate = 0.05, priorWeight = 6 })
+        e:sample(0, 1.00, true)
+        e:sample(4, 0.60, true)
+        e:reset()
+        e:sample(10, 1.00, true)
+        assert.is_true(math.abs((e:ttk()) - 20) < 1e-9)
+        e:sample(12, 0.80, true)
+        local pT = 6 * math.exp(-1)
+        local expected = 0.80 / ((0.20 + 0.05 * pT) / (2 + pT))
+        assert.is_true(math.abs((e:ttk()) - expected) < 1e-9)
+    end)
+
+    it("priorWeight scales how strongly the prior resists the first live event", function()
+        local function firstEventTTK(w)
+            local e = ns.Estimator.new({ reactivity = 0.5, priorRate = 0.02, priorWeight = w })
+            e:sample(0, 1.00, true)
+            e:sample(2, 0.80, true)
+            return (e:ttk())
+        end
+        local light, heavy = firstEventTTK(1), firstEventTTK(20)
+        local anchor = 0.80 / 0.02
+        assert.is_true(math.abs(heavy - anchor) < math.abs(light - anchor))
+        assert.is_true(heavy - light > 5)
+    end)
+
+    it("confidence is the MIN of the time ramp and the event ramp", function()
+        local e = ns.Estimator.new({ reactivity = 0.5 })
+        e:sample(0, 1.00, true)
+        e:sample(0.5, 0.95, true)
+        e:sample(1.0, 0.90, true)
+        e:sample(1.5, 0.85, true)
+        local _, conf = e:ttk()
+        assert.is_true(math.abs(conf - 1 / 6) < 1e-9)
+    end)
+
+    it("after a heal the estimate stays KNOWN and positive (non-vacuous heal clamp)", function()
+        local e = ns.Estimator.new({ reactivity = 1 })
+        e:sample(0, 0.50, true)
+        e:sample(1, 0.40, true)
+        e:sample(2, 0.60, true)
+        local ttk = e:ttk()
+        assert.is_not_nil(ttk)
+        assert.is_true(ttk > 0)
+    end)
+
+    it("execute correction divides by exactly executeModifier below the threshold", function()
+        local function build(thr, mod)
+            local e = ns.Estimator.new({
+                reactivity = 1,
+                executeThreshold = thr,
+                executeModifier = mod,
+            })
+            e:sample(0, 0.30, true)
+            e:sample(2, 0.20, true)
+            return (e:ttk())
+        end
+        assert.is_true(math.abs(build(0, 1) / build(0.25, 2) - 2) < 1e-9)
     end)
 end)

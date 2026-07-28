@@ -99,6 +99,12 @@ local encounterActive = false -- true between ENCOUNTER_START and ENCOUNTER_END 
 -- fight-start reference is set at FIRST DAMAGE (not target acquisition) so idle-before-combat doesn't
 -- inflate the recorded rate (WO-027); `prevHealth` detects that first drop. Reset on target change.
 local curKey, curLevel, fightStartT, fightStartH, recorded, prevHealth
+-- Retarget continuity (WO-061): swapping to an add and back used to REBUILD the estimator and re-run
+-- the initial minTTK/confidence qualification — a multi-second bar blackout per swap-back, and near the
+-- end of a fight the bars never re-qualified at all. Recently-tracked targets stash their whole tracking
+-- state and resume on swap-back; entries expire after RETARGET_MEMORY seconds.
+local RETARGET_MEMORY = 90
+local recent = {} -- [guid] = { est, shown, curKey, curLevel, fightStartT, fightStartH, recorded, t }
 
 -- The target's NPC id (string) from its GUID — only Creatures/Vehicles; players/pets aren't recorded.
 local function npcIdFromGUID(guid)
@@ -179,22 +185,54 @@ local function update()
     local dead = UnitIsDeadOrGhost("target")
     local guid = UnitGUID("target")
     if guid ~= lastGUID then
+        local now = GetTime()
+        if lastGUID and est then
+            -- Stash the outgoing target's tracking state for a possible swap-back.
+            recent[lastGUID] = {
+                est = est,
+                shown = shown,
+                curKey = curKey,
+                curLevel = curLevel,
+                fightStartT = fightStartT,
+                fightStartH = fightStartH,
+                recorded = recorded,
+                t = now,
+            }
+        end
+        for g, stash in pairs(recent) do
+            if now - stash.t > RETARGET_MEMORY then
+                recent[g] = nil
+            end
+        end
         lastGUID = guid
-        shown = false -- a new target must re-qualify (minTTK) before showing
-        -- Kill-history: key this target by NPC id + the player's level; look up the recorded prior (if any).
-        -- The fight clock starts at FIRST DAMAGE (below), not here — idle-before-combat must not count.
-        curKey = npcIdFromGUID(guid)
-        curLevel = UnitLevel("player")
-        fightStartT, fightStartH, recorded, prevHealth = nil, nil, false, h
-        local prior = (p.useHistory and curKey)
-                and ns.History.rate(ns.addon.db.global.history, curLevel, curKey)
-            or nil
-        est = Estimator.new({
-            reactivity = p.reactivity,
-            executeThreshold = p.executeThreshold,
-            executeModifier = p.executeModifier,
-            priorRate = prior,
-        })
+        local back = recent[guid]
+        if back then
+            -- Swap-back: resume the fight instead of restarting it (WO-061). Drop the estimator's
+            -- sample reference via the public hold so the away-gap can never read as a rate; damage
+            -- dealt while untargeted simply goes unobserved.
+            recent[guid] = nil
+            est, shown = back.est, back.shown
+            curKey, curLevel = back.curKey, back.curLevel
+            fightStartT, fightStartH, recorded = back.fightStartT, back.fightStartH, back.recorded
+            prevHealth = h
+            est:sample(0, 0, false)
+        else
+            shown = false -- a new target must re-qualify (minTTK + confidence) before showing
+            -- Kill-history: key this target by NPC id + the player's level; look up the recorded prior
+            -- (if any). The fight clock starts at FIRST DAMAGE (below) — idle must not count.
+            curKey = npcIdFromGUID(guid)
+            curLevel = UnitLevel("player")
+            fightStartT, fightStartH, recorded, prevHealth = nil, nil, false, h
+            local prior = (p.useHistory and curKey)
+                    and ns.History.rate(ns.addon.db.global.history, curLevel, curKey)
+                or nil
+            est = Estimator.new({
+                reactivity = p.reactivity,
+                executeThreshold = p.executeThreshold,
+                executeModifier = p.executeModifier,
+                priorRate = prior,
+            })
+        end
     end
     -- Start the recording clock at the first observed health drop (the real fight), with the health just
     -- before it as the reference.
