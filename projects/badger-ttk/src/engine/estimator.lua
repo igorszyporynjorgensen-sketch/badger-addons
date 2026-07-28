@@ -97,6 +97,8 @@ function Estimator:reset()
     self.jumpHi, self.jumpLo = 0, 0 -- consecutive out-of-band event counters
     self.jumpBase = nil -- belief FROZEN when a run armed (graft: a self-healing base goes deaf)
     self.runD, self.runT = 0, 0 -- the armed run's own evidence (graft: re-seeds the fit on flush)
+    self.slowFlushed = false -- a jumpLo flush fired: live evidence proved the fight SLOWER than the
+    -- prior, so the prior floor must stop binding (WO-061 — it capped genuinely slow fights forever)
 end
 
 -- Feed one sample: t (seconds, monotonic), h (health fraction in [0,1]). `damageable` defaults true;
@@ -168,6 +170,9 @@ function Estimator:sample(t, h, damageable)
                     -- The kill speed genuinely changed. RE-SEED: the run's own events become the
                     -- evidence (scaling the old sums would keep the old regime's ratio), and the
                     -- prior mostly yields — it described the old regime.
+                    if self.jumpLo >= JUMP_COUNT then
+                        self.slowFlushed = true -- release the prior floor: this fight IS slower
+                    end
                     self.sumD, self.sumT = self.runD, self.runT
                     self.priorT = self.priorT * JUMP_KEEP
                     self.jumpHi, self.jumpLo, self.jumpBase = 0, 0, nil
@@ -235,8 +240,19 @@ function Estimator:ttk()
     if den <= 0 then
         return nil, conf -- no evidence, no prior: unknown
     end
+    -- A full-strength history prior IS confidence (WO-061): its evidence share starts at 1 (instant
+    -- show on a history-backed pull) and fades exactly as live evidence takes over — while the live
+    -- ramp rises complementarily. Unknown mobs still ramp from 0, so the slider gates as labeled.
+    if self.priorRate and self.priorRate > 0 and self.priorT > 0 then
+        local share = self.priorT / den
+        if share > conf then
+            conf = share
+        end
+    end
     local rate = num / den
-    if self.priorRate and self.priorRate > 0 then
+    if self.priorRate and self.priorRate > 0 and not self.slowFlushed then
+        -- Cap STALENESS balloons at ~2x history — but never live contrarian evidence: once a jumpLo
+        -- flush proved the fight slower, the floor yields (WO-061; it used to bind forever).
         local floor = self.priorRate * PRIOR_FLOOR
         if rate < floor then
             rate = floor
@@ -255,8 +271,10 @@ function Estimator:ttk()
     -- event and pausing at the grace boundary when a hit is overdue (it never marches to zero on a
     -- target nobody is hitting).
     ttk = ttk - tickdown
-    if ttk < 0 then
-        ttk = 0
+    if ttk < 0.05 then
+        -- Overdue countdowns floor just above zero: the display maps ttk <= 0 to "no data", which
+        -- blanked the text + utility bars on a still-alive target (WO-061). nil stays the only unknown.
+        ttk = 0.05
     end
     return ttk, conf
 end
