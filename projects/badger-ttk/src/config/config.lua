@@ -341,7 +341,7 @@ local function buildSkin(db)
                     .. " the box below, or add one in code with BadgerTTK:RegisterSkin — see"
                     .. " src/skin/skin.lua.",
                 order = 1,
-                width = "full", -- the picker sits on its own line; the save/delete row follows below
+                width = 0.75, -- picker + Delete share this line; New-skin + Save share the next (WO-053)
                 values = function()
                     return ns.Skin.ListSkins()
                 end,
@@ -361,6 +361,7 @@ local function buildSkin(db)
                     .. " scale / colours / readout) as a reusable skin. Your bar position and lock are kept"
                     .. " — a skin never moves the bars.",
                 order = 2,
+                width = 0.75, -- New-skin input + Save share a line, mirroring the picker + Delete line
                 get = function()
                     return pendingSkinName
                 end,
@@ -375,27 +376,31 @@ local function buildSkin(db)
                     .. " position or lock) as a new skin under the name above. It appears in the picker and"
                     .. " persists across /reload.",
                 order = 3,
-                width = "half",
+                width = 0.25,
                 disabled = function()
-                    return strtrim(pendingSkinName or "") == ""
+                    local nm = strtrim(pendingSkinName or "")
+                    return nm == "" or nm == ns.Skin.BUILTIN -- can't save over the built-in Default (#2)
                 end,
                 func = function()
                     local nm = strtrim(pendingSkinName or "")
-                    if nm ~= "" then
+                    -- saveCurrent returns nil for the built-in name; guard here too so nothing is recorded.
+                    if nm ~= "" and nm ~= ns.Skin.BUILTIN then
                         local skin = ns.Skin.saveCurrent(db.profile, nm)
-                        db.global.skins = db.global.skins or {}
-                        db.global.skins[nm] = skin
-                        db.profile.skin = nm
-                        pendingSkinName = ""
+                        if skin then
+                            db.global.skins = db.global.skins or {}
+                            db.global.skins[nm] = skin
+                            db.profile.skin = nm
+                            pendingSkinName = ""
+                        end
                     end
                 end,
             },
             deleteSkin = {
                 type = "execute",
                 name = "Delete",
-                desc = "Delete the currently selected skin. The built-in Default skin can't be deleted.",
-                order = 3.5,
-                width = "half",
+                desc = "Delete the skin selected in the picker. The built-in Default skin can't be deleted.",
+                order = 1.5, -- sits on the picker's line, to its right
+                width = 0.25,
                 confirm = true,
                 disabled = function()
                     return db.profile.skin == ns.Skin.BUILTIN
