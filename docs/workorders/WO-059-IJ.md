@@ -1,8 +1,8 @@
 ---
 wo: WO-059-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/61
 decision: ~
 depends_on:
   - docs/workorders/WO-055-IJ.md
@@ -28,5 +28,5 @@ related:
 - **Behavior delta:** ADDED (in-game) — preview icons; per-ability colours visible in preview (audit #6).
 - **Constitution check:** Principles OK — data change (scenario ids) + display edge; specs updated.
 
-**Phase 1** 1. [ ] scenario.lua real ids (+ spec); display.lua preview TTK stand-in.
+**Phase 1** 1. [x] scenario.lua real ids (+ spec); display.lua preview TTK stand-in.
 **Phase 2** 1. [ ] gate green; bump 0.9.39; rebuild `.release`. PR (after #60). 2. [ ] **In-game (human):** preview icons show.
