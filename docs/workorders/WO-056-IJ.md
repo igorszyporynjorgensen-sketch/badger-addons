@@ -42,6 +42,16 @@ related:
 - **Constitution check:** Principles OK — pure spec'd engine logic; no API/`_G` change; driver untouched
   or minimally touched.
 
+- **Baseline (simulation harness `tools/estimator-sim.lua`, current estimator, reactivity 0.5):**
+  | trace | cdev | worst 1s jump | rmse | burst adapt |
+  |---|---|---|---|---|
+  | chunky + prior | 0.61s | **7.53s** | 4.42s | — |
+  | chunky no prior | 0.82s | **13.19s** | 4.10s | — |
+  | raid smooth | 0.51s | 6.98s | 2.62s | — |
+  | burst ×2 @45s | 0.27s | 25.11s | (pre-burst-dominated) | 3.75s |
+  `cdev` = mean per-tick deviation from an ideal 1s/s countdown; `jump1s` = worst readout jump the user
+  can see in one second. Target: jump1s on chunky traces down by ~an order of magnitude; adapt ≤ ~5s.
+
 **Phase 1 — Diagnose + design (workflow)** 1. [ ] Analysts + design panel + judges; winning design synthesized.
 **Phase 2 — Implement** 1. [ ] estimator.lua rewrite + extended specs; gate green.
 **Phase 3 — Verify** 1. [ ] Simulation harness old-vs-new numbers; adversarial verify workflow; bump 0.9.37; rebuild `.release`. PR.
