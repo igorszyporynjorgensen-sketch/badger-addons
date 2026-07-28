@@ -269,7 +269,12 @@ function Display.render(model, health)
     local rightSide = not (p.anchorPoint or "RIGHT"):find("LEFT")
     -- The TTK bar shows the current target's portrait, read live from the target unit (as the enemy target
     -- frame does). No target (or in preview) → hidden.
-    if p.showIcons and UnitExists("target") then
+    if p.showIcons and (p.simStatic or p.simPlaying) then
+        -- The preview has no target: show a Ragnaros stand-in so the demo is complete (WO-059) — and stay
+        -- on it even if a real target is selected while previewing (the preview owns the display).
+        targetBar.icon:SetTexture("Interface\\ICONS\\INV_Hammer_Unique_Sulfuras")
+        placeIcon(targetBar.icon, targetBar, rightSide, ttkH)
+    elseif p.showIcons and UnitExists("target") then
         SetPortraitTexture(targetBar.icon, "target")
         placeIcon(targetBar.icon, targetBar, rightSide, ttkH)
     else
