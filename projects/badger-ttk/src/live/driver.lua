@@ -69,6 +69,13 @@ function LiveDriver.gate(settings, context, wasShown)
         if not (context.ttk and context.ttk >= settings.minTTK) then
             return false
         end
+        -- ...and until the estimate is confident enough (WO-056). The Behavior slider existed but was
+        -- never consumed; with evidence-based confidence it now gates honestly. Sticky like minTTK —
+        -- once shown, a mid-fight confidence dip never hides the bars. No conf info → no gate.
+        local minConf = settings.minConfidenceToShow
+        if minConf and minConf > 0 and context.conf and context.conf < minConf then
+            return false
+        end
     end
     return true
 end
@@ -205,9 +212,10 @@ local function update()
         end
         recorded = true
     end
-    local ttk = est:ttk()
+    local ttk, conf = est:ttk()
 
     local context = {
+        conf = conf,
         hasTarget = true,
         inCombat = InCombatLockdown(),
         hostile = UnitCanAttack("player", "target"),

@@ -127,6 +127,17 @@ describe("LiveDriver", function()
             end
         )
 
+        it("qualifies the initial show on confidence too, sticky once shown (WO-056)", function()
+            local c = { hasTarget = true, inCombat = true, hostile = true, ttk = 30, conf = 0.2 }
+            local s = settings()
+            s.minConfidenceToShow = 0.5
+            assert.is_false(ns.LiveDriver.gate(s, c, false)) -- confident enough? not yet
+            c.conf = 0.6
+            assert.is_true(ns.LiveDriver.gate(s, c, false)) -- now qualified
+            c.conf = 0.1
+            assert.is_true(ns.LiveDriver.gate(s, c, true)) -- shown: a dip never hides the bars
+        end)
+
         it("qualifies the initial show only once ttk reaches minTTK (nil = not yet)", function()
             local c = { hasTarget = true, inCombat = true, hostile = true }
             assert.is_false(ns.LiveDriver.gate(settings(), c, false)) -- ttk nil → not qualified
