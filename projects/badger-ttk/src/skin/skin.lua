@@ -156,6 +156,68 @@ function Skin.saveCurrent(profile, name)
     return skin
 end
 
+-- PURE: serialize a registered skin as a paste-ready Lua-table literal (WO-060) — the EXACT format
+-- RegisterSkin accepts, so an exported skin can be handed over and baked in verbatim. Deterministic
+-- field order (media → colors → display, fixed key sequence); returns "" for an unknown skin.
+local COLOR_ORDER = { "target", "utility", "ready", "used", "font" }
+
+local function fmtNum(n)
+    return string.format("%.4g", n)
+end
+
+local function fmtVal(v)
+    if type(v) == "string" then
+        return string.format("%q", v)
+    elseif type(v) == "boolean" then
+        return tostring(v)
+    end
+    return fmtNum(v)
+end
+
+function Skin.serialize(name)
+    local skin = registry[name]
+    if not skin then
+        return ""
+    end
+    local out = { "{" }
+    for i = 1, #MEDIA_FIELDS do
+        local field = MEDIA_FIELDS[i]
+        if skin[field] ~= nil then
+            out[#out + 1] = string.format("    %s = %s,", field, fmtVal(skin[field]))
+        end
+    end
+    if skin.colors then
+        out[#out + 1] = "    colors = {"
+        for i = 1, #COLOR_ORDER do
+            local c = skin.colors[COLOR_ORDER[i]]
+            if c then
+                out[#out + 1] = string.format(
+                    "        %s = { %s, %s, %s, %s },",
+                    COLOR_ORDER[i],
+                    fmtNum(c[1]),
+                    fmtNum(c[2]),
+                    fmtNum(c[3]),
+                    fmtNum(c[4] or 1)
+                )
+            end
+        end
+        out[#out + 1] = "    },"
+    end
+    if skin.display then
+        out[#out + 1] = "    display = {"
+        for i = 1, #DISPLAY_FIELDS do
+            local field = DISPLAY_FIELDS[i]
+            if skin.display[field] ~= nil then
+                out[#out + 1] =
+                    string.format("        %s = %s,", field, fmtVal(skin.display[field]))
+            end
+        end
+        out[#out + 1] = "    },"
+    end
+    out[#out + 1] = "}"
+    return table.concat(out, "\n")
+end
+
 -- Built-in default skin — the Badger brand palette + safe stock media. Always present; never deletable.
 Skin.RegisterSkin(Skin.BUILTIN, {
     statusbar = "Blizzard Raid Bar",
