@@ -304,7 +304,8 @@ local function buildBehavior(db)
                     .. " rest of that target — even as the estimate drops below this — so there's no"
                     .. " flicker at the end of a fight.",
                 order = 6,
-                width = "full", -- a row of its own (WO-057)
+                width = "relative", -- shares one row with Minimum confidence (WO-058)
+                relWidth = 0.49,
                 min = 0,
                 max = 120,
                 step = 1,
@@ -316,7 +317,8 @@ local function buildBehavior(db)
                 name = "Minimum confidence",
                 desc = "Hide the estimate until it is at least this confident.",
                 order = 7,
-                width = "full", -- a row of its own (WO-057)
+                width = "relative",
+                relWidth = 0.49,
                 min = 0,
                 max = 1,
                 step = 0.05,
@@ -576,7 +578,8 @@ local function buildDisplay(db)
                 name = "Horizontal offset",
                 desc = "Fine-tune the horizontal position from the anchor.",
                 order = 3,
-                width = "full", -- a row of its own (WO-057)
+                width = "relative", -- H · V · Scale share one row (WO-058)
+                relWidth = 0.33,
                 min = -800,
                 max = 800,
                 step = 1,
@@ -588,7 +591,8 @@ local function buildDisplay(db)
                 name = "Vertical offset",
                 desc = "Fine-tune the vertical position from the anchor.",
                 order = 3.5,
-                width = "full", -- a row of its own (WO-057)
+                width = "relative",
+                relWidth = 0.33,
                 min = -800,
                 max = 800,
                 step = 1,
@@ -600,7 +604,8 @@ local function buildDisplay(db)
                 name = "Scale",
                 desc = "Overall size of the bar display.",
                 order = 4,
-                width = "full", -- a row of its own (WO-057)
+                width = "relative",
+                relWidth = 0.33,
                 min = 0.5,
                 max = 2.0,
                 step = 0.05,
@@ -1198,6 +1203,14 @@ function ns.buildOptions(addon)
             controls = {
                 {
                     type = "toggle",
+                    name = "Lock position",
+                    desc = "Lock the bars in place; unlock to drag them with the mouse. (Also in Display.)",
+                    width = "normal",
+                    get = getter(db, "locked"),
+                    set = setterR(db, "locked"),
+                },
+                {
+                    type = "toggle",
                     name = "Show preview",
                     desc = "Show the preview bars (a frozen warrior setup reading 0:25) from any page.",
                     width = "normal",
@@ -1221,14 +1234,6 @@ function ns.buildOptions(addon)
                             ns.Display.playSim(db.profile.simPlaying, db.profile.simSpeed)
                         end
                     end,
-                },
-                {
-                    type = "toggle",
-                    name = "Lock position",
-                    desc = "Lock the bars in place; unlock to drag them with the mouse. (Also in Display.)",
-                    width = "normal",
-                    get = getter(db, "locked"),
-                    set = setterR(db, "locked"),
                 },
             },
         },
