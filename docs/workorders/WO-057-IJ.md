@@ -1,8 +1,8 @@
 ---
 wo: WO-057-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/59
 decision: ~
 depends_on:
   - docs/workorders/WO-054-IJ.md
@@ -32,5 +32,5 @@ related:
 - **Behavior delta:** MODIFIED (in-game) — config rows corrected.
 - **Constitution check:** Principles OK — data-only widths; no logic change.
 
-**Phase 1** 1. [ ] config.lua width corrections (relative/full).
+**Phase 1** 1. [x] config.lua width corrections (relative/full).
 **Phase 2** 1. [ ] gate green; bump 0.9.37; rebuild `.release`. PR. 2. [ ] **In-game (human):** rows as listed.
