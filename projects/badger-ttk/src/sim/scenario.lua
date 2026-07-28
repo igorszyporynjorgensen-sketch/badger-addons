@@ -15,9 +15,11 @@ local warriorBurst = {
     -- Death Wish is fired ON TIME (fireTTK == its optimal 30s-left) → waiting → used, no green window.
     -- Earthstrike is fired 4s LATE (optimal is 20s-left via duration, but used at 16s-left) → its bar shows
     -- ~4s of green ("ready, fire now!") before it turns used — a picture of being late.
+    -- REAL AbilityTable ids (Death Wish spell 12328, Earthstrike item 21180) — so the display's icon and
+    -- per-ability-colour lookups resolve in the preview exactly as in live combat (WO-059, audit #6).
     pops = {
         {
-            id = "deathwish",
+            id = 12328,
             name = "Death Wish",
             duration = 30,
             fireTTK = 30,
@@ -25,7 +27,7 @@ local warriorBurst = {
             offset = 0,
         },
         {
-            id = "earthstrike",
+            id = 21180,
             name = "Earthstrike",
             duration = 20,
             fireTTK = 16,

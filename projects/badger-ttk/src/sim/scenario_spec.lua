@@ -19,11 +19,11 @@ describe("SimScenario", function()
         for i = 1, #s.pops do
             byId[s.pops[i].id] = s.pops[i]
         end
-        assert.equals("Death Wish", byId.deathwish.name)
-        assert.equals(30, byId.deathwish.fireTTK) -- optimal (duration 30) == used → on time
-        assert.equals(30, byId.deathwish.duration)
-        assert.equals("Earthstrike", byId.earthstrike.name)
-        assert.equals(16, byId.earthstrike.fireTTK) -- used at 16s-left...
-        assert.equals(20, byId.earthstrike.duration) -- ...but optimal is 20s-left → fired 4s late
+        assert.equals("Death Wish", byId[12328].name)
+        assert.equals(30, byId[12328].fireTTK) -- optimal (duration 30) == used → on time
+        assert.equals(30, byId[12328].duration)
+        assert.equals("Earthstrike", byId[21180].name)
+        assert.equals(16, byId[21180].fireTTK) -- used at 16s-left...
+        assert.equals(20, byId[21180].duration) -- ...but optimal is 20s-left → fired 4s late
     end)
 end)
