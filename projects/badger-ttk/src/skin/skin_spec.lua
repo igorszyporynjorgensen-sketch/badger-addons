@@ -28,6 +28,14 @@ describe("Skin", function()
         assert.is_false(ns.Skin.deleteSkin("Nope")) -- unknown
     end)
 
+    it("saveCurrent refuses the built-in name so Default can't be clobbered (audit #2)", function()
+        local before = ns.Skin.GetSkin("Default")
+        local result =
+            ns.Skin.saveCurrent({ statusbar = "Flat", colorTarget = { 1, 0, 0, 1 } }, "Default")
+        assert.is_nil(result) -- refused
+        assert.equals(before, ns.Skin.GetSkin("Default")) -- built-in untouched
+    end)
+
     it("applies a skin's media + colours (incl. font) onto the profile", function()
         local p = { colorTarget = { 0, 0, 0, 1 } }
         ns.Skin.apply(p, "Default")

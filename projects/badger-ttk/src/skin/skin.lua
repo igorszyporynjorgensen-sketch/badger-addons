@@ -132,6 +132,11 @@ end
 -- LOOK — geometry/readout, NOT frame position/lock), register it under `name`, and return it so the caller
 -- can persist it (db.global). Captures a value copy of every field, so later profile edits don't mutate it.
 function Skin.saveCurrent(profile, name)
+    -- Never overwrite the code-defined built-in: a saved "Default" would shadow it and can't be deleted
+    -- (deleteSkin refuses the built-in name), so it would be un-removable (audit #2).
+    if not name or name == Skin.BUILTIN then
+        return nil
+    end
     local skin = { colors = {}, display = {} }
     for i = 1, #MEDIA_FIELDS do
         local field = MEDIA_FIELDS[i]
