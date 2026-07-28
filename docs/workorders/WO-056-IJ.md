@@ -1,6 +1,6 @@
 ---
 wo: WO-056-IJ
-status: In progress
+status: Done
 assigned: IJ
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/62
 decision: ~
