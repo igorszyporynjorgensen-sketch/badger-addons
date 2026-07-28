@@ -152,6 +152,15 @@ local function update()
     if suspended or p.simStatic or p.simPlaying then
         return
     end
+    -- Master switch off: halt ALL observation (no estimator sampling, no kill-history recording) and hide —
+    -- not just the show/hide gate below, which would still let update() keep writing db.global.history while
+    -- the addon is "off" (audit #5). Mirror the no-target reset.
+    if not p.enabled then
+        est, lastGUID, shown = nil, nil, false
+        curKey, recorded, fightStartT, prevHealth = nil, false, nil, nil
+        ns.Display.hide()
+        return
+    end
     if not UnitExists("target") then
         est, lastGUID, shown = nil, nil, false
         curKey, recorded, fightStartT, prevHealth = nil, false, nil, nil
