@@ -67,13 +67,36 @@ _As of 2026-07-25._
   **without touching `## Version`**; player-facing changes accumulate under `[Unreleased]` in
   `projects/badger-ttk/CHANGELOG.md`. A release bumps `## Version`, promotes `[Unreleased]` to the new
   section, and builds the auto-named zip (`tools/build.sh`). **`1.0.0` still only on human sign-off.**
-- **Next id:** D-012-IJ.
+- **Kill-history schema.** Based on the **Warcraft Logs** standard (D-012-IJ): local recording and web-log
+  import share one record shape (encounter/NPC · duration→rate · group size · comp · difficulty); import is
+  copy-paste (LibSerialize+LibDeflate) via an external converter (the addon can't fetch the web). Schema
+  locked before 1.0; importer later. Strawman: `docs/reference/kill-history-schema.md`.
+- **Next id:** D-013-IJ.
 
 ---
 
 ## Decision log
 
 ### 2026-07-29
+
+- **[D-012-IJ] The kill-history schema follows the Warcraft Logs standard; local recording and web-log
+  import share ONE record shape; import is a copy-paste, converted externally.** (Refines the D-005
+  WarcraftLogs-import seam.) *Source (confirmed by the human):* **Warcraft Logs** (warcraftlogs.com) — the
+  community-standard web log, itself built on WoW's own combat log. Our per-kill record is a *subset/mapping*
+  of that field set (encounter / NPC id · fight duration → rate · group size · composition · difficulty),
+  so a **locally-observed kill and an imported one are the same shape** and blend into one prior. *Sandbox
+  constraint (load-bearing):* a WoW addon **cannot fetch a URL or read a log file**, so "import" is a
+  **copy-paste** (like the skin export/import); a small **external converter** — a companion tool/site —
+  turns a WCL export (its GraphQL API) or a raw `WoWCombatLog.txt` into our paste string, and is the only
+  web-touching piece (outside the addon). *Transport:* the community addon-string standard —
+  **LibSerialize + LibDeflate → base64** (the "WeakAuras string" convention) — not a bespoke blob. *Local
+  side:* the addon reads group size + composition live (roster APIs) into the same schema, so richer priors
+  come free and the prior can be **selected/scaled by the current group** — the fix for the
+  group-dependent-prior caveat (WO-066). *Timing:* lock the **record schema** before 1.0 so local recording
+  is forward-compatible from day one; build the importer + converter later. Strawman schema:
+  `docs/reference/kill-history-schema.md`. *Why:* basing on the standard everyone already uses makes import
+  a thin mapping (not a translation) and makes our data interoperable, instead of inventing a private
+  format we'd have to bridge. Confirmed by the human 2026-07-29.
 
 - **[D-011-IJ] Version bumps are a deliberate release decision, not per build/WO (supersedes the
   bump-every-build convention).** Routine code WOs merge to `main` **without changing `## Version`**;
