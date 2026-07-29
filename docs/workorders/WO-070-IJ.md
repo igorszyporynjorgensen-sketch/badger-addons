@@ -1,6 +1,6 @@
 ---
 wo: WO-070-IJ
-status: In progress
+status: Done
 assigned: IJ
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/73
 decision: D-013-IJ
@@ -29,7 +29,10 @@ related:
      `classicSeasonID`, spectrum spread) per D-013.
   3. **Batch-grade** — `tools/estimator-batch.lua [dir]`: replays every fixture through the estimator and
      prints a **per-fight table + aggregate** (mean/median/p90 MAPE · bias · within-15% · confidently-shown
-     · distribution). This is the "study 200 runs" artifact — pure Lua, fast; runnable locally or in CI.
+     · distribution). This is the "study 200 runs" artifact — pure Lua, fast. It runs **client-side**
+     (locally): the human's "git pipeline" mention was only illustrating how versatile / client-based the
+     approach is — **learning never runs in git/CI** (only the quality gate does); git holds the tools +
+     curated outcomes, never the harvested data or the runs.
 - **Not learning yet.** This is the *data engine* for the WO-069 overhaul, still the "learning how to learn"
   phase — harvest + measure the estimator across many real kills; the actual regime redesign is D-013/WO-069
   (fable + ultracode), which consumes this corpus.
