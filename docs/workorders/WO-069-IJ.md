@@ -92,6 +92,12 @@ related:
   visible in data) — and the worse baseline bias was exactly that phase fooling the backward-looking
   rate. Two encounters, two shapes, one method.
 
+- **Loop 4 outcome (PR #78, 2026-07-29):** **Gehennas ×50 — the largest absolute drop yet.** Held-out 25:
+  mean MAPE **48.4% → 26.8%** (−21.6pp), bias +4.8s → +2.1s, within-15% 15.8% → 50.5%, better on 22/25;
+  test beats train ⇒ zero overfit. Shape: cleave-soft opening (0.79–0.90× at 95–85%, the Flamewaker
+  Elites) + the strongest execute spike so far (2.02×). **Three encounters, three shapes, three held-out
+  wins** — the method is routine.
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design

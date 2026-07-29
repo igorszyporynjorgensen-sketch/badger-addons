@@ -115,6 +115,32 @@
         "train_mean": 0.192,
         "note": "second encounter, different shape (Frenzy slow-phase), bigger win"
       }
+    },
+    {
+      "id": 6,
+      "date": "2026-07-29",
+      "estimator": "rhythm candidate \u2014 Gehennas profile from 25-kill TRAIN half (loop 4)",
+      "corpus": "Gehennas \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split)",
+      "corpus_short": "Gehennas \u00d750 \u00b7 loop 4 (held-out)",
+      "label": "loop 4: Gehennas",
+      "fights": 25,
+      "fixtures": 50,
+      "never_confident": 0,
+      "mape_mean": 0.268,
+      "mape_median": 0.264,
+      "mape_p90": 0.481,
+      "bias_s": 2.1,
+      "within15": 0.505,
+      "shown": 0.83,
+      "dur_min": 12.1,
+      "dur_max": 17.6,
+      "compare": {
+        "baseline_mean": 0.484,
+        "baseline_bias": 4.8,
+        "better_on": "22/25 held-out \u00b7 23/25 train",
+        "train_mean": 0.291,
+        "note": "largest absolute drop yet (-21.6pp); test beats train"
+      }
     }
   ]
 }
