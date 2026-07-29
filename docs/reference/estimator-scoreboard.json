@@ -38,6 +38,31 @@
       "shown": 0.8741,
       "dur_min": 8.5,
       "dur_max": 149.4
+    },
+    {
+      "id": 3,
+      "date": "2026-07-29",
+      "estimator": "rhythm-injected candidate (loop 1) \u2014 tools/candidates/estimator-rhythm.lua",
+      "corpus": "Lucifron \u00d720, frozen (the human's hunt) \u2014 rhythm learned from the same 20 (mechanism proof; validation on fresh kills next loop)",
+      "corpus_short": "Lucifron \u00d720 \u00b7 loop 1",
+      "label": "loop 1: rhythm",
+      "fights": 20,
+      "fixtures": 20,
+      "never_confident": 0,
+      "mape_mean": 0.211,
+      "mape_median": 0.2,
+      "mape_p90": 0.307,
+      "bias_s": 1.1,
+      "within15": 0.538,
+      "shown": 0.765,
+      "dur_min": 10.7,
+      "dur_max": 16.4,
+      "compare": {
+        "baseline_mean": 0.347,
+        "baseline_median": 0.394,
+        "baseline_bias": 2.9,
+        "better_on": "18/20"
+      }
     }
   ]
 }
