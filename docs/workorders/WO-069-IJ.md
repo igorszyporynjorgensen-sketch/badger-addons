@@ -1,6 +1,6 @@
 ---
 wo: WO-069-IJ
-status: Proposed
+status: Accepted
 assigned: IJ
 mr: ~
 decision: D-013-IJ
@@ -51,7 +51,10 @@ related:
   the bar correctly hidden during adds/immune phases; solo (chunk-clock) grades unchanged; sim + real
   corpus + specs green; `/reload` confirmed.
 
-**Phase 0** 1. [ ] Accept D-013; gather the real-fight corpus (API pulls). 2. [ ] fable + ultracode on.
+**Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
+(each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
+a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design
+fan-out runs when the human enables it.
 **Phase 1** 1. [ ] Design workflow → synthesised regime architecture.
 **Phase 2** 1. [ ] Implement behind the frozen API (chunk-clock preserved as the solo strategy).
 **Phase 3** 1. [ ] Adversarial verify + grade vs real corpus & sim → PR.

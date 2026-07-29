@@ -55,6 +55,15 @@ _As of 2026-07-25._
   (`docs/reference/warrior-ttk-cooldowns.md`) with a live availability/usability overlay; config-driven
   per-encounter gating; an open user-authored skin system. Design in WO-007; scaffolded by WO-008
   (D-005/D-006). Functionality WOs follow — config first.
+- **Estimator R&D — the "learning how to learn" phase.** The learning **method** is built and proven,
+  fully **client-side** (git holds tools + curated outcomes; harvested data + runs stay local, never in
+  git/CI): WCL converters (exact per-event `hitPoints`; V1 key in a gitignored `.env`) → replay +
+  batch graders (confidence-gated) → corpus harvest (`tools/wcl-corpus.py`, gitignored
+  `tools/fights/corpus/`). Fresh encounter ids = classic id + 150000; each raid is sampled from its own
+  relevance window (MC Jan–Mar 25 · BWL Apr–Jul 25 · AQ Jul–Sep 25). Baseline grade (12 Fresh Lucifron
+  kills): mean MAPE ~31%, reads long, error grows with fight length. **D-013 Accepted** — the
+  regime-aware overhaul (WO-069) runs on fable, its multi-agent design fan-out when the human enables
+  ultracode; progress scoreboard: `docs/reference/estimator-scoreboard.json`.
 - **Docs/process in place.** `CLAUDE.md`, `docs/engineering-principles.md`, `docs/workorders.md` +
   `docs/workorders/WO-001-IJ.md`, this log, `docs/milestones.md`, `docs/architecture.md`.
 - **Not in scope (by design).** No company-infra registration, no ports/subdomains/Notion — this is a
@@ -80,7 +89,7 @@ _As of 2026-07-25._
 ### 2026-07-29
 
 - **[D-013-IJ] The estimator is restructured into regime-aware strategies (solo · party · raid) behind
-  the frozen public API — not one overloaded path. Status: Proposed.** *Context:* the "chunk-clock"
+  the frozen public API — not one overloaded path. Status: Accepted.** *Context:* the "chunk-clock"
   estimator (D-of-WO-056) was designed for the **solo, chunky** regime (a player far above a mob's level:
   few big discrete hits) and then stretched to party/raid. The first **real-fight** replay — an
   Anniversary MC **Lucifron** kill (`encounterID 663`), pulled through the new converter + grader — showed
@@ -101,8 +110,10 @@ _As of 2026-07-25._
   proven against **real fights** via the replay pipeline (`tools/wcl-*-to-fight.py` + `estimator-replay.lua`)
   plus the sim. *Why:* the regimes have irreconcilable rhythms; separating them (rather than adding more
   `if raid` branches) is what makes each correct — and the D-012 history + the log-replay loop are exactly
-  the data to learn the raid path from. *Status:* **Proposed** — needs human acceptance and the
-  fable+ultracode session before the overhaul WO (WO-069) executes.
+  the data to learn the raid path from. *Status:* **Accepted** (2026-07-29) — the human greenlit
+  proceeding on **fable** ("switched to fable, but not ultracode — proceed"); the ultracode multi-agent
+  design fan-out runs when the human enables it. Corpus gathering (WO-069 Phase 0) under way via the
+  WO-070 engine.
 
 - **[D-012-IJ] The kill-history schema follows the Warcraft Logs standard; local recording and web-log
   import share ONE record shape; import is a copy-paste, converted externally.** (Refines the D-005
