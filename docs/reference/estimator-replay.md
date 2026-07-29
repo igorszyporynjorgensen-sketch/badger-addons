@@ -129,7 +129,27 @@ So `tools/wcl-to-fight.py` (OAuth client-credentials) pulls a whole fight — al
 one file with no row cap. Needs a free, **read-only** WCL API client (id + secret). The CSV path
 (`tools/wcl-csv-to-fight.py`) stays as the no-credentials fallback (boss-target-filtered export).
 
+## First corpus batch-grade (12 real Fresh Lucifron kills)
+
+`tools/wcl-corpus.py` + `tools/estimator-batch.lua` (WO-070) take this from one fight to a **spectrum**:
+WCL V1 rankings → many unique kills → the exact curve of each → an aggregate grade. Two things it taught
+on the first run:
+
+- **Fresh encounters carry a distinct id.** Fresh Lucifron = **`150663`** (rankings Jan–Mar 2025 — MC's
+  *relevance window* on Fresh); original-Classic Lucifron = `663` (2020–2021, all **archived**, so the free
+  API can't read them). The relevance window is quite literally encoded in the encounter id. The harvester
+  pulls **recent-first and skips archived** reports.
+- **The aggregate confirms the ceiling — and its shape.** Over 12 kills: mean MAPE **30.6%** (median 31.3%,
+  p90 44.1%), bias **+2.3s** (reads long), and **the error grows with fight length** — fast 10–12s kills
+  grade 9–13% (bias ~0), 15–16s kills 30–53%, the lone 25.6s kill 65.7%. A backward-looking rate reads
+  progressively longer the more room the fight has to accelerate. This is the numeric case for WO-069, from
+  a spectrum rather than a single anecdote.
+
+The corpus lives in the gitignored `tools/fights/corpus/` (empty it freely); only curated fixtures like
+`tools/fights/lucifron.lua` are committed.
+
 ## The loop
 
-Real fight → replay → grade → read *where + why* it drifted → **learn that encounter's rhythm** (or add
-the phase knowledge the ceiling demands) → re-score. Lucifron is the first entry.
+Real fight → replay → grade (single or **batch**) → read *where + why* it drifted → **learn that
+encounter's rhythm** (or add the phase knowledge the ceiling demands) → re-score. Lucifron is the first
+entry; the corpus is the first spectrum.

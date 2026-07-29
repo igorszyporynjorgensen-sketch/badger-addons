@@ -1,8 +1,8 @@
 ---
 wo: WO-070-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/73
 decision: D-013-IJ
 depends_on:
   - docs/workorders/WO-068-IJ.md
@@ -38,5 +38,14 @@ related:
 - **Acceptance:** one command harvests N real kills of an encounterID into the (gitignored) corpus; one
   command batch-grades them into an aggregate summary; demonstrated on Lucifron across the spectrum.
 
-**Phase 1** 1. [ ] gitignore the harvest zone · `wcl-corpus.py` (rankings → fixtures).
-**Phase 2** 1. [ ] `estimator-batch.lua` (aggregate grade) · demonstrate on a real Lucifron corpus. PR.
+- **Outcome (PR #73):** proven end-to-end on **12 real Fresh Lucifron kills** (harvest → batch-grade →
+  aggregate). Two findings: (1) **Fresh encounters carry a distinct id** — Fresh Lucifron = **150663**
+  (rankings Jan–Mar 2025, MC's relevance window on Fresh); original-Classic 663 = 2020–2021 (all archived).
+  The relevance window *is* the id. WCL archives old reports, so the harvester pulls recent-first + skips
+  archived. (2) **Aggregate grade:** mean MAPE **30.6%** (median 31.3%, p90 44.1%), bias **+2.3s** (reads
+  long), and the error **grows with fight length** (fast 10–12s kills 9–13%; 15–16s kills 30–53%; the lone
+  25.6s kill 65.7%) — the "can't anticipate acceleration" ceiling quantified across a spectrum. Recorded in
+  `docs/reference/estimator-replay.md`; this is the empirical base for WO-069.
+
+**Phase 1** 1. [x] gitignore the harvest zone · `wcl-corpus.py` (rankings → fixtures).
+**Phase 2** 1. [x] `estimator-batch.lua` (aggregate grade) · demonstrate on a real Lucifron corpus. PR #73.
