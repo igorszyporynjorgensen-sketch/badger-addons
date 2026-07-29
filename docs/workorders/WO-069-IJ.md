@@ -109,6 +109,11 @@ related:
   on 22/25; test beats train. 3 never-confident kills identical in both configs (correctly hidden). His
   signature: the most violent execute yet (**3.20×** at 20–15%). **Five encounters, five held-out wins.**
 
+- **Loop 7 outcome (PR #81, 2026-07-29):** **Baron Geddon ×50 — six for six, noisiest boss yet.** Held-out
+  25: mean MAPE **52.0% → 39.8%**, median **40.5% → 25.9%**, bias +5.8s → +3.1s, better on **24/25**.
+  Mean ≫ median on both sides (Living Bomb chaos pulls = MC's highest kill variance) — the median is the
+  honest center, in line with every other boss. Shape: a 1.2–1.3× mid ramp into a 1.88× execute.
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design

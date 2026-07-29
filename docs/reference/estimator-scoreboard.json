@@ -193,6 +193,32 @@
         "train_mean": 0.256,
         "note": "short-fight floor test passed; most violent execute yet (3.2x); NC identical both configs"
       }
+    },
+    {
+      "id": 9,
+      "date": "2026-07-29",
+      "estimator": "rhythm candidate \u2014 Geddon profile from 25-kill TRAIN half (loop 7)",
+      "corpus": "Baron Geddon \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split)",
+      "corpus_short": "Geddon \u00d750 \u00b7 loop 7 (held-out)",
+      "label": "loop 7: Geddon",
+      "fights": 25,
+      "fixtures": 50,
+      "never_confident": 0,
+      "mape_mean": 0.398,
+      "mape_median": 0.259,
+      "mape_p90": 0.631,
+      "bias_s": 3.1,
+      "within15": 0.459,
+      "shown": 0.88,
+      "dur_min": 9.9,
+      "dur_max": 21.4,
+      "compare": {
+        "baseline_mean": 0.52,
+        "baseline_median": 0.405,
+        "baseline_bias": 5.8,
+        "better_on": "24/25 held-out \u00b7 23/25 train",
+        "note": "noisiest boss yet (mean>>median both sides: Living Bomb chaos pulls); median improvement in line with the rest"
+      }
     }
   ]
 }
