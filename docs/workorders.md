@@ -85,7 +85,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
-- **WO-064-IJ** — **CHANGELOG + release process**: add `projects/badger-ttk/CHANGELOG.md` (Keep a Changelog); each version WO renames `[Unreleased]` → the new version and that section feeds the CurseForge changelog box (see `docs/workorders/WO-064-IJ.md`). Status: Accepted — implementing.
+- **WO-064-IJ** — **CHANGELOG + release process**: add `projects/badger-ttk/CHANGELOG.md` (Keep a Changelog); each version WO renames `[Unreleased]` → the new version and that section feeds the CurseForge changelog box (see `docs/workorders/WO-064-IJ.md`). Status: In progress — PR #67 (+ automated versioned zip).
 - **WO-063-IJ** — **add Naxxramas** to the raid registry (the missing final Classic-Era tier); pure data addition to `ns.RaidTable`, 15 encounters, after AQ40 (see `docs/workorders/WO-063-IJ.md`). Status: Done — PR #66 merged; main green.
 - **WO-062-IJ** — **skin Export/Import windows + named skins + built-in "Modern"**: `lib:TextPopup` (AceGUI copy/paste window, MINOR 10→11); `Skin.serialize` adds `name`, new pure `Skin.deserialize`; `RegisterBuiltin`/`isBuiltin` (Default + Modern); Export/Import buttons next to Delete (see `docs/workorders/WO-062-IJ.md`). Status: Done — PR #65 merged; main green.
 - **WO-061-IJ** — **estimator verify follow-ups**: floor released after a slowdown flush, prior counts toward confidence + 90s per-GUID retarget cache (no more swap-back blackout), countdown floors at 0.05s (no display blanking), verify panel's mutation-tested gap specs adopted (see `docs/workorders/WO-061-IJ.md`). Status: Done — PR #64 merged; main green.

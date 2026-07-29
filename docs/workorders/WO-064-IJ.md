@@ -1,18 +1,19 @@
 ---
 wo: WO-064-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/67
 decision: ~
 depends_on: []
 related:
   - projects/badger-ttk/CHANGELOG.md
 ---
 
-# WO-064-IJ — add a CHANGELOG and a per-release changelog process
+# WO-064-IJ — release process: a CHANGELOG + an automated versioned zip
 
 - **Created / Updated:** 2026-07-29
-- **Objective — from the human:** every new version needs a changelog entry for CurseForge (and git).
+- **Objective — from the human:** every new version needs a changelog entry for CurseForge (and git),
+  and the release zip should be named/produced automatically.
 - **Design notes:** one **`projects/badger-ttk/CHANGELOG.md`** (Keep a Changelog format, newest first),
   the single source of truth. Player-facing bullets only. It is NOT copied into the shipped `.release`
   (keeps the addon lean) — it lives in git and feeds the CurseForge box.
@@ -26,5 +27,8 @@ related:
 - **Behavior delta:** none (in-game) — repo/docs artifact.
 - **Constitution check:** Principles OK — documentation; no code/`_G` change.
 
-**Phase 1** 1. [ ] Add CHANGELOG.md (0.9.44 + Unreleased).
-**Phase 2** 1. [ ] PR. (Ongoing: every version WO updates [Unreleased] → the new version section.)
+- **Packaging:** `tools/build.sh` produces `.release/<Package>-<version>.zip` after the lib embed,
+  named from the packaged `.toc` `## Version` so it can't drift (the packager runs `-z`).
+
+**Phase 1** 1. [x] Add CHANGELOG.md (0.9.44 + Unreleased); build.sh versioned-zip step.
+**Phase 2** 1. [x] PR #67. (Ongoing: every version WO updates [Unreleased] → the new version section.)
