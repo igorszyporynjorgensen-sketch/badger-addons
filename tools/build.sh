@@ -36,5 +36,26 @@ if [ -d libs ] && [ -d "${pkgdir}" ]; then
     done
 fi
 
+# --- Package a versioned zip (WO-064) --------------------------------------------------------------
+# The BigWigs packager runs with -z (skip zip) because we embed the internal libs AFTER it; so we make
+# the zip ourselves, here, once the package is complete. It is NAMED from the packaged .toc's
+# `## Version`, so the filename can never drift from what the client reports (e.g. BadgerTTK-0.9.44.zip).
+# Upload this file to CurseForge as a Release (the newest Release is auto-featured); paste the matching
+# CHANGELOG section into the file's Changelog box.
+if [ -d "${pkgdir}" ] && command -v zip >/dev/null 2>&1; then
+    version="$(awk -F': *' '/^## Version:/ { gsub(/[[:space:]]/, "", $2); print $2; exit }' \
+        "${pkgdir}/${package}.toc")"
+    if [ -n "${version}" ]; then
+        zipname="${package}-${version}.zip"
+        (cd "${dir}/.release" && rm -f "${zipname}" && zip -rq "${zipname}" "${package}")
+        echo "Packaged -> ${dir}/.release/${zipname}"
+    else
+        echo "warning: no '## Version' in ${pkgdir}/${package}.toc — skipped zip" >&2
+    fi
+elif ! command -v zip >/dev/null 2>&1; then
+    echo "warning: 'zip' not found — skipped the versioned zip step" >&2
+fi
+
 echo ""
-echo "Built -> ${dir}/.release/  — copy the package folder into your WoW Interface/AddOns/."
+echo "Built -> ${dir}/.release/  — copy the package folder into your WoW Interface/AddOns/,"
+echo "or upload the ${package}-<version>.zip to CurseForge."
