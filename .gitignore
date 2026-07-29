@@ -25,3 +25,6 @@ projects/**/Libs/
 
 # Claude Code — personal/local config (skills + shared settings stay committed)
 .claude/settings.local.json
+
+# Local secrets (WCL API key, etc.) — never committed
+.env
