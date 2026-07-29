@@ -1,0 +1,43 @@
+{
+  "what": "Badger TTK estimator \u2014 batch grades over real Warcraft Logs corpora (learning-how-to-learn phase). Raw corpora are local-only (gitignored); this file is the curated outcome.",
+  "runs": [
+    {
+      "id": 1,
+      "date": "2026-07-29",
+      "estimator": "chunk-clock (WO-056/061) @ v0.9.44",
+      "corpus": "Fresh Lucifron \u00d712 (first corpus)",
+      "corpus_short": "Lucifron \u00d712",
+      "label": "Lucifron \u00d712",
+      "fights": 12,
+      "fixtures": 12,
+      "never_confident": 0,
+      "mape_mean": 0.306,
+      "mape_median": 0.313,
+      "mape_p90": 0.441,
+      "bias_s": 2.3,
+      "within15": 0.348,
+      "shown": 0.751,
+      "dur_min": 10.7,
+      "dur_max": 16.5
+    },
+    {
+      "id": 2,
+      "date": "2026-07-29",
+      "estimator": "chunk-clock (WO-056/061) @ v0.9.44",
+      "corpus": "Fresh MC \u00d710 \u00b7 BWL \u00d78 \u00b7 AQ \u00d72 \u2014 126 kills, each raid from its own relevance window",
+      "corpus_short": "MC+BWL+AQ \u00d7126",
+      "label": "MC+BWL+AQ \u00d7126",
+      "fights": 121,
+      "fixtures": 126,
+      "never_confident": 5,
+      "mape_mean": 1.1709,
+      "mape_median": 0.415,
+      "mape_p90": 1.065,
+      "bias_s": 17.7,
+      "within15": 0.2607,
+      "shown": 0.8741,
+      "dur_min": 8.5,
+      "dur_max": 149.4
+    }
+  ]
+}
