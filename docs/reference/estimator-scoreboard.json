@@ -219,6 +219,32 @@
         "better_on": "24/25 held-out \u00b7 23/25 train",
         "note": "noisiest boss yet (mean>>median both sides: Living Bomb chaos pulls); median improvement in line with the rest"
       }
+    },
+    {
+      "id": 10,
+      "date": "2026-07-29",
+      "estimator": "rhythm candidate \u2014 Sulfuron profile from 25-kill TRAIN half (loop 8)",
+      "corpus": "Sulfuron Harbinger \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split)",
+      "corpus_short": "Sulfuron \u00d750 \u00b7 loop 8 (held-out)",
+      "label": "loop 8: Sulfuron",
+      "fights": 25,
+      "fixtures": 50,
+      "never_confident": 0,
+      "mape_mean": 0.495,
+      "mape_median": 0.379,
+      "mape_p90": 0.696,
+      "bias_s": 6.2,
+      "within15": 0.389,
+      "shown": 0.89,
+      "dur_min": 24.0,
+      "dur_max": 32.6,
+      "compare": {
+        "baseline_mean": 0.919,
+        "baseline_median": 0.75,
+        "baseline_bias": 16.1,
+        "better_on": "24/25 held-out \u00b7 20/25 train",
+        "note": "worst baseline in MC (priest heals suppress net damage: +16.1s bias) \u2014 biggest correction (-42pp) but weakest absolute endpoint; heal residual is structural"
+      }
     }
   ]
 }

@@ -114,6 +114,13 @@ related:
   Mean ≫ median on both sides (Living Bomb chaos pulls = MC's highest kill variance) — the median is the
   honest center, in line with every other boss. Shape: a 1.2–1.3× mid ramp into a 1.88× execute.
 
+- **Loop 8 outcome (PR #82, 2026-07-29):** **Sulfuron ×50 — the heal-suppression boss; biggest correction
+  yet.** Baseline is MC's worst (**91.9% mean, +16.1s bias** — the four Flamewaker Priests heal him, so a
+  backward rate reads the suppressed net damage as "forever"). Profile: **→ 49.5% mean / 37.9% median,
+  +6.2s**, better on 24/25. Shape = the mechanic: 0.83–0.90× while priests live → **2.57×** collapse.
+  *Honest residual:* weakest absolute endpoint (heal pollution is structural — for the regime work, not
+  more data). **Seven encounters, seven held-out wins.**
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design
