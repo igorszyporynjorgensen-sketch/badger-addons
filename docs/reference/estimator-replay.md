@@ -5,6 +5,11 @@ predicted TTK against ground truth (the fight already happened, so we know the t
 tick). It's the same **Warcraft Logs** pipeline as the history import (D-012): one data source, two uses —
 the *summary* feeds the prior; the *full curve* feeds this grader.
 
+> **The "learning how to learn" phase.** This whole apparatus — the converters, this grader, the D-012
+> schema, the corpus-curation rules — is deliberately built and *proven* **before** we teach the estimator
+> any encounter. Get the method right first: the CSV→API correction below (a confident-but-wrong 1069% vs
+> the exact 66%) is why. The actual per-encounter overhaul is [D-013] / WO-069.
+
 ```
 luajit tools/estimator-replay.lua <fight.lua> [estimator.lua]
 luajit tools/estimator-replay.lua tools/fights/sample-boss.lua      # the built-in sample
