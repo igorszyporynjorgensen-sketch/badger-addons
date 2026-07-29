@@ -90,7 +90,7 @@ return {{
 """)
 
 print(f"learned from {len(per_kill)} kills → tools/candidates/rhythm-{enc}.lua")
-print(f"\nLucifron's rhythm  (m = rate vs fight average; ▏1.0 = average)")
+print(f"\nEncounter {enc} rhythm  (m = rate vs fight average; 1.0 = average)")
 for i, m in enumerate(profile_top_down):
     hi, lo = 100 - i * 100 // BINS, 100 - (i + 1) * 100 // BINS
     bar = "█" * max(1, round(m * 12))
