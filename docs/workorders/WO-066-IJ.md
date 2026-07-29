@@ -1,8 +1,8 @@
 ---
 wo: WO-066-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/70
 decision: ~
 depends_on:
   - docs/workorders/WO-056-IJ.md
@@ -30,5 +30,5 @@ related:
 - **Behavior delta:** none (in-game) — a dev harness + design doc.
 - **Constitution check:** Principles OK — tooling + docs; no shipped-code/`_G` change; no version bump (D-011).
 
-**Phase 1** 1. [ ] sim harness party/raid + composition + immune traces.
-**Phase 2** 1. [ ] doc the analysis + numbers + roadmap. PR.
+**Phase 1** 1. [x] sim harness party/raid + composition + immune traces.
+**Phase 2** 1. [x] doc the analysis + numbers + roadmap. PR.
