@@ -12,6 +12,8 @@ db.global.history = {
     encounter = { [encounterID] = { <record>, ... } },  -- instanced bosses: the Warcraft-Logs-native key
     creature  = { [creatureID]  = { <record>, ... } },  -- solo / world / trash: the id from the GUID
 }
+
+Each list keeps the **most recent 50** records — append newest last, evict the oldest when full (never the newest).
 ```
 
 **Why two spaces (Q1 — the reliable answer).** The one identity a local kill *always* has is the
