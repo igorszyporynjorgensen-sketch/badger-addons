@@ -11,6 +11,11 @@ All notable, player-facing changes to **Badger Time To Kill (TTK)**. Version num
 
 ## [0.9.44] - 2026-07-29
 
+### Added
+- **Naxxramas** in the raid show-gating list — every boss from Anub'Rekhan to Kel'Thuzad.
+
+## [0.9.43] - 2026-07-29
+
 First public (pre-1.0) release.
 
 ### Added
@@ -19,7 +24,7 @@ First public (pre-1.0) release.
   speed per mob and per level**.
 - **Utility cooldown-timing bars** — *waiting → fire now → fired* — so each cooldown's buff lands on the
   kill. Ships with a curated set of Warrior cooldowns & on-use trinkets, plus per-raid and per-encounter
-  show-gating (all raids through **Naxxramas**).
+  show-gating (Molten Core through Temple of Ahn'Qiraj).
 - **Icons** — ability icons on the utility bars, and your target's **live portrait** on the TTK bar.
 - **Skins** — LibSharedMedia textures/fonts/borders, five independent state colours, and per-ability
   colour overrides. **Save, delete, export & import** named skins. Built-in **Default** and **Modern**
