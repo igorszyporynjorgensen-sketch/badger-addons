@@ -62,11 +62,31 @@ _As of 2026-07-25._
 - **Inspiration assets.** `assets/` (repo root) holds internet-gathered reference material — see
   `assets/README.md`. Drops land via a lightweight lane: `chore` branch + PR (human merges), **no work
   order**; images are optimized before the first commit (see D-002-IJ).
-- **Next id:** D-011-IJ.
+- **Release cadence.** A version bump is a **deliberate release event**, not a per-WO/per-build step
+  (D-011-IJ, from 2026-07-29 — supersedes the old "bump every test build"): code WOs merge to `main`
+  **without touching `## Version`**; player-facing changes accumulate under `[Unreleased]` in
+  `projects/badger-ttk/CHANGELOG.md`. A release bumps `## Version`, promotes `[Unreleased]` to the new
+  section, and builds the auto-named zip (`tools/build.sh`). **`1.0.0` still only on human sign-off.**
+- **Next id:** D-012-IJ.
 
 ---
 
 ## Decision log
+
+### 2026-07-29
+
+- **[D-011-IJ] Version bumps are a deliberate release decision, not per build/WO (supersedes the
+  bump-every-build convention).** Routine code WOs merge to `main` **without changing `## Version`**;
+  player-facing changes accumulate under `## [Unreleased]` in `projects/badger-ttk/CHANGELOG.md`. When the
+  human decides to release, ONE step: bump `## Version`, rename `[Unreleased]` → `## [x.y.z] - YYYY-MM-DD`,
+  run `tools/build.sh badger-ttk` (which auto-names the zip from the `.toc` version), and upload to
+  CurseForge as a *Release* with that CHANGELOG section pasted into the file's Changelog box (newest
+  Release is auto-featured — the filename is cosmetic). `1.0.0` remains gated on **explicit human
+  sign-off**. *Why:* the old per-build bump (WO-017) made every tiny change a version and created constant
+  `.toc` version-line merge conflicts between parallel WOs; a version should mark a real, chosen release,
+  and the CHANGELOG `[Unreleased]` lane (WO-064) is exactly the accumulator for it. *Note:* between
+  releases, verify against merged `main` directly; in-game confirmation of behaviour changes is still
+  required before a WO is `Done`. Set by the human 2026-07-29.
 
 ### 2026-07-27
 
