@@ -28,3 +28,6 @@ projects/**/Libs/
 
 # Local secrets (WCL API key, etc.) — never committed
 .env
+
+# Ephemeral WCL corpus harvest zone (WO-070) — bulk pulled curves; never committed
+tools/fights/corpus/
