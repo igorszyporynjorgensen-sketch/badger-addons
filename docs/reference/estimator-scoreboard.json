@@ -167,6 +167,32 @@
         "train_mean": 0.246,
         "note": "adds smear the shape (mildest execute 1.4-1.6x; small train/test gap) \u2014 still a big win"
       }
+    },
+    {
+      "id": 8,
+      "date": "2026-07-29",
+      "estimator": "rhythm candidate \u2014 Shazzrah profile from 25-kill TRAIN half (loop 6)",
+      "corpus": "Shazzrah \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split)",
+      "corpus_short": "Shazzrah \u00d750 \u00b7 loop 6 (held-out)",
+      "label": "loop 6: Shazzrah",
+      "fights": 22,
+      "fixtures": 50,
+      "never_confident": 3,
+      "mape_mean": 0.228,
+      "mape_median": 0.229,
+      "mape_p90": 0.403,
+      "bias_s": 1.2,
+      "within15": 0.612,
+      "shown": 0.71,
+      "dur_min": 7.2,
+      "dur_max": 13.8,
+      "compare": {
+        "baseline_mean": 0.411,
+        "baseline_bias": 3.2,
+        "better_on": "22/25 held-out \u00b7 24/25 train",
+        "train_mean": 0.256,
+        "note": "short-fight floor test passed; most violent execute yet (3.2x); NC identical both configs"
+      }
     }
   ]
 }

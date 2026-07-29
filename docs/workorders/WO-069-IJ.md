@@ -104,6 +104,11 @@ related:
   the burn) and the first small train→test gap (24.6% vs 29.1% — strategy variance costs a little
   generalization; a finding, not a failure). **Four encounters, four held-out wins.**
 
+- **Loop 6 outcome (PR #80, 2026-07-29):** **Shazzrah ×50 — the short-fight floor holds.** On 7–13s
+  fights, held-out 25: mean MAPE **41.1% → 22.8%**, bias +3.2s → +1.2s, within-15% 17.0% → 61.2%, better
+  on 22/25; test beats train. 3 never-confident kills identical in both configs (correctly hidden). His
+  signature: the most violent execute yet (**3.20×** at 20–15%). **Five encounters, five held-out wins.**
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design
