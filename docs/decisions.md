@@ -79,6 +79,31 @@ _As of 2026-07-25._
 
 ### 2026-07-29
 
+- **[D-013-IJ] The estimator is restructured into regime-aware strategies (solo · party · raid) behind
+  the frozen public API — not one overloaded path. Status: Proposed.** *Context:* the "chunk-clock"
+  estimator (D-of-WO-056) was designed for the **solo, chunky** regime (a player far above a mob's level:
+  few big discrete hits) and then stretched to party/raid. The first **real-fight** replay — an
+  Anniversary MC **Lucifron** kill (`encounterID 663`), pulled through the new converter + grader — showed
+  the raid regime is *structurally* different. On the **exact API pull** (per-event `hitPoints`) the
+  solo-tuned chunk-clock reads systematically **long** on the raid curve (Lucifron: bias ~+9s, MAPE ~66%,
+  can't anticipate the cooldown/execute acceleration) — a calmer picture than the first **CSV**
+  reconstruction implied (its ~1069% MAPE / "confident 30-min adds-gate" was a data artifact: a ~5.5s
+  pre-pull clock offset + cleave; corrected once the API's exact curve was used). *This is per-encounter /
+  per-regime knowledge, NOT a generic tuning fault* (the human's explicit correction). *Decision (proposed):* detect the combat **regime** from context (group size ·
+  target classification · event density/continuity) and route to a regime-appropriate strategy behind the
+  unchanged `Estimator.new/sample/ttk` API. The **chunk-clock stays as the solo strategy** (it's strong
+  there). Party/raid gain continuous-rate handling and, keyed by `encounterID`, **per-encounter rhythm
+  profiles** learned from a **curated log corpus** — kills from the encounter's *relevance window*
+  (release → next tier / `classicSeasonID`), spanning progression→farm and pug→speedguild as the performer
+  spectrum, using exact-API curves only — used as an *anticipatory modulator* so the estimate can lead the
+  acceleration instead of lagging it; **confidence becomes regime-aware** (it must not reach certainty from
+  a thin, unrepresentative early window). *Method:* a **fable-5 + ultracode** design→build→adversarially-verify workflow (as WO-056),
+  proven against **real fights** via the replay pipeline (`tools/wcl-*-to-fight.py` + `estimator-replay.lua`)
+  plus the sim. *Why:* the regimes have irreconcilable rhythms; separating them (rather than adding more
+  `if raid` branches) is what makes each correct — and the D-012 history + the log-replay loop are exactly
+  the data to learn the raid path from. *Status:* **Proposed** — needs human acceptance and the
+  fable+ultracode session before the overhaul WO (WO-069) executes.
+
 - **[D-012-IJ] The kill-history schema follows the Warcraft Logs standard; local recording and web-log
   import share ONE record shape; import is a copy-paste, converted externally.** (Refines the D-005
   WarcraftLogs-import seam.) *Source (confirmed by the human):* **Warcraft Logs** (warcraftlogs.com) — the

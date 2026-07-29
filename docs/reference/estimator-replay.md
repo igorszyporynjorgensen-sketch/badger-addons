@@ -51,8 +51,80 @@ surfaced three real things:
    live tracking dominates. A mismatched import (a speedguild's times on your slower kill) does **not**
    break it. Confirms the D-012 group-scaling is a refinement, not a load-bearing dependency.
 
+## First REAL fight: Lucifron (MC 40) — corrected by the exact API pull
+
+Piece 2 turned a real Anniversary MC kill into a fight file — first via a paginated CSV export, then (much
+better) via the **V1 API**, whose damage events carry the target's exact `hitPoints`/`maxHitPoints`, so the
+boss curve is **read directly, not reconstructed**. The two disagreed, and **the API is the truth:**
+
+| source | duration | shape | graded MAPE |
+|---|---|---|---|
+| CSV export (reconstructed) | 31.1s | "flat ~99% for 8s, then a burst" | ~1069% |
+| **V1 API (exact hitPoints)** | **25.6s** | **fairly steady decline, mild end-accel** | **65.7%** |
+
+The CSV's dramatic "adds gate" was an **artifact** — its clock started ~5.5s before the encounter (pre-pull
+shots) and it mixed in cleave. On the exact curve — Lucifron (`encounterID 150663`, maxHP **351,780**,
+40-player) — the estimator actually behaves *reasonably*:
+
+- **The bar stays hidden ~5s** while confidence builds (0.07 → 0.40 → shows at 0.72), then tracks down
+  cleanly. **No 30-minute read anywhere** — the confidence gate does its job on clean data.
+- **It still reads too long** — bias **+8.9s**, MAPE **65.7%**, locks within 15% by ~41% HP. A
+  backward-looking rate can't anticipate even the *mild* end-acceleration (cooldowns/execute). The real,
+  calm version of the ceiling — not a catastrophe.
+- **The add was NOT killed first** (Flamewaker Protector had **73k HP at the kill**). Low-tier groups often
+  just **cleave everything at once** rather than kill adds first — so the *same encounter has
+  strategy-dependent rhythms*.
+
+**Two meta-lessons, both load-bearing for the overhaul:**
+
+1. **Data quality decides the conclusion.** The CSV nearly sent us chasing a phantom "confident 30-minute
+   adds-gate" bug. The exact API pull (hitPoints) is ground truth — use it. *("Learn where you were wrong"
+   applied to the analysis itself.)*
+2. **One encounter, many rhythms.** Cleave-all vs adds-first, speedguild vs pug — the same `encounterID`
+   varies. A per-encounter profile must be **learned from many kills across tiers and strategies**, and the
+   live estimator must track the *actual* curve, never assume a fixed shape. This is the data engine the
+   API + grader now enable: **pull any encounter at any performance tier on demand and "learn" it.**
+
+The core [D-013] motivation still holds — a solo-tuned chunk-clock stretched onto raid curves reads
+systematically long and can't anticipate — just at a *calmer severity* than the CSV first suggested.
+
+## Where this points (per-encounter, learned from logs)
+
+1. **Per-encounter rhythm profiles.** From many logged kills of an encounterID, learn its characteristic
+   normalized shape + phase markers (adds-down HP, execute HP, typical end-game multiplier). Stored/keyed
+   exactly like the D-012 history.
+2. **Rhythm archetypes.** Cluster encounters by curve shape (adds-gate-then-burst · steady · front-loaded ·
+   immune-gap · execute-heavy). A live fight is matched to its archetype.
+3. **Anticipatory "modulator."** The matched archetype/profile lets the live estimate *lead* the known
+   acceleration instead of lagging it — the only way to close the ceiling the sample fight first exposed.
+
+None of this is a generic estimator change: it's a per-encounter prior the live estimator consults **when
+it recognises the encounter**, and falls back to today's behaviour when it doesn't.
+
+### Corpus curation (which kills to learn from)
+
+The learning corpus is not "any log ever." A raid's rhythm shifts across its own lifecycle, so kills are
+curated:
+
+- **Relevance window.** Only kills from when the raid was *current content* — **release → the next tier**
+  (for MC, up to the following raid / BWL; for a season, its `classicSeasonID`). WCL reports carry dates
+  and a season id, so the puller can filter. A kill logged after the next tier's gear/nerfs exists no
+  longer describes *this* fight.
+- **Span the arc as the spectrum.** Within that window, sample **progression → farm** (green-geared, no
+  world buffs → fully geared, world-buffed) and **pug → speedguild**. That range *is* the performer
+  spectrum the human wants — a profile that knows both the slow and the fast end, not one point.
+- **Exact data only.** Reconstruct nothing that the API gives exactly: use per-event `hitPoints`
+  (`wcl-v1-to-fight.py`), which the Lucifron CSV-vs-API split proved decisive (1069% → 66% MAPE from the
+  same fight, different data quality).
+
+## Fetching real fights — the API (reachable from tooling)
+
+The WCL v2 API is reachable from the dev environment (OAuth/GraphQL respond; only the *web pages* 403).
+So `tools/wcl-to-fight.py` (OAuth client-credentials) pulls a whole fight — all targets + timeline — into
+one file with no row cap. Needs a free, **read-only** WCL API client (id + secret). The CSV path
+(`tools/wcl-csv-to-fight.py`) stays as the no-credentials fallback (boss-target-filtered export).
+
 ## The loop
 
-Real fight → replay → grade → read *where + why* it drifted → tune the estimator (or add the boss
-knowledge the ceiling demands) → re-score. Piece 2 (the WCL → fight-file converter) turns any logged pull
-into a fight file; until then, the sample validates the grader.
+Real fight → replay → grade → read *where + why* it drifted → **learn that encounter's rhythm** (or add
+the phase knowledge the ceiling demands) → re-score. Lucifron is the first entry.
