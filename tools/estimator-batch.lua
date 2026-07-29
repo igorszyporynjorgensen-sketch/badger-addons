@@ -98,6 +98,30 @@ local function quantile(sorted, q)
     return sorted[math.max(1, math.min(#sorted, math.floor(q * #sorted + 0.5)))]
 end
 
+-- Single-file mode (WO-071): pass a fight FILE instead of a directory to grade just that fight and print
+-- one tab-separated RESULT line — the ttk-lab terminal dashboard grades incrementally as fights land.
+-- Fields: RESULT · name · dur · mape (or NC = never confident) · bias · within15 · shown.
+if dir:match("%.lua$") then
+    local r = grade(dir)
+    if not r then
+        print("RESULT\tERROR\t0\tNC\t0\t0\t0")
+    elseif r.mape then
+        print(
+            ("RESULT\t%s\t%.2f\t%.4f\t%.2f\t%.4f\t%.4f"):format(
+                r.name,
+                r.dur,
+                r.mape,
+                r.bias,
+                r.within,
+                r.shown
+            )
+        )
+    else
+        print(("RESULT\t%s\t%.2f\tNC\t0\t0\t0"):format(r.name, r.dur))
+    end
+    return
+end
+
 local files = fixtures(dir)
 if #files == 0 then
     print(
