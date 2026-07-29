@@ -87,6 +87,27 @@ ns.RaidTable = {
         },
     },
     {
+        id = "naxx",
+        name = "Naxxramas",
+        encounters = {
+            { id = "anubrekhan", name = "Anub'Rekhan" },
+            { id = "faerlina", name = "Grand Widow Faerlina" },
+            { id = "maexxna", name = "Maexxna" },
+            { id = "noth", name = "Noth the Plaguebringer" },
+            { id = "heigan", name = "Heigan the Unclean" },
+            { id = "loatheb", name = "Loatheb" },
+            { id = "razuvious", name = "Instructor Razuvious" },
+            { id = "gothik", name = "Gothik the Harvester" },
+            { id = "four_horsemen", name = "The Four Horsemen" },
+            { id = "patchwerk", name = "Patchwerk" },
+            { id = "grobbulus", name = "Grobbulus" },
+            { id = "gluth", name = "Gluth" },
+            { id = "thaddius", name = "Thaddius" },
+            { id = "sapphiron", name = "Sapphiron" },
+            { id = "kelthuzad", name = "Kel'Thuzad" },
+        },
+    },
+    {
         id = "world",
         name = "World Bosses",
         encounters = {
