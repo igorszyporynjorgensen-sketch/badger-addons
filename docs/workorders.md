@@ -85,6 +85,7 @@ decision: ~             # D-0xx-II once a decision is produced, else ~
 
 ## Work order log
 <!-- Newest on top. New WOs are their own files under docs/workorders/; this section is a thin index. -->
+- **WO-068-IJ** — **Warcraft Logs → fight-file converter** (piece 2): `tools/wcl-to-fight.py` (OAuth + GraphQL, stdlib) reconstructs a fight's boss-health curve into a replay-grader fight file; user runs it with their own free API client (see `docs/workorders/WO-068-IJ.md`). Status: Accepted — implementing.
 - **WO-067-IJ** — **replay-and-grade harness**: `tools/estimator-replay.lua` grades the estimator's predicted TTK vs a real fight's health curve (ground truth), the "dev mode" replay of Warcraft Logs fights (see `docs/workorders/WO-067-IJ.md`). Status: Done — PR #71 merged; main green.
 - **WO-066-IJ** — **validate the estimator for party/raid + composition**: extend the sim harness with caster/melee/healer/heroism/immune-phase traces, document the analysis + roadmap (`docs/reference/estimator-party-raid.md`) (see `docs/workorders/WO-066-IJ.md`). Status: Done — PR #70 merged; main green.
 - **WO-065-IJ** — **config layout pass**: Behavior (drop intro+separator), Display row restructure (position/scale up top), Estimator (widen history toggles), Abilities (wider offset slider + header spacing); first WO under D-011 — no version bump (see `docs/workorders/WO-065-IJ.md`). Status: Done — PR #69 merged; main green.
