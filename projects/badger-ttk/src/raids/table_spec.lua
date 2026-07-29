@@ -12,7 +12,7 @@ describe("RaidTable", function()
         for i = 1, #ns.RaidTable do
             ids[i] = ns.RaidTable[i].id
         end
-        assert.same({ "mc", "onyxia", "bwl", "zg", "aq20", "aq40", "world" }, ids)
+        assert.same({ "mc", "onyxia", "bwl", "zg", "aq20", "aq40", "naxx", "world" }, ids)
     end)
 
     it("gives every raid a name and at least one encounter", function()
