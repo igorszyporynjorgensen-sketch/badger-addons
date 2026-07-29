@@ -149,6 +149,47 @@ end
 
 -- ── Runner ───────────────────────────────────────────────────────────────────────────────────────
 
+-- ── Party/raid traces (WO-066) ───────────────────────────────────────────────────────────────────
+-- Raids kill via MANY overlapping attackers, so the target's health drops smoothly/continuously — the
+-- estimator's design sweet spot (many small drops per tau), the opposite of the chunky solo-melee case.
+-- Composition shows up as rate (how fast) + jitter (how lumpy): casters/DoTs = low jitter; melee = high;
+-- healer-heavy = a low rate. An optional immune window [imStart,imEnd) freezes health; `imDamageable` is
+-- what the driver feeds during it — true today (the gap), false if a boss profile marked the phase.
+local function contTrace(name, rate, jitter, imStart, imEnd, imDamageable)
+    local samples, t, h = {}, 0, 1
+    while h > 0 do
+        local frozen = imStart and t >= imStart and t < imEnd
+        samples[#samples + 1] = { t = t, h = h, damageable = (not frozen) or imDamageable }
+        if not frozen then
+            h = h - rate * DT * range(1 - jitter, 1 + jitter)
+        end
+        t = t + DT
+    end
+    samples[#samples + 1] = { t = t, h = 0 }
+    return { name = name, samples = samples, death = t, priorRate = rate }
+end
+
+-- A boss fight where DPS jumps mid-fight — Bloodlust/Heroism ~+40% (deliberately BELOW the 2.5x regime
+-- flush, so it must ride the tau-window, not flush). Measures adaptation to a realistic raid surge.
+local function heroismTrace()
+    local samples, t, h = {}, 0, 1
+    local base, at = 1 / 180, 60
+    while h > 0 do
+        samples[#samples + 1] = { t = t, h = h }
+        local rate = (t < at) and base or (base * 1.4)
+        h = h - rate * DT * range(0.85, 1.15)
+        t = t + DT
+    end
+    samples[#samples + 1] = { t = t, h = 0 }
+    return {
+        name = "raid-heroism+40%",
+        samples = samples,
+        death = t,
+        priorRate = base,
+        burstAt = at,
+    }
+end
+
 local function runTrace(Estimator, trace)
     local est = Estimator.new({
         reactivity = 0.5,
@@ -159,7 +200,7 @@ local function runTrace(Estimator, trace)
     local reads = {} -- { t, ttk } per tick (ttk may be nil)
     for i = 1, #trace.samples do
         local s = trace.samples[i]
-        est:sample(s.t, s.h, true)
+        est:sample(s.t, s.h, s.damageable ~= false)
         local ttk = est:ttk()
         reads[#reads + 1] = { t = s.t, ttk = ttk }
     end
@@ -238,6 +279,13 @@ local function buildTraces()
         raidTrace(),
         burstTrace(2), -- below the flush band: rides the τ-window
         burstTrace(3), -- inside the flush band: fires within two events
+        -- Party/raid regimes (WO-066): composition = rate + jitter; casters smooth, melee lumpy.
+        contTrace("raid-caster-heavy", 1 / 120, 0.2), -- casters/DoTs: smooth continuous chip
+        contTrace("raid-melee-heavy", 1 / 120, 0.8), -- many overlapping melee swings: lumpier
+        contTrace("raid-healer-heavy", 1 / 300, 0.3), -- fewer DPS → slow but smooth (5-min kill)
+        heroismTrace(), -- +40% Bloodlust mid-fight (rides the window)
+        contTrace("raid-immune-DRIVER", 1 / 150, 0.3, 40, 60, true), -- 20s immune, fed as driver does now
+        contTrace("raid-immune-PROFILE", 1 / 150, 0.3, 40, 60, false), -- same, if a boss profile paused it
         chunkyBurstTrace(),
         healTrace(),
     }
