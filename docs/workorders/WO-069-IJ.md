@@ -37,6 +37,16 @@ related:
      acceleration instead of lagging it.
   3. **Regime-aware confidence** — a steady high-HP trickle during an adds gate must read low-confidence
      (bar stays hidden), fixing the Lucifron over-confidence without a generic retune.
+  4. **Rhythm modifier as an injected dependency (the human's architecture, 2026-07-29):** the estimator
+     stays pure — `Estimator.new(opts)` gains an optional `opts.rhythm` (a per-encounter profile: kill-rate
+     shape vs health remaining). Profiles are **data**, learned offline from log corpora and shipped as
+     defaults for raid bosses (later blended with the D-012 local history); the **driver** resolves which
+     profile to inject from `ENCOUNTER_START`'s encounterID, and no profile ⇒ today's behavior. Live
+     observation calibrates the *scale* (this group's speed); the profile supplies the *shape* (what the
+     fight does next) — the anticipatory fix for the reads-long bias. Candidates iterate in `tools/`
+     (`ttk-lab.py grade --est`) and only touch the shipped estimator once the loop proves an improvement.
+     Loop-1 note: learning and grading on the same 20 kills proves the *mechanism*; validation on freshly
+     hunted kills follows in the next loop (corpus refreshes between loops).
 - **Method:** a **fable-5 + ultracode** workflow like WO-056 — analyse → N architecture proposals → judge
   panel → synthesise → implement → **adversarial verify**, every step **graded against real fights**
   (`tools/estimator-replay.lua` on a corpus of WCL pulls) and the sim (`tools/estimator-sim.lua`). The
