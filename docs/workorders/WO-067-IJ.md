@@ -1,8 +1,8 @@
 ---
 wo: WO-067-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/71
 decision: ~
 depends_on:
   - docs/workorders/WO-066-IJ.md
@@ -31,5 +31,5 @@ related:
 - **Behavior delta:** none (in-game) — a dev harness.
 - **Constitution check:** Principles OK — tooling only; no shipped-code/`_G` change; no version bump (D-011).
 
-**Phase 1** 1. [ ] estimator-replay.lua + sample fight; validate.
-**Phase 2** 1. [ ] document the fight-file format + usage. PR.
+**Phase 1** 1. [x] estimator-replay.lua + sample fight; validate.
+**Phase 2** 1. [x] document the fight-file format + usage. PR.
