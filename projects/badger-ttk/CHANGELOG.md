@@ -14,6 +14,10 @@ All notable, player-facing changes to **Badger Time To Kill (TTK)**. Version num
 ### Added
 - **Naxxramas** in the raid show-gating list — every boss from Anub'Rekhan to Kel'Thuzad.
 
+### Changed
+- Tidied the options: Display controls grouped into logical rows (placement, size, opacity), a wider
+  ability-offset slider with clearer per-ability sections, and cleaner Behavior/Estimator layouts.
+
 ## [0.9.43] - 2026-07-29
 
 First public (pre-1.0) release.
