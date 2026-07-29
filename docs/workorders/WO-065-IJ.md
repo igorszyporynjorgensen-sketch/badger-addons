@@ -1,8 +1,8 @@
 ---
 wo: WO-065-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/69
 decision: ~
 depends_on: []
 related:
@@ -29,5 +29,5 @@ related:
 - **Behavior delta:** MODIFIED (in-game) — config layout only.
 - **Constitution check:** Principles OK — data-only options; no logic/`_G` change; **no `.toc` bump** (D-011).
 
-**Phase 1** 1. [ ] config.lua node layouts.
+**Phase 1** 1. [x] config.lua node layouts.
 **Phase 2** 1. [ ] gate green; CHANGELOG [0.9.44] entry. PR. 2. [ ] **In-game (human):** the four nodes.
