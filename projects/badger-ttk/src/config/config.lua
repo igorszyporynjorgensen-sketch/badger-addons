@@ -345,8 +345,8 @@ local function buildSkin(db)
                     .. " the box below, or add one in code with BadgerTTK:RegisterSkin — see"
                     .. " src/skin/skin.lua.",
                 order = 1,
-                width = "relative", -- picker + Delete own this row (0.74+0.25); New-skin + Save own the next (WO-057)
-                relWidth = 0.74,
+                width = "relative", -- row: picker + Delete + Export + Import (WO-062); New-skin + Save below
+                relWidth = 0.46,
                 values = function()
                     return ns.Skin.ListSkins()
                 end,
@@ -406,9 +406,9 @@ local function buildSkin(db)
                 type = "execute",
                 name = "Delete",
                 desc = "Delete the skin selected in the picker. The built-in Default skin can't be deleted.",
-                order = 1.5, -- sits on the picker's line, to its right
+                order = 1.3, -- picker · Delete · Export · Import share this row (WO-062)
                 width = "relative",
-                relWidth = 0.25,
+                relWidth = 0.18,
                 confirm = true,
                 disabled = function()
                     return db.profile.skin == ns.Skin.BUILTIN
@@ -427,19 +427,67 @@ local function buildSkin(db)
                     end
                 end,
             },
-            exportHeader = { type = "header", name = "Export", order = 3.6 },
             exportSkin = {
-                type = "input",
-                name = "Export skin (select all + copy)",
-                desc = "A paste-ready snippet of the skin selected in the picker — hand it over to have"
-                    .. " it baked in as a built-in. Edits here are discarded.",
-                order = 3.7,
-                multiline = 12,
-                width = "full",
-                get = function()
-                    return ns.Skin.serialize(db.profile.skin)
+                type = "execute",
+                name = "Export",
+                desc = "Open a window with the selected skin as a paste-ready snippet — select all and copy.",
+                order = 1.5, -- next to Delete (WO-062)
+                width = "relative",
+                relWidth = 0.18,
+                func = function()
+                    local nm = db.profile.skin
+                    LibStub("BadgerConfigUI-1.0"):TextPopup({
+                        title = "Export skin — " .. tostring(nm),
+                        label = "Select all (Ctrl+A) and copy (Ctrl+C) — then paste it to share or import.",
+                        text = ns.Skin.serialize(nm),
+                    })
                 end,
-                set = function() end, -- read-only: the box exists to be copied from
+            },
+            importSkin = {
+                type = "execute",
+                name = "Import",
+                desc = "Open a window to paste a skin snippet; it's added to the picker under its own name.",
+                order = 1.7, -- next to Export (WO-062)
+                width = "relative",
+                relWidth = 0.18,
+                func = function()
+                    LibStub("BadgerConfigUI-1.0"):TextPopup({
+                        title = "Import skin",
+                        label = "Paste a skin snippet (it must include a name), then click Import.",
+                        buttonText = "Import",
+                        onAccept = function(text)
+                            local skin, err = ns.Skin.deserialize(text)
+                            if not skin then
+                                if ns.addon then
+                                    ns.addon:Print("Import failed: " .. tostring(err))
+                                end
+                                return false -- keep the window open
+                            end
+                            local nm = skin.name
+                            if ns.Skin.isBuiltin(nm) then
+                                if ns.addon then
+                                    ns.addon:Print(
+                                        "Import failed: '" .. nm .. "' is a built-in skin."
+                                    )
+                                end
+                                return false
+                            end
+                            ns.Skin.RegisterSkin(nm, skin)
+                            db.global.skins = db.global.skins or {}
+                            db.global.skins[nm] = skin
+                            db.profile.skin = nm
+                            ns.Skin.apply(db.profile, nm)
+                            if ns.Display then
+                                ns.Display.refresh()
+                            end
+                            LibStub("AceConfigRegistry-3.0"):NotifyChange(ADDON_NAME)
+                            if ns.addon then
+                                ns.addon:Print("Imported skin '" .. nm .. "'.")
+                            end
+                            return true -- success: close the window
+                        end,
+                    })
+                end,
             },
             mediaHeader = { type = "header", name = "Media", order = 4 },
             -- The LSM30_* dialogControls (from AceGUI-3.0-SharedMediaWidgets, embedded via the .toc) render

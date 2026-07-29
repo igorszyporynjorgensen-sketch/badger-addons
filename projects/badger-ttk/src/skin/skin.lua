@@ -67,11 +67,24 @@ local DISPLAY_FIELDS = {
     "showConfidence",
 }
 
--- The built-in skin's name — the one skin that always exists and can never be deleted.
+-- The DEFAULT skin's name — the one applied to a fresh profile. Code-defined built-ins (Default, Modern,
+-- …) are registered via RegisterBuiltin and can never be deleted or overwritten.
 Skin.BUILTIN = "Default"
+
+local builtins = {} -- set of code-defined skin names — protected from delete/save-over
 
 function Skin.RegisterSkin(name, skin)
     registry[name] = skin
+end
+
+-- Register a code-defined built-in: present at load, and protected from delete/overwrite (isBuiltin).
+function Skin.RegisterBuiltin(name, skin)
+    builtins[name] = true
+    registry[name] = skin
+end
+
+function Skin.isBuiltin(name)
+    return builtins[name] == true
 end
 
 function Skin.GetSkin(name)
@@ -87,10 +100,10 @@ function Skin.ListSkins()
     return out
 end
 
--- PURE: delete a user skin from the registry. Refuses the built-in (Skin.BUILTIN) and unknown names.
+-- PURE: delete a user skin from the registry. Refuses any code-defined built-in and unknown names.
 -- Returns true if a skin was removed, so the caller can also drop it from db.global + pick a fallback.
 function Skin.deleteSkin(name)
-    if not name or name == Skin.BUILTIN or not registry[name] then
+    if not name or Skin.isBuiltin(name) or not registry[name] then
         return false
     end
     registry[name] = nil
@@ -132,9 +145,9 @@ end
 -- LOOK — geometry/readout, NOT frame position/lock), register it under `name`, and return it so the caller
 -- can persist it (db.global). Captures a value copy of every field, so later profile edits don't mutate it.
 function Skin.saveCurrent(profile, name)
-    -- Never overwrite the code-defined built-in: a saved "Default" would shadow it and can't be deleted
-    -- (deleteSkin refuses the built-in name), so it would be un-removable (audit #2).
-    if not name or name == Skin.BUILTIN then
+    -- Never overwrite a code-defined built-in: a saved "Default"/"Modern" would shadow it and can't be
+    -- deleted (deleteSkin refuses built-ins), so it would be un-removable (audit #2).
+    if not name or Skin.isBuiltin(name) then
         return nil
     end
     local skin = { colors = {}, display = {} }
@@ -180,6 +193,8 @@ function Skin.serialize(name)
         return ""
     end
     local out = { "{" }
+    -- The name leads, so a pasted export lands in the picker under its own name (WO-062).
+    out[#out + 1] = string.format("    name = %s,", string.format("%q", name))
     for i = 1, #MEDIA_FIELDS do
         local field = MEDIA_FIELDS[i]
         if skin[field] ~= nil then
@@ -218,8 +233,35 @@ function Skin.serialize(name)
     return table.concat(out, "\n")
 end
 
--- Built-in default skin — the Badger brand palette + safe stock media. Always present; never deletable.
-Skin.RegisterSkin(Skin.BUILTIN, {
+-- PURE: parse a serialized skin literal (from serialize / a hand-written export) back into a table.
+-- Returns (skin, nil) or (nil, errmsg). Sandboxed: the chunk runs in an EMPTY environment (setfenv on
+-- the 5.1 client), so a paste can only build a table literal, never call anything. Requires a string
+-- `name` so the import lands under a known picker entry (WO-062).
+local loadchunk = loadstring or load
+
+function Skin.deserialize(text)
+    if type(text) ~= "string" or not text:match("%S") then
+        return nil, "nothing to import"
+    end
+    local chunk = loadchunk("return " .. text)
+    if not chunk then
+        return nil, "not a valid skin (Lua syntax error)"
+    end
+    if setfenv then
+        setfenv(chunk, {}) -- WoW/5.1: block any global access from the pasted text
+    end
+    local ok, tbl = pcall(chunk)
+    if not ok or type(tbl) ~= "table" then
+        return nil, "not a skin table"
+    end
+    if type(tbl.name) ~= "string" or tbl.name == "" then
+        return nil, "the skin needs a name field"
+    end
+    return tbl
+end
+
+-- Built-in "Default" skin — the Badger brand palette + safe stock media. Always present; never deletable.
+Skin.RegisterBuiltin(Skin.BUILTIN, {
     statusbar = "Blizzard Raid Bar",
     font = "Arial Narrow",
     border = "None",
@@ -229,6 +271,46 @@ Skin.RegisterSkin(Skin.BUILTIN, {
         ready = { 0.15, 0.85, 0.25, 1 }, -- Utility (fire)
         used = { 0.55, 0.55, 0.55, 1 }, -- Utility (fired)
         font = { 1, 1, 1, 1 }, -- bar text
+    },
+})
+
+-- Built-in "Modern" skin (WO-062) — a clean look with the full Display block. Depends on the "Clean"
+-- statusbar + "Accidental Presidency" font being registered with LibSharedMedia; media() falls back if not.
+Skin.RegisterBuiltin("Modern", {
+    statusbar = "Clean",
+    font = "Accidental Presidency",
+    border = "None",
+    fontSizeMain = 14,
+    fontSizeOther = 11,
+    colors = {
+        target = { 0.85, 0.15, 0.15, 1 },
+        utility = { 0, 0, 0, 1 },
+        ready = { 0.15, 0.85, 0.25, 1 },
+        used = { 0.55, 0.55, 0.55, 1 },
+        font = { 1, 1, 1, 1 },
+    },
+    display = {
+        scale = 1,
+        growthDirection = "UP",
+        barWidth = 180,
+        ttkBarHeight = 30,
+        utilityBarHeight = 20,
+        barSpacing = 0,
+        maxBars = 8,
+        opacity = 1,
+        barFgOpacity = 0.95,
+        barBgOpacity = 1,
+        strata = "MEDIUM",
+        ttkTextX = 0,
+        ttkTextY = 0,
+        utilTextX = 0,
+        utilTextY = 0,
+        showBarNames = true,
+        showTimers = true,
+        showIcons = true,
+        timeFormat = "mmss",
+        showTrendBand = true,
+        showConfidence = true,
     },
 })
 

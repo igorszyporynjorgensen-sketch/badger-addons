@@ -9,7 +9,7 @@ local _, ns = ...
 -- Obtain the shared instance with:  local BCUI = LibStub("BadgerConfigUI-1.0")
 -- Consumers register a UNIQUE appName (their ADDON_NAME) so status/registry tables never collide.
 
-local MAJOR, MINOR = "BadgerConfigUI-1.0", 10
+local MAJOR, MINOR = "BadgerConfigUI-1.0", 11
 assert(LibStub, MAJOR .. " requires LibStub")
 
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
@@ -324,4 +324,55 @@ function lib:OpenBlizzard(appName)
     elseif InterfaceOptionsFrame_OpenToCategory then
         InterfaceOptionsFrame_OpenToCategory(app.blizCategory)
     end
+end
+
+-- Open a standalone text window (its own AceGUI Frame, over the config) — for skin export/import and the
+-- like. opts = { title, label, text, buttonText, onAccept }. With buttonText+onAccept it's a PASTE box:
+-- the button calls onAccept(editText) and the window closes only if that returns truthy, so a failed
+-- import can keep the window open. Without them it's a read-only COPY box with the text pre-selected for
+-- Ctrl+C. Released on close (X) or after a successful accept. Untestable frame edge (no spec).
+function lib:TextPopup(opts)
+    opts = opts or {}
+    local AceGUI = LibStub("AceGUI-3.0")
+    local frame = AceGUI:Create("Frame")
+    frame:SetTitle(opts.title or "")
+    frame:SetLayout("Flow")
+    frame:SetWidth(520)
+    frame:SetHeight(400)
+    frame:EnableResize(false)
+    frame:SetCallback("OnClose", function(widget)
+        AceGUI:Release(widget)
+    end)
+
+    local edit = AceGUI:Create("MultiLineEditBox")
+    edit:SetLabel(opts.label or "")
+    edit:SetFullWidth(true)
+    edit:SetNumLines(14)
+    edit:DisableButton(true) -- our own button (import) or none (export); never AceGUI's default "Okay"
+    edit:SetText(opts.text or "")
+    frame:AddChild(edit)
+
+    if opts.buttonText and opts.onAccept then
+        local btn = AceGUI:Create("Button")
+        btn:SetText(opts.buttonText)
+        btn:SetFullWidth(true)
+        btn:SetCallback("OnClick", function()
+            if opts.onAccept(edit:GetText()) then
+                AceGUI:Release(frame) -- success: close (a false return leaves the window up)
+            end
+        end)
+        frame:AddChild(btn)
+    else
+        -- Copy box: select the text so the user can Ctrl+C immediately.
+        local eb = edit.editBox
+        if eb then
+            if eb.SetFocus then
+                eb:SetFocus()
+            end
+            if eb.HighlightText then
+                eb:HighlightText()
+            end
+        end
+    end
+    return frame
 end

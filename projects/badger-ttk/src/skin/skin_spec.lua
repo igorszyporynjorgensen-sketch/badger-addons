@@ -163,6 +163,47 @@ describe("Skin", function()
         assert.equals("", ns.Skin.serialize("Nope"))
     end)
 
+    it("ships a built-in Modern skin that lists but can't be deleted (WO-062)", function()
+        assert.is_true(ns.Skin.isBuiltin("Modern"))
+        assert.is_not_nil(ns.Skin.GetSkin("Modern"))
+        assert.equals("Modern", ns.Skin.ListSkins().Modern)
+        assert.is_false(ns.Skin.deleteSkin("Modern")) -- protected like Default
+        assert.is_nil(ns.Skin.saveCurrent({ statusbar = "X" }, "Modern")) -- can't overwrite
+    end)
+
+    it("serialize leads with the skin's name (WO-062)", function()
+        ns.Skin.RegisterSkin("Neon", { statusbar = "Flat", colors = {} })
+        assert.is_truthy(ns.Skin.serialize("Neon"):find('name = "Neon"', 1, true))
+    end)
+
+    it("deserialize round-trips a serialized skin and requires a name (WO-062)", function()
+        ns.Skin.RegisterSkin("Round", {
+            statusbar = "Flat",
+            font = "Arial Narrow",
+            colors = { target = { 0.2, 0.4, 0.6, 1 } },
+            display = { barWidth = 200 },
+        })
+        local text = ns.Skin.serialize("Round")
+        local skin, err = ns.Skin.deserialize(text)
+        assert.is_nil(err)
+        assert.equals("Round", skin.name)
+        ns.Skin.RegisterSkin(skin.name, skin)
+        local p2 = { colorTarget = { 0, 0, 0, 1 } }
+        ns.Skin.apply(p2, "Round")
+        assert.equals("Flat", p2.statusbar)
+        assert.equals(200, p2.barWidth)
+        assert.same({ 0.2, 0.4, 0.6, 1 }, p2.colorTarget)
+    end)
+
+    it("deserialize rejects non-tables, empty text, and a missing name (WO-062)", function()
+        assert.is_nil((ns.Skin.deserialize("")))
+        assert.is_nil((ns.Skin.deserialize("   ")))
+        assert.is_nil((ns.Skin.deserialize("42")))
+        assert.is_nil((ns.Skin.deserialize('{ statusbar = "Flat" }'))) -- no name field
+        local skin = ns.Skin.deserialize('{ name = "Ok", statusbar = "Flat" }')
+        assert.equals("Ok", skin.name)
+    end)
+
     it("saveCurrent copies values so later profile edits don't mutate the saved skin", function()
         local p = { colorTarget = { 1, 0, 0, 1 }, barWidth = 100 }
         local skin = ns.Skin.saveCurrent(p, "Snap")
