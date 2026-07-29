@@ -31,6 +31,20 @@ local function fixtures(d)
     return out
 end
 
+-- Rhythm-profile resolution (WO-069 loop 2): the grader plays the DRIVER's role — a fixture carries its
+-- `encounterID`, and if a learned profile exists for it (tools/candidates/rhythm-<enc>.lua) it is
+-- INJECTED via opts.rhythm, exactly as the live driver will on ENCOUNTER_START. The shipped estimator
+-- ignores the field (baseline unchanged); a rhythm-aware candidate consumes it. No profile ⇒ nil.
+local function rhythmFor(encounterID)
+    if not encounterID then
+        return nil
+    end
+    local ok, prof = pcall(function()
+        return assert(loadfile(("tools/candidates/rhythm-%d.lua"):format(encounterID)))()
+    end)
+    return (ok and type(prof) == "table") and prof or nil
+end
+
 -- Grade one fixture → { name, dur, mape, bias, within, shown, n } (nil if nothing graded).
 local function grade(path)
     local ok, fight = pcall(function()
@@ -45,6 +59,7 @@ local function grade(path)
         reactivity = 0.5,
         executeThreshold = 0.20,
         executeModifier = 1.2,
+        rhythm = rhythmFor(fight.encounterID),
     })
     local relSum, biasSum, within, n, scored = 0, 0, 0, 0, 0
     for i = 1, #samples do

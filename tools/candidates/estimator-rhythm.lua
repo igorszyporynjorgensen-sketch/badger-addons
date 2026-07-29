@@ -84,16 +84,10 @@ function Estimator.new(opts)
     self.priorRate = opts.priorRate
     self.priorWeight = opts.priorWeight or PRIOR_WEIGHT_DEFAULT
     -- Rhythm profile (WO-069): an INJECTED dependency — the fight's learned SHAPE, keyed by encounter.
-    -- Loop-1 scaffolding: when the caller passes none (the batch grader uses fixed opts), default-load
-    -- the learned Lucifron profile so the candidate is exercised; the shipped version will only ever
-    -- receive it from the driver via opts.rhythm.
+    -- Loop 2 removed the loop-1 default-load scaffolding: the profile only ever arrives via opts.rhythm
+    -- (the batch grader resolves it from the fixture's encounterID; in-game the driver will resolve it
+    -- on ENCOUNTER_START). No profile ⇒ exactly the shipped estimator's behavior.
     self.rhythm = opts.rhythm
-    if self.rhythm == nil then
-        local ok, prof = pcall(function()
-            return assert(loadfile("tools/candidates/rhythm-150663.lua"))()
-        end)
-        self.rhythm = (ok and type(prof) == "table") and prof or nil
-    end
     self:reset()
     return self
 end

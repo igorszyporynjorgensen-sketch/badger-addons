@@ -7,7 +7,12 @@ The profile is m(h): the kill-rate at health h relative to the fight's average r
 consumes it as an injected dependency (opts.rhythm): live observation calibrates the SCALE (this
 group's speed), the profile supplies the SHAPE (what the fight does next).
 
-  python3 tools/learn-rhythm.py <encounterID> [--bins 20] [--corpus tools/fights/corpus]
+  python3 tools/learn-rhythm.py <encounterID> [--bins 20] [--corpus tools/fights/corpus] [--split-even]
+
+  --split-even  TRAIN/TEST discipline (WO-069 loop 2): learn from only the EVEN-indexed files of the
+                sorted match list; the odd-indexed half is the held-out test set the comparison grades
+                on. Both sides derive the same deterministic split from the same sort, so no list needs
+                to be passed around.
 
 Reads  <corpus>/<enc>-*.lua, computes per-kill per-bin normalized rates (bin-edge crossing times by
 linear interpolation), takes the MEDIAN across kills (robust to one weird pull), floors/caps the bins
@@ -29,6 +34,11 @@ FLOOR, CAP = 0.10, 6.0
 files = sorted(glob.glob(f"{corpus}/{enc}-*.lua"))
 if not files:
     sys.exit(f"no fixtures for encounter {enc} in {corpus}")
+split_even = "--split-even" in sys.argv
+if split_even:
+    total = len(files)
+    files = files[0::2]
+    print(f"train/test split: learning from {len(files)} of {total} (even-indexed); odd half held out")
 
 per_kill = []  # each: list of m per bin (index 0 = health (BINS-1)/BINS..1.0 — top of the fight)
 for f in files:
@@ -68,7 +78,8 @@ profile_top_down = [round(statistics.median(k[i] for k in per_kill), 3) for i in
 bins_bottom_up = list(reversed(profile_top_down))
 
 with open(f"tools/candidates/rhythm-{enc}.lua", "w") as fh:
-    fh.write(f"""-- Learned rhythm profile — encounter {enc} ({len(per_kill)} kills, WO-069 loop 1). AUTO-GENERATED
+    src = f"{len(per_kill)} kills" + (", TRAIN half of an even/odd split — odd half held out" if split_even else "")
+    fh.write(f"""-- Learned rhythm profile — encounter {enc} ({src}; WO-069). AUTO-GENERATED
 -- by tools/learn-rhythm.py; do not hand-edit. bins[i] covers health ((i-1)/K, i/K] — bins[1] is the
 -- EXECUTE end, bins[{BINS}] the pull. Value = kill-rate relative to the fight's average (1.0 = average).
 return {{
