@@ -1,8 +1,8 @@
 ---
 wo: WO-062-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/65
 decision: ~
 depends_on:
   - docs/workorders/WO-060-IJ.md
@@ -41,7 +41,7 @@ related:
 - **Constitution check:** Principles OK — pure serialize/deserialize + built-in table (spec'd); the popup
   is the shared-lib frame edge (`MINOR` bump); no `_G` leaks.
 
-**Phase 1** 1. [ ] BadgerConfigUI TextPopup + MINOR 11; skin.lua name/deserialize/builtins/Modern (+ specs);
+**Phase 1** 1. [x] BadgerConfigUI TextPopup + MINOR 11; skin.lua name/deserialize/builtins/Modern (+ specs);
    config.lua Export/Import buttons.
 **Phase 2** 1. [ ] gate green; bump 0.9.43; rebuild `.release` (re-embed lib). PR.
 2. [ ] **In-game (human):** Export copies; Import adds a skin; Modern selectable.
