@@ -1,8 +1,8 @@
 ---
 wo: WO-069-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/75
 decision: D-013-IJ
 depends_on:
   - docs/workorders/WO-068-IJ.md
@@ -68,6 +68,14 @@ related:
 - **Acceptance:** regimes routed correctly; real-fight MAPE on raid encounters materially improved with
   the bar correctly hidden during adds/immune phases; solo (chunk-clock) grades unchanged; sim + real
   corpus + specs green; `/reload` confirmed.
+
+- **Loop 1 outcome (PR #75, 2026-07-29):** the rhythm-DI mechanism is **proven**. Lucifron's profile
+  (learned by `tools/learn-rhythm.py` from the human's frozen 20-kill hunt: pull-gate 0.30× → steady
+  ~1.0–1.3× → execute 1.5–1.85×) injected via `opts.rhythm` in the candidate
+  (`tools/candidates/estimator-rhythm.lua`): mean MAPE **34.7% → 21.1%**, median 39.4% → 20.0%, p90
+  49.8% → 30.7%, bias +2.9s → +1.1s, within-15% 30.7% → 53.8%, **better on 18/20 kills**, bar-shown
+  identical (confidence untouched). Scoreboard run 3; dashboard refreshed. Next loop: validate on fresh
+  kills (train/test), more encounters' profiles, then the driver-side wiring to ship.
 
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
