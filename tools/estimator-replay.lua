@@ -17,6 +17,10 @@ local DT = 0.15
 local WARMUP = 3.0 -- exclude the first seconds (both estimators get a warm-up)
 local TAIL = 6.0 -- exclude the last seconds: as actual→0 the % error explodes for any tiny miss
 local W = 27 -- ~4s window for the local-rate "why" heuristic
+-- Grade only what the PLAYER sees: the live driver hides the bar until confidence clears this gate
+-- (src/core.lua default minConfidenceToShow). Grading raw ttk() would score reads the client suppresses
+-- — e.g. a boss sitting at 99% HP during an adds phase, where any rate estimator reads "forever".
+local MINCONF = 0.5
 
 local mock = require("tools.wow-mock.init")
 local fightPath = arg[1] or error("usage: estimator-replay.lua <fight.lua> [estimator.lua]")
@@ -42,18 +46,26 @@ local function replay(priorRate)
     for i = 1, #samples do
         local s = samples[i]
         est:sample(s.t, s.h, true)
-        reads[i] = { t = s.t, h = s.h, pred = est:ttk(), actual = death - s.t }
+        local pred, conf = est:ttk()
+        reads[i] = { t = s.t, h = s.h, pred = pred, conf = conf, actual = death - s.t }
     end
     return reads
 end
 
-local function graded(r)
+-- A tick is in scope for grading if it's past warm-up, before the noisy tail, AND the estimate had one.
+local function scored(r)
     return r.pred and r.t >= WARMUP and r.actual > TAIL
+end
+
+-- ...and it's actually GRADED only if the client would have shown it (confidence past the gate).
+local function graded(r)
+    return scored(r) and r.conf and r.conf >= MINCONF
 end
 
 -- Aggregate the length-independent grade.
 local function metrics(reads)
     local relSum, n, within, mae, biasSum, seen = 0, 0, 0, 0, 0, false
+    local scoredN = 0 -- ticks in scope (warm-up/tail) regardless of confidence
     local decile = {} -- [1..9] = { sumRatio, n } for health 90%..10%
     for i = 1, 9 do
         decile[i] = { 0, 0 }
@@ -61,6 +73,9 @@ local function metrics(reads)
     -- convergence: the last tick where relErr first exceeded 15% (it "locks in" after that)
     local convergedT
     for _, r in ipairs(reads) do
+        if scored(r) then
+            scoredN = scoredN + 1
+        end
         if graded(r) then
             seen = true
             local rel = math.abs(r.pred - r.actual) / r.actual
@@ -101,6 +116,8 @@ local function metrics(reads)
         bias = n > 0 and biasSum / n or nil,
         decile = decile,
         seen = seen,
+        shown = scoredN > 0 and n / scoredN or 0, -- fraction of in-scope ticks the client would show
+        gradedN = n,
     }
 end
 
@@ -141,8 +158,9 @@ print(("fight: dies at %.0fs · %d samples · estimator %s"):format(death, #samp
 -- The base grade (cold — no prior; pure live tracking of THIS curve's rhythm).
 local base = replay(nil)
 local m = metrics(base)
-print("\nRHYTHM  (relative — the length-independent grade):")
-print(("  MAPE (mean |err|/remaining) %s   <- the headline"):format(pct(m.mape)))
+print("\nRHYTHM  (relative — the length-independent grade, over what the bar actually SHOWS):")
+print(("  confidently shown          %s   of in-scope ticks (conf ≥ %.2f gate)"):format(pct(m.shown), MINCONF))
+print(("  MAPE (mean |err|/remaining) %s   <- the headline (graded ticks only)"):format(pct(m.mape)))
 print(("  within 15%%                  %s   of graded ticks"):format(pct(m.within)))
 print(("  locks within 15%% by         %s HP"):format(pct(m.convHP)))
 print("timing  (absolute — context only; scales with fight length):")
