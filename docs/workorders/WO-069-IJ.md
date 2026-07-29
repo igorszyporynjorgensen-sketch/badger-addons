@@ -77,6 +77,14 @@ related:
   identical (confidence untouched). Scoreboard run 3; dashboard refreshed. Next loop: validate on fresh
   kills (train/test), more encounters' profiles, then the driver-side wiring to ship.
 
+- **Loop 2 outcome (PR #76, 2026-07-29):** the validation **holds on unseen kills**. Lucifron ×50, trained
+  on the 25-kill even/odd TRAIN half only: held-out 25 mean MAPE **35.5% → 25.6%** (bias +3.3s → +1.4s,
+  better 18/25); train ≈ test (24.7% vs 25.6%) ⇒ **no overfitting**; the 30 kills no loop ever saw:
+  38.7% → 26.9% (better 25/30). Retrained profile reproduces loop 1's shape ⇒ **the rhythm is a stable
+  property of the encounter**. The batch grader now resolves + injects profiles by `encounterID`
+  (the driver's role) — next encounter batches are plug-in. Protocol per the human: 50-sample batches,
+  one PR each, AI picks the learning.
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design

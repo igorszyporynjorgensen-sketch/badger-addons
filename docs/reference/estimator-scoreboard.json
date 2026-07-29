@@ -63,6 +63,32 @@
         "baseline_bias": 2.9,
         "better_on": "18/20"
       }
+    },
+    {
+      "id": 4,
+      "date": "2026-07-29",
+      "estimator": "rhythm candidate, retrained (loop 2) \u2014 profile from 25-kill TRAIN half",
+      "corpus": "Lucifron \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split; fresh-30 view: 38.7%\u219226.9%, 25/30 better)",
+      "corpus_short": "Lucifron \u00d750 \u00b7 loop 2 (held-out)",
+      "label": "loop 2: validated",
+      "fights": 25,
+      "fixtures": 50,
+      "never_confident": 0,
+      "mape_mean": 0.256,
+      "mape_median": 0.236,
+      "mape_p90": 0.391,
+      "bias_s": 1.4,
+      "within15": 0.526,
+      "shown": 0.79,
+      "dur_min": 10.7,
+      "dur_max": 17.4,
+      "compare": {
+        "baseline_mean": 0.355,
+        "baseline_bias": 3.3,
+        "better_on": "18/25 held-out \u00b7 25/30 fresh",
+        "train_mean": 0.247,
+        "note": "train\u2248test \u2192 no overfitting; profile stable across retrains"
+      }
     }
   ]
 }
