@@ -70,7 +70,7 @@ _As of 2026-07-25._
 - **Kill-history schema.** Based on the **Warcraft Logs** standard (D-012-IJ): local recording and web-log
   import share one record shape (encounter/NPC · duration→rate · group size · comp · difficulty); import is
   copy-paste (LibSerialize+LibDeflate) via an external converter (the addon can't fetch the web). Schema
-  locked before 1.0; importer later. Strawman: `docs/reference/kill-history-schema.md`.
+  locked before 1.0; importer later. Schema finalised (reliability-first, TBC/Retail forward-compat): `docs/reference/kill-history-schema.md`.
 - **Next id:** D-013-IJ.
 
 ---
