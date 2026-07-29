@@ -141,6 +141,32 @@
         "train_mean": 0.291,
         "note": "largest absolute drop yet (-21.6pp); test beats train"
       }
+    },
+    {
+      "id": 7,
+      "date": "2026-07-29",
+      "estimator": "rhythm candidate \u2014 Garr profile from 25-kill TRAIN half (loop 5)",
+      "corpus": "Garr \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split)",
+      "corpus_short": "Garr \u00d750 \u00b7 loop 5 (held-out)",
+      "label": "loop 5: Garr",
+      "fights": 25,
+      "fixtures": 50,
+      "never_confident": 0,
+      "mape_mean": 0.291,
+      "mape_median": 0.257,
+      "mape_p90": 0.408,
+      "bias_s": 3.0,
+      "within15": 0.547,
+      "shown": 0.88,
+      "dur_min": 17.3,
+      "dur_max": 29.1,
+      "compare": {
+        "baseline_mean": 0.442,
+        "baseline_bias": 6.9,
+        "better_on": "24/25 held-out \u00b7 25/25 train",
+        "train_mean": 0.246,
+        "note": "adds smear the shape (mildest execute 1.4-1.6x; small train/test gap) \u2014 still a big win"
+      }
     }
   ]
 }

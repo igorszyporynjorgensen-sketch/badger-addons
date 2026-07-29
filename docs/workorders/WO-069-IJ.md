@@ -98,6 +98,12 @@ related:
   Elites) + the strongest execute spike so far (2.02×). **Three encounters, three shapes, three held-out
   wins** — the method is routine.
 
+- **Loop 5 outcome (PR #79, 2026-07-29):** **Garr ×50 — the adds-explosion stress test, passed.** Held-out
+  25: mean MAPE **44.2% → 29.1%**, bias +6.9s → +3.0s, within-15% 34.5% → 54.7%, better on **24/25**. The
+  8 Firesworn leave fingerprints: the mildest execute of any boss (1.4–1.6×; staggered explosions smear
+  the burn) and the first small train→test gap (24.6% vs 29.1% — strategy variance costs a little
+  generalization; a finding, not a failure). **Four encounters, four held-out wins.**
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design
