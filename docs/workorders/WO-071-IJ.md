@@ -1,8 +1,8 @@
 ---
 wo: WO-071-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/74
 decision: D-013-IJ
 depends_on:
   - docs/workorders/WO-070-IJ.md
@@ -40,4 +40,10 @@ related:
   piped; `_run-summary.json` written with per-fight + aggregate data; single-file batch mode returns the
   same numbers as directory mode for the same fight; gate green.
 
-**Phase 1** 1. [ ] estimator-batch single-file mode. 2. [ ] ttk-lab.py (hunt · grade · TUI · summary). PR.
+- **Outcome (PR #74):** built + verified. Single-file batch mode returns numbers identical to directory
+  mode; `grade` over the 126-kill corpus reproduces the run-2 aggregate exactly (mean 117.1% · median
+  41.5% · +17.7s · 121 graded / 5 hidden); `hunt` reuses existing fixtures without re-pulling;
+  `_run-summary.json` handoff written. Live TTY rendering is for the human's terminal (plain mode proven
+  here; same state machine).
+
+**Phase 1** 1. [x] estimator-batch single-file mode. 2. [x] ttk-lab.py (hunt · grade · TUI · summary). PR #74.

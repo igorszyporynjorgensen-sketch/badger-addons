@@ -41,6 +41,14 @@ related:
   panel → synthesise → implement → **adversarial verify**, every step **graded against real fights**
   (`tools/estimator-replay.lua` on a corpus of WCL pulls) and the sim (`tools/estimator-sim.lua`). The
   chunk-clock's solo numbers must not regress.
+- **The learning loop — protocol from the human (2026-07-29):** *"run the same fight from various sources
+  to sim against, and after each batch is run, you learn and then run the same volume again and see if you
+  do better or worse — then repeat as many times as we want."* Concretely: **freeze the corpus** (the exam
+  never changes mid-loop) → grade the candidate (`python3 tools/ttk-lab.py grade --est <candidate.lua>`)
+  → read *where/why* it drifted → change the estimator → **re-grade the SAME volume** → compare the delta
+  (scoreboard run N vs N−1, web dashboard trend) → repeat at will. Corpus refreshes happen *between*
+  loops, never inside one. Baseline to beat (run 2, 126 kills): mean MAPE 117.1% · median 41.5% · bias
+  +17.7s · within-15% 26.1%.
 - **Depends on (before execution):** (a) **human acceptance** of D-013; (b) the **fable + ultracode**
   session (the human switches the model/mode); (c) a **real-fight corpus** — pull more encounters via the
   API converter (needs a read-only WCL client id/secret) so the design is proven on data, not the sample.
