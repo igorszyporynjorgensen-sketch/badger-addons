@@ -89,6 +89,32 @@
         "train_mean": 0.247,
         "note": "train\u2248test \u2192 no overfitting; profile stable across retrains"
       }
+    },
+    {
+      "id": 5,
+      "date": "2026-07-29",
+      "estimator": "rhythm candidate \u2014 Magmadar profile from 25-kill TRAIN half (loop 3)",
+      "corpus": "Magmadar \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split)",
+      "corpus_short": "Magmadar \u00d750 \u00b7 loop 3 (held-out)",
+      "label": "loop 3: Magmadar",
+      "fights": 25,
+      "fixtures": 50,
+      "never_confident": 0,
+      "mape_mean": 0.205,
+      "mape_median": 0.194,
+      "mape_p90": 0.314,
+      "bias_s": 2.3,
+      "within15": 0.65,
+      "shown": 0.9,
+      "dur_min": 12.1,
+      "dur_max": 32.0,
+      "compare": {
+        "baseline_mean": 0.385,
+        "baseline_bias": 6.7,
+        "better_on": "24/25 held-out \u00b7 25/25 train",
+        "train_mean": 0.192,
+        "note": "second encounter, different shape (Frenzy slow-phase), bigger win"
+      }
     }
   ]
 }

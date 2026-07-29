@@ -85,6 +85,13 @@ related:
   (the driver's role) — next encounter batches are plug-in. Protocol per the human: 50-sample batches,
   one PR each, AI picks the learning.
 
+- **Loop 3 outcome (PR #77, 2026-07-29):** **Magmadar ×50 — the biggest win yet, and the first second
+  encounter.** Held-out 25: mean MAPE **38.5% → 20.5%**, bias +6.7s → +2.3s, within-15% 23.8% → **65.0%**,
+  better on **24/25** (25/25 train; train ≈ test ⇒ no overfitting). His learned shape is genuinely
+  different — sub-average 0.84–0.94× through 90–70% HP (the **Frenzy/tranq windows**, a real mechanic
+  visible in data) — and the worse baseline bias was exactly that phase fooling the backward-looking
+  rate. Two encounters, two shapes, one method.
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design
