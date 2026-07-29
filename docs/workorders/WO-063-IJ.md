@@ -1,8 +1,8 @@
 ---
 wo: WO-063-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/66
 decision: ~
 depends_on: []
 related:
@@ -23,5 +23,5 @@ related:
 - **Behavior delta:** ADDED (in-game) — Naxxramas in the Raids gating list.
 - **Constitution check:** Principles OK — pure data + spec; no API/`_G` change.
 
-**Phase 1** 1. [ ] table.lua Naxxramas block; table_spec order.
+**Phase 1** 1. [x] table.lua Naxxramas block; table_spec order.
 **Phase 2** 1. [ ] gate green; bump 0.9.44; rebuild `.release`. PR. 2. [ ] **In-game (human):** Naxxramas lists.
