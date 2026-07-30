@@ -84,13 +84,27 @@ _As of 2026-07-25._
   running code**. Per the 1.0.0 gap audit (`docs/reference/v1.0.0-gap-audit.md` Tier-1 #3) this is a
   **1.0.0 MUST**: migrate recording to the D-012 shape, or record an explicit human waiver (ship the old
   shape + wipe when the importer lands). Importer + external converter stay deferred (D-012 piece 2).
-- **Next id:** D-015-IJ.
+- **Next id:** D-017-IJ.
 
 ---
 
 ## Decision log
 
 ### 2026-07-30
+
+- **[D-016-IJ] Multi-boss encounters blend their co-bosses under one `encounterID` in local kill history —
+  accepted, not fixed. Status: Accepted.** *Surfaced by the WO-072 adversarial review (finding #2,
+  confirmed).* When one `ENCOUNTER_START` covers several bosses (Four Horsemen, Twin Emperors, Bug Trio) or
+  ??-level adds, the recorder keys every boss-level (`UnitLevel == -1`) target on the single `encounterID`,
+  so each co-boss death lands as a separate partial-window record under that id (their `dur`s won't equal a
+  WCL whole-fight `dur`). *Why accept rather than fix:* this is a direct consequence of D-012's deliberate
+  `encounterID`-keying — the two proposed code fixes were both **rejected on verification**: a per-encounter
+  boss-id mapping table is exactly what D-012 refused ("no fragile encounter↔creature mapping table"), and a
+  `UnitClassification == "worldboss"` gate is unverified for instanced Era bosses *and* still can't split
+  equally-boss co-targets. The blend is a still-reasonable prior; the affected encounters are few; the WCL
+  importer normalizes on its side. Documented in `docs/reference/kill-history-schema.md`; recorded before
+  1.0 because the recorded data is irreversible. *A later CLEU/`UnitGUID`-of-boss refinement could split
+  them, but is out of scope for 1.0/1.1.*
 
 - **[D-015-IJ] 1.0.0 = "Path B" (minimal-honest, out of alpha on the released rhythm feature); local
   kill-history recording migrates to the D-012 record schema NOW. Status: Accepted.** *Decided by the human

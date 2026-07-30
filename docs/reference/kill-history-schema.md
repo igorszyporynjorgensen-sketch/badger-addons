@@ -23,6 +23,17 @@ local instanced-boss kills and WCL imports share a key (so they blend), instance
 world / trash (no encounter) key on the **creature id**. Every record lands in exactly one space, both
 sources agree on it, and there's no fragile encounter↔creature mapping table to maintain.
 
+**Multi-boss encounters — a known, accepted consequence (D-016).** When one `ENCOUNTER_START` covers
+several co-bosses (Four Horsemen, Twin Emperors, Bug Trio) or ??-level (`UnitLevel == -1`) adds, the local
+recorder — which keys every boss-level target during the encounter on the single `encounterID` — lands
+each co-boss's death as a **separate partial-window record sharing that `encounterID`**. Their `dur`s
+therefore won't equal a WCL *whole-fight* `dur` for the same id. This is a direct consequence of the
+encounterID-keying decision above, **not** an implementation bug: distinguishing co-bosses would need the
+per-encounter boss-id mapping table this design deliberately rejects, and no reliable local signal splits
+equally-boss co-targets apart. Accepted for 1.0 (D-016): the blend is a still-reasonable prior (co-boss
+kill rates under one encounter), and the affected encounters are few; the WCL importer will normalize on
+its side. Recorded before 1.0 because the data is irreversible.
+
 ## The per-kill record
 
 ```lua

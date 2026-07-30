@@ -2,7 +2,7 @@
 wo: WO-072-IJ
 status: Accepted
 assigned: IJ
-mr: ~
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/91
 decision: D-015-IJ
 depends_on:
   - docs/workorders/WO-069-IJ.md
@@ -48,4 +48,13 @@ related:
   byte-identical** (recording/prior changes don't touch the pure estimator). Verified in-game with the
   1.0.0 `/reload`.
 
-**Phase 1** 1. [ ] history.lua + spec (pure schema). 2. [ ] driver record/prior + core migration. 3. [ ] adversarial review + PR.
+- **Outcome (PR #91):** implemented + adversarially reviewed (a 3-lens→verify→synthesize workflow;
+  **7 findings confirmed, 2 rejected** on verification). Fixes folded: encounter-live one-shot upgrade so
+  the history prior is read for un-profiled raid bosses too (+ closes the ENCOUNTER_START/first-damage
+  race); `ensureShape` strips old `[level]` residue even past AceDB's default-injection; the Clear-history
+  button writes the split shape; a `diff`-deferral note. Finding #2 (multi-boss co-boss merge) accepted as
+  **[D-016-IJ]** (docs, not code — the mapping-table/`worldboss` fixes were rejected). Gate green (12
+  history specs); estimator-sim **byte-identical** (pure estimator untouched). Awaits human merge + the
+  1.0.0 in-game `/reload`.
+
+**Phase 1** 1. [x] history.lua + spec (pure schema). 2. [x] driver record/prior + core migration. 3. [x] adversarial review + fixes + PR #91.
