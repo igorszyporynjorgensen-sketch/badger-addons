@@ -126,6 +126,9 @@ files["projects/badger-ttk/**"] = {
         "UnitIsDeadOrGhost",
         "UnitClassification",
         "UnitLevel",
+        "GetNumGroupMembers", -- roster snapshot for kill-history records (WO-072)
+        "IsInRaid",
+        "time", -- unix seconds, for the kill record's `when` (WO-072)
         "GetAddOnMetadata",
         "C_AddOns",
     },

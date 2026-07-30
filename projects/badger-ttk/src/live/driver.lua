@@ -108,16 +108,24 @@ local shown = false -- sticky per-target show-state (feeds the gate's minTTK ini
 local encounterActive = false -- true between ENCOUNTER_START and ENCOUNTER_END (instance raid encounters)
 local currentEncounterID -- ENCOUNTER_START's id while an encounter is live (nil outside one); keys ns.Rhythms
 local estHasRhythm = false -- whether the live estimator was built with a rhythm profile (one-shot upgrade)
+local estEncounterUpgraded = false -- whether the one-shot encounter-live rebuild has fired (picks up the
+-- rhythm AND the encounter-keyed history prior once ENCOUNTER_START supplies the id; one-shot so it never
+-- discards mid-fight evidence). true from birth if the encounter was already live at target acquisition.
 -- Kill-history tracking for the current target (WO-025): its NPC id + the player level at engage. The
 -- fight-start reference is set at FIRST DAMAGE (not target acquisition) so idle-before-combat doesn't
 -- inflate the recorded rate (WO-027); `prevHealth` detects that first drop. Reset on target change.
 local curKey, curLevel, fightStartT, fightStartH, recorded, prevHealth
+-- The D-012 history identity for the current fight — ("encounter", encounterID) for an instanced boss,
+-- else ("creature", npcId). Resolved at ENGAGE (first damage), when the encounter id is already live, so
+-- the ENCOUNTER_END race can't drop it before the kill records. Stashed/restored with the retarget state.
+local recSpace, recId
 -- Retarget continuity (WO-061): swapping to an add and back used to REBUILD the estimator and re-run
 -- the initial minTTK/confidence qualification — a multi-second bar blackout per swap-back, and near the
 -- end of a fight the bars never re-qualified at all. Recently-tracked targets stash their whole tracking
 -- state and resume on swap-back; entries expire after RETARGET_MEMORY seconds.
 local RETARGET_MEMORY = 90
-local recent = {} -- [guid] = { est, shown, curKey, curLevel, fightStartT, fightStartH, recorded, t }
+-- [guid] = { est, estHasRhythm, shown, curKey, curLevel, fightStartT, fightStartH, recorded, recSpace, recId, t }
+local recent = {}
 
 -- The target's NPC id (string) from its GUID — only Creatures/Vehicles; players/pets aren't recorded.
 local function npcIdFromGUID(guid)
@@ -130,6 +138,54 @@ local function npcIdFromGUID(guid)
     end
     return nil
 end
+
+-- Live group snapshot for a kill record (D-012): size (1 solo · party · raid, INCLUDING the player) and
+-- per-CLASS counts. GetNumGroupMembers() includes the player; raidN tokens include the player, partyN do
+-- not — so recount from raidN in a raid, and add the player to partyN otherwise.
+local function scanGroup()
+    local n = GetNumGroupMembers() or 0
+    local comp = {}
+    if n <= 1 then
+        local _, class = UnitClass("player")
+        if class then
+            comp[class] = 1
+        end
+        return 1, comp
+    end
+    if IsInRaid() then
+        for i = 1, n do
+            local _, class = UnitClass("raid" .. i)
+            if class then
+                comp[class] = (comp[class] or 0) + 1
+            end
+        end
+    else
+        local _, class = UnitClass("player")
+        if class then
+            comp[class] = 1
+        end
+        for i = 1, n - 1 do
+            local _, c = UnitClass("party" .. i)
+            if c then
+                comp[c] = (comp[c] or 0) + 1
+            end
+        end
+    end
+    return n, comp
+end
+
+-- The D-012 history identity of the CURRENT target: an instanced boss (a live encounter + a boss/skull
+-- level target, -1) keys on the encounterID — exactly what a Warcraft-Logs import keys on; everything else
+-- keys on the creature id from the GUID. Returns (space, id) or nil.
+local function historyKey()
+    if currentEncounterID and UnitLevel("target") == -1 then
+        return "encounter", currentEncounterID
+    elseif curKey then
+        return "creature", curKey
+    end
+    return nil
+end
+
 local character = { knownSpells = {}, equippedTrinkets = {}, bagCounts = {} }
 local nameIndex -- buff name → entry (for aura matching)
 local accum = 0
@@ -156,9 +212,18 @@ local function buildEst(p, prior, rhythm)
 end
 
 local function historyPrior(p)
-    return (p.useHistory and curKey)
-            and ns.History.rate(ns.addon.db.global.history, curLevel, curKey)
-        or nil
+    if not p.useHistory then
+        return nil
+    end
+    local space, id = historyKey()
+    if not space then
+        return nil
+    end
+    local size = GetNumGroupMembers() or 0
+    if size < 1 then
+        size = 1
+    end
+    return ns.History.rate(ns.addon.db.global.history, space, id, { size = size })
 end
 
 local function rescan()
@@ -200,14 +265,16 @@ local function update()
     -- not just the show/hide gate below, which would still let update() keep writing db.global.history while
     -- the addon is "off" (audit #5). Mirror the no-target reset.
     if not p.enabled then
-        est, lastGUID, shown, estHasRhythm = nil, nil, false, false
+        est, lastGUID, shown, estHasRhythm, estEncounterUpgraded = nil, nil, false, false, false
         curKey, recorded, fightStartT, prevHealth = nil, false, nil, nil
+        recSpace, recId = nil, nil
         ns.Display.hide()
         return
     end
     if not UnitExists("target") then
-        est, lastGUID, shown, estHasRhythm = nil, nil, false, false
+        est, lastGUID, shown, estHasRhythm, estEncounterUpgraded = nil, nil, false, false, false
         curKey, recorded, fightStartT, prevHealth = nil, false, nil, nil
+        recSpace, recId = nil, nil
         ns.Display.hide()
         return
     end
@@ -222,12 +289,15 @@ local function update()
             recent[lastGUID] = {
                 est = est,
                 estHasRhythm = estHasRhythm,
+                estEncounterUpgraded = estEncounterUpgraded,
                 shown = shown,
                 curKey = curKey,
                 curLevel = curLevel,
                 fightStartT = fightStartT,
                 fightStartH = fightStartH,
                 recorded = recorded,
+                recSpace = recSpace,
+                recId = recId,
                 t = now,
             }
         end
@@ -245,8 +315,10 @@ local function update()
             recent[guid] = nil
             est, shown = back.est, back.shown
             estHasRhythm = back.estHasRhythm or false
+            estEncounterUpgraded = back.estEncounterUpgraded or false
             curKey, curLevel = back.curKey, back.curLevel
             fightStartT, fightStartH, recorded = back.fightStartT, back.fightStartH, back.recorded
+            recSpace, recId = back.recSpace, back.recId
             prevHealth = h
             est:sample(0, 0, false)
         else
@@ -256,36 +328,62 @@ local function update()
             curKey = npcIdFromGUID(guid)
             curLevel = UnitLevel("player")
             fightStartT, fightStartH, recorded, prevHealth = nil, nil, false, h
+            recSpace, recId = nil, nil -- resolved at engage (first damage), below
             local rhythm = LiveDriver.rhythmFor(ns.Rhythms, currentEncounterID, UnitLevel("target"))
             est = buildEst(p, historyPrior(p), rhythm)
             estHasRhythm = rhythm ~= nil
+            -- If the encounter was already live at acquisition (targeted mid-encounter), historyPrior()
+            -- already resolved the encounter prior, so no upgrade is owed — mark it done. Only a boss
+            -- targeted BEFORE its pull (id not yet live) leaves this false, to upgrade when it fires.
+            estEncounterUpgraded = currentEncounterID ~= nil
         end
     end
-    -- Rhythm upgrade (WO-069): the boss is usually targeted BEFORE the pull, so its estimator is built
-    -- before ENCOUNTER_START can supply the encounter id. The moment a live encounter + a learned
-    -- profile + a boss-level target line up, rebuild ONCE with the rhythm injected — the pull just
-    -- started, so at most a tick or two of evidence is repaid for a whole fight of anticipation.
-    -- Upgrade-only: a profile is never torn down mid-fight (target changes rebuild naturally).
-    if est and not estHasRhythm then
+    -- Encounter-live one-shot upgrade (WO-069 rhythm + WO-072 history): a boss is usually targeted BEFORE
+    -- the pull, so its estimator is built before ENCOUNTER_START can supply the encounter id. The moment a
+    -- live encounter + a boss-level (-1) target line up, rebuild ONCE — picking up the learned rhythm (if
+    -- any) AND the encounter-keyed history prior (historyPrior() now resolves to the encounter space). The
+    -- pull just started, so at most a tick or two of pre-damage evidence is repaid for a whole fight of
+    -- anticipation; the one-shot flag means a profile/prior is never torn down mid-fight. Also promote the
+    -- record identity, closing the window where a pre-ENCOUNTER_START first-damage tick keyed the kill on
+    -- the creature space (recSpace/recId are only read at death, so this is lossless).
+    if est and not estEncounterUpgraded and currentEncounterID and UnitLevel("target") == -1 then
         local rhythm = LiveDriver.rhythmFor(ns.Rhythms, currentEncounterID, UnitLevel("target"))
-        if rhythm then
-            est = buildEst(p, historyPrior(p), rhythm)
-            estHasRhythm = true
+        est = buildEst(p, historyPrior(p), rhythm)
+        estHasRhythm = rhythm ~= nil
+        estEncounterUpgraded = true
+        if recSpace ~= "encounter" then
+            recSpace, recId = "encounter", currentEncounterID
         end
     end
     -- Start the recording clock at the first observed health drop (the real fight), with the health just
-    -- before it as the reference.
+    -- before it as the reference. Resolve the D-012 history identity HERE — the pull has started, so a
+    -- raid boss's encounter id is live (unlike at target acquisition) and the ENCOUNTER_END race is moot.
     if not dead and fightStartT == nil and prevHealth and h < prevHealth then
         fightStartT, fightStartH = GetTime(), prevHealth
+        recSpace, recId = historyKey()
     end
     prevHealth = h
     est:sample(GetTime(), h, not dead)
-    -- Record the kill once, when this tracked creature dies: the average health-loss rate over the actual
-    -- damaging window (stable, unlike the EWMA) → db.global.history[level][npcId]. Skip zero-duration kills.
-    if dead and not recorded and p.recordHistory and curKey and fightStartT then
+    -- Record the kill once, when this tracked target dies, as a D-012 per-kill record (WO-072). The rate is
+    -- the average health-loss over the actual damaging window (stable, unlike the EWMA); `dur` normalizes it
+    -- to seconds-from-full-health so a partial-window observation and a full WCL kill share one shape. The
+    -- roster/encounter fields make a locally recorded kill blend with a future web-log import. Skip
+    -- zero-duration kills, and kills whose identity never resolved (an untracked target).
+    if dead and not recorded and p.recordHistory and recSpace and fightStartT then
         local duration = GetTime() - fightStartT
         if duration > 0 and fightStartH and fightStartH > 0 then
-            ns.History.record(ns.addon.db.global.history, curLevel, curKey, fightStartH / duration)
+            local rate = fightStartH / duration -- health fraction per second, over the damaging window
+            local size, comp = scanGroup()
+            ns.History.record(ns.addon.db.global.history, recSpace, recId, {
+                name = UnitName("target") or "?",
+                level = curLevel,
+                dur = 1 / rate, -- seconds to kill from full health (schema stores `dur`; rate = 1/dur)
+                size = size,
+                comp = comp,
+                diff = "normal", -- Classic Era: single difficulty
+                src = "local",
+                when = time(),
+            })
         end
         recorded = true
     end
