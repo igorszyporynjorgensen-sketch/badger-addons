@@ -271,6 +271,32 @@
         "train_mean": 0.204,
         "note": "train == test exactly (20.4%) \u2014 textbook generalization on the textbook boss"
       }
+    },
+    {
+      "id": 12,
+      "date": "2026-07-30",
+      "estimator": "rhythm candidate \u2014 Ragnaros profile from 25-kill TRAIN half (loop 10)",
+      "corpus": "Ragnaros \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split). THE MC LIBRARY IS COMPLETE.",
+      "corpus_short": "Ragnaros \u00d750 \u00b7 loop 10 (held-out)",
+      "label": "loop 10: Ragnaros",
+      "fights": 25,
+      "fixtures": 50,
+      "never_confident": 0,
+      "mape_mean": 0.3,
+      "mape_median": 0.247,
+      "mape_p90": 0.493,
+      "bias_s": 5.2,
+      "within15": 0.612,
+      "shown": 0.94,
+      "dur_min": 30.2,
+      "dur_max": 44.9,
+      "compare": {
+        "baseline_mean": 0.444,
+        "baseline_bias": 11.5,
+        "better_on": "24/25 held-out \u00b7 25/25 train",
+        "train_mean": 0.305,
+        "note": "library complete: nine encounters, nine held-out wins, zero overfit in nine splits"
+      }
     }
   ]
 }

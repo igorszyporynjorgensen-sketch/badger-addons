@@ -126,6 +126,13 @@ related:
   *exactly* (20.4% both). Textbook shape (gate 0.41× → flat burn → 1.3–1.5× enrage). **Eight encounters,
   eight held-out wins, zero overfit in eight straight splits.** Ragnaros closes the library next.
 
+- **Loop 10 outcome (PR #84, 2026-07-30):** **Ragnaros ×50 — THE MC LIBRARY IS COMPLETE.** Held-out 25:
+  mean MAPE **44.4% → 30.0%**, median 34.6% → 24.7%, bias +11.5s → +5.2s, better on 24/25; train ≈ test
+  for the ninth straight split. Shape: softest gate (0.55×), a visible submerge dip at 25–20%, execute.
+  **Final scoreline: nine encounters, nine held-out wins, zero overfit — median error roughly halved
+  across the raid.** Next: the driver-side `opts.rhythm` wiring PR (the first shipped-code change —
+  in-game, needs `/reload`).
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design
