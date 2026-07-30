@@ -1,6 +1,6 @@
 ---
 wo: WO-073-IJ
-status: Accepted
+status: In progress
 assigned: IJ
 mr:
 decision: D-017-IJ
