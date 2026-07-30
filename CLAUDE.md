@@ -51,6 +51,14 @@ reviewable *before* it exists, and means "done" is always something the human ch
   `Accepted` before its branch is cut; a `WO-0xx` branch with no accepted WO file is a stop signal —
   reconstruct the entry (marked retro-logged) and present it before any further execution. The branch
   convention is enforced by `.githooks/pre-commit`.
+- **Commit messages follow Conventional Commits** (D-017-IJ) — `type(scope): subject`, where `type` ∈
+  `feat fix docs chore refactor build ci test perf` (`feat`→minor, `fix`→patch, a `!` or `BREAKING CHANGE:`
+  →major) and `scope` is the addon or subsystem (`badger-ttk`, `badger-arena`, `release`, `estimator`).
+  `nx release` derives each addon's version bump **and** changelog from these messages, attributing a commit
+  to an addon by the files it touches — so a `feat:` under `projects/badger-ttk/**` is what bumps
+  `badger-ttk`. This does **not** make releases automatic: a version bump stays a deliberate, human-gated
+  release act (D-011 principle) — conventional commits only decide *how much* to bump when a release is
+  actually cut. Full mechanics: [docs/reference/release-runbook.md](docs/reference/release-runbook.md).
 - **Exception — work-order files are a LIVE MIRROR to `main` (no branch, no PR).** Every change to a
   `docs/workorders/*.md` file — drafting a new WO, editing its body, any `status` change — is committed
   straight to `main` and pushed immediately, so the plan is reflected in git in real time. A drafted WO
