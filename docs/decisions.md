@@ -92,8 +92,23 @@ _As of 2026-07-25._
 
 ### 2026-07-30
 
+- **[D-015-IJ] 1.0.0 = "Path B" (minimal-honest, out of alpha on the released rhythm feature); local
+  kill-history recording migrates to the D-012 record schema NOW. Status: Accepted.** *Decided by the human
+  2026-07-30 on the 1.0.0 gap audit's recommendation (`docs/reference/v1.0.0-gap-audit.md`).* **1.0.0
+  ships** on the released, held-out-validated 41-profile rhythm library + the existing sticky confidence
+  gate (`minConfidenceToShow`) — **not** the regime structural-tail layer, which lands as **1.1** (D-014
+  Accepted, implementation deferred). *Why that's honest:* the catastrophe that motivated D-013 (Lucifron
+  1.00 confidence at 99% HP) was a **CSV data artifact** (WO-068), not a live bug — on the exact curve the
+  existing gate already hides the bar ~5s and shows at 0.72 — so the gate-heavy structural bosses are a
+  quality *improvement* for 1.1, not a 1.0 correctness blocker. *The one pre-1.0 MUST that IS taken now:*
+  **local kill-history recording is migrated to the D-012 record schema** (encounter/creature split,
+  per-kill records) — the audit's Tier-1 #3 — so kills a 1.0 user records are forward-compatible with the
+  future WCL importer from day one; the old running-mean data (unrecoverable into records) is **wiped** on
+  upgrade. *1.0.0's remaining gate* is then the human's in-game `/reload` verification (unchanged, still
+  open) + the version bump on sign-off (D-011). WO-072 implements the migration.
+
 - **[D-014-IJ] Regime behavior ships as injected per-encounter DATA + minimal nil-guarded seams inside the
-  estimator — not a strategy-class split (refines D-013). Status: Proposed.** *Origin:* the WO-069 Phase-1
+  estimator — not a strategy-class split (refines D-013). Status: Accepted.** *Origin:* the WO-069 Phase-1
   **fable-5 + ultracode** design fan-out (4 deep-readers → 4 independent architectures → 3-judge panel)
   chose, **unanimously across all three judge lenses**, the "minimal seams" architecture: a new
   `opts.regime` injected dependency (mirroring the shipped `opts.rhythm`) consumed by ~45 **nil-guarded,
@@ -112,8 +127,10 @@ _As of 2026-07-25._
   **physically invisible to health polling** → the design **caps confidence** (never a fake fix) and
   reserves forward-compatible CLEU slots for a scheduled follow-up WO (WO-072). *Design of record:*
   `docs/reference/estimator-regime-design.md` (3 PR-sized increments, each gated by sim byte-identity +
-  corpus regression). *Status:* **Proposed** — awaiting human acceptance before the implementation
-  increments run.
+  corpus regression). *Status:* **Accepted (2026-07-30).** The architecture is approved; per the human's
+  1.0.0-shape decision (**Path B** — see D-015), the three implementation increments ship as **1.1**, not
+  1.0.0: out-of-alpha 1.0.0 goes on the released 41-profile rhythm library + the existing confidence gate,
+  and the structural-tail regime layer follows on the field this design prepared.
 
 ### 2026-07-29
 
