@@ -1,6 +1,6 @@
 ---
 wo: WO-073-IJ
-status: In progress
+status: Done
 assigned: IJ
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/92
 decision: D-017-IJ
@@ -142,12 +142,31 @@ human-gated release act (D-011 principle; D-017 mechanism).
 ## Phases
 
 **Phase 1 — infra**
-1. [ ] `tools/release/toc-version-actions.js` (the 6 `VersionActions` members).
-2. [ ] `nx.json` `release` block (independent · disk · conventional-commits · versionActions path · per-project
-   changelogs · createRelease github · git no-push).
-3. [ ] Validate `nx release --dry-run` for both addons; iterate off the dry-run output (no side effects).
+1. [x] `tools/release/toc-version-actions.js` (the `VersionActions` members; extends the public `nx/release`).
+2. [x] `nx.json` `release` block (independent · **git-tag + disk fallback** · conventional-commits ·
+   versionActions path · per-project changelogs · workspace changelog off · **git commit/tag/push off**).
+3. [x] Validated `nx release version/changelog --dry-run` for both addons — no side effects.
 
 **Phase 2 — build + docs**
-4. [ ] `tools/build.sh` bash-repro fix (`brew install bash`; locate bash ≥4.3) → versioned zip builds.
-5. [ ] `docs/reference/release-runbook.md` + `CLAUDE.md` Conventional-Commits convention.
-6. [ ] Branch + PR (human-merged). WO → In progress on branch cut; → Done on merge + gate green.
+4. [x] `tools/build.sh` bash-repro fix (locate bash ≥4.3) **+ addon staging + pinned packager** → zip builds.
+5. [x] `docs/reference/release-runbook.md` + `CLAUDE.md` Conventional-Commits convention.
+6. [x] Branch + PR **#92** (human-merged). WO → Done on merge + gate green.
+
+## Outcome (PR #92 — awaiting human merge)
+
+Built + **proven end-to-end**, with several corrections discovered by grounding in the installed Nx 23.1
+API + real dry-runs (not assumptions):
+- **`currentVersionResolver`:** conventional-commits **requires `git-tag`** (not `disk`); used `git-tag` +
+  **`fallbackCurrentVersionResolver: disk`** so the first release bootstraps off the `.toc`.
+- **`releaseTag.pattern`** (not the deprecated flat `releaseTagPattern`, which errors in Nx 23) =
+  `{projectName}/{version}` (the human's pick).
+- **`createRelease: github` can't live in config** with `git.push:false` (it needs a pushed commit) — so the
+  GitHub Release is a **post-merge, human-gated** step (`--create-release=github` / `gh`), never auto-pushed.
+- **CHANGELOG.md** is **nx-auto-owned** (human's pick); nx prepends versions, so the `1.0.0` cut retires the
+  title/preamble/`[Unreleased]` scaffolding (documented in the runbook).
+- **Build reproducibility:** the BigWigs packager (was fetched from `master`, a moving target that broke)
+  is **pinned to `v2.5.1`**; the monorepo layout is handled by **staging the addon as a throwaway standalone
+  checkout**; `manual-changelog` in `.pkgmeta` ships our curated `CHANGELOG.md`. `nx build badger-ttk`
+  produces `BadgerTTK-0.9.45.zip` (externals fetched, internal lib embedded, specs excluded).
+- `nx release version --dry-run`: `badger-ttk` 0.9.45→0.9.46, `badger-arena` 0.1.1→0.1.2 via the custom
+  `.toc` actions. `pnpm validate` green. **Back-port to `scaffold-project` gated on a real release cycle.**

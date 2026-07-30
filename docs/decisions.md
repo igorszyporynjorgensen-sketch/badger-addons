@@ -94,9 +94,13 @@ _As of 2026-07-30._
   confidence gate. WO-072 (PR #91) is **merged**; remaining before the human's version bump: the **deferred
   in-game `/reload`** (loads clean · confirms the `663` vs `150663` encounter id-space · `.toc` Interface ·
   bars track · Majordomo-style hides). Regime PRs (WO-069 impl) + the CLEU off-target tier are 1.1+.
-- **Release infra (WO-073).** `nx release` multi-output pipeline (D-017): custom `.toc` `versionActions`,
-  Conventional-Commits bump + changelog, per-project tag + zip + GitHub Release; back-ported to the
-  `scaffold-project` creator. In progress.
+- **Release infra (WO-073, D-017) — shipped (PR #92 merged).** `nx release` multi-output pipeline:
+  custom `.toc` `versionActions`, `currentVersionResolver: git-tag` + `disk` fallback, Conventional-Commits
+  bump + nx-owned per-project changelog, tag `{projectName}/{version}`, zip + a post-merge/human-gated
+  GitHub Release (never auto-pushed). Build reproducibility fixed — BigWigs packager **pinned to v2.5.1**,
+  the monorepo handled by **staging the addon as a standalone checkout**, `manual-changelog` ships the
+  curated `CHANGELOG.md`. Proven end-to-end (`BadgerTTK-0.9.45.zip`). CurseForge stays manual + gated on the
+  `/reload` (D-015). Back-port to the `scaffold-project` creator is **gated on a real release cycle first**.
 - **Next id:** D-018-IJ.
 
 ---
