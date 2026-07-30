@@ -99,8 +99,14 @@ _As of 2026-07-30._
   bump + nx-owned per-project changelog, tag `{projectName}/{version}`, zip + a post-merge/human-gated
   GitHub Release (never auto-pushed). Build reproducibility fixed — BigWigs packager **pinned to v2.5.1**,
   the monorepo handled by **staging the addon as a standalone checkout**, `manual-changelog` ships the
-  curated `CHANGELOG.md`. Proven end-to-end (`BadgerTTK-0.9.45.zip`). CurseForge stays manual + gated on the
-  `/reload` (D-015). Back-port to the `scaffold-project` creator is **gated on a real release cycle first**.
+  curated `CHANGELOG.md`. CurseForge stays manual + gated on the `/reload` (D-015).
+- **First real release through the pipeline — `badger-ttk/0.9.46` (2026-07-30).** Cut via `nx release`
+  (version off the `badger-ttk/0.9.45` tag → patch; nx-owned changelog handoff; zip), tagged
+  `badger-ttk/0.9.46`, GitHub Release (Latest) with `BadgerTTK-0.9.46.zip`. Ships the WO-072 kill-history
+  schema. **Git releases retrofitted** to the new scheme: `v0.9.44`/`v0.9.45` → `badger-ttk/0.9.44`/`0.9.45`
+  (releases moved, zips kept; old `v*` deleted). The pipeline is now **proven in production**, so the
+  **`scaffold-project` back-port is unlocked** (was gated on a real cycle). CurseForge publish + the 1.0.0
+  cut still await the human's in-game `/reload`.
 - **Next id:** D-018-IJ.
 
 ---
