@@ -10,12 +10,13 @@ All notable, player-facing changes to **Badger Time To Kill (TTK)**. Version num
 ## [Unreleased]
 
 ### Added
-- **Learned boss rhythms — Molten Core & Blackwing Lair.** The TTK bar now *anticipates* each boss's
-  fight shape — slow pulls, Magmadar's Frenzy lulls, Sulfuron's priest-heal suppression, Firemaw's
-  Flame-Buffet ramp, Vaelastrasz's 30%-start burn, execute phases — using rhythm profiles for all
-  seventeen MC + BWL bosses, learned from ~850 real raid kills (Warcraft Logs) and validated on held-out
-  kills (TTK error roughly halved across both raids). Applies automatically when the encounter starts;
-  no configuration. (Majordomo is excluded — his fight is his adds.)
+- **Learned boss rhythms — Molten Core, Blackwing Lair, Zul'Gurub & both Ahn'Qiraj raids.** The TTK
+  bar now *anticipates* each boss's fight shape — slow pulls, Frenzy lulls, priest-heal suppression,
+  Viscidus' freeze phases, C'Thun's weakness windows, execute burns — using rhythm profiles for **41
+  bosses across five raids**, learned from ~2,000 real raid kills (Warcraft Logs) and validated on
+  held-out kills. Applies automatically when the encounter starts; no configuration. (Excluded:
+  Majordomo and Edge of Madness — their encounters aren't a single boss-health curve; Naxxramas and
+  Onyxia await a usable log corpus.)
 
 ## [0.9.44] - 2026-07-29
 
