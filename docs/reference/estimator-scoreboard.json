@@ -345,6 +345,29 @@
         "better_on": "25/25 held-out AND 25/25 train",
         "note": "30%-start boss; scale-invariance proven; the only DEcelerating shape (6x top -> 0.38x end)"
       }
+    },
+    {
+      "id": 15,
+      "date": "2026-07-30",
+      "estimator": "shipped estimator + six new BWL profiles (loop 13 \u2014 the wing finisher)",
+      "corpus": "Broodlord/Firemaw/Ebonroc/Flamegor/Chromaggus/Nefarian \u00d750 each \u2014 held-out 25s; BWL COMPLETE and SHIPPED as a set",
+      "corpus_short": "BWL finish \u00d76 \u00b7 loop 13",
+      "label": "loop 13: BWL complete",
+      "fights": 150,
+      "fixtures": 300,
+      "never_confident": 0,
+      "mape_mean": 0.31,
+      "mape_median": 0.243,
+      "bias_s": 4.3,
+      "within15": null,
+      "shown": null,
+      "compare": {
+        "baseline_mean": 0.549,
+        "baseline_bias": 12.1,
+        "better_on": "146/150 (Firemaw/Flamegor/Chromaggus/Nefarian perfect 25/25)",
+        "detail": "Broodlord 41.1\u219225.8 \u00b7 Firemaw 81.8\u219231.6 \u00b7 Ebonroc 66.4\u219232.4 \u00b7 Flamegor 36.1\u219220.4 \u00b7 Chromaggus 71.2\u219254.1 \u00b7 Nefarian 32.6\u219221.8",
+        "note": "wing ships as a set into rhythms.lua (17 profiles total); Chromaggus residual = random vulnerability rotations (structural)"
+      }
     }
   ]
 }

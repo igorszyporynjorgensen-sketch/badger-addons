@@ -155,6 +155,14 @@ related:
   **Eleven encounters, eleven held-out wins, zero overfit in eleven splits.** Dashboard rebuilt as a
   program-state view (before→after per boss · coverage · campaign learnings) on the human's re-think ask.
 
+- **Loop 13 outcome (PR #88, 2026-07-30):** **BWL COMPLETE — six bosses in one go (per the human), wing
+  SHIPPED as a set.** Held-out: Broodlord 41.1→25.8 (24/25) · Firemaw 81.8→31.6 (25/25 — the wing's
+  Sulfuron: Flame-Buffet ramp) · Ebonroc 66.4→32.4 (24/25) · Flamegor 36.1→20.4 (25/25) · Chromaggus
+  71.2→54.1 (25/25; residual = random vulnerability rotations, structural) · Nefarian 32.6→21.8 (25/25).
+  `rhythms.lua` regenerated with all **seventeen** profiles (Vael top-bins neutralized); spec + CHANGELOG
+  extended. **Program: 17 encounters · 400/425 held-out kills better · mean 50%→29% · bias +8.5→+3.3s ·
+  0/17 overfit.**
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design
