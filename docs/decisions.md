@@ -71,14 +71,18 @@ _As of 2026-07-30._
 - **Inspiration assets.** `assets/` (repo root) holds internet-gathered reference material — see
   `assets/README.md`. Drops land via a lightweight lane: `chore` branch + PR (human merges), **no work
   order**; images are optimized before the first commit (see D-002-IJ).
-- **Release cadence.** A version bump is a **deliberate release event**, not a per-WO/per-build step
-  (D-011-IJ, from 2026-07-29 — supersedes the old "bump every test build"): code WOs merge to `main`
-  **without touching `## Version`**; player-facing changes accumulate under `[Unreleased]` in
-  `projects/badger-ttk/CHANGELOG.md`. A release bumps `## Version`, promotes `[Unreleased]` to the new
-  section, and builds the auto-named zip (`tools/build.sh`). **`1.0.0` still only on human sign-off.**
+- **Release cadence + mechanism.** A version bump stays a **deliberate release event**, not a
+  per-WO/per-build step (D-011-IJ principle). The **mechanism** is now **`nx release`** (D-017-IJ):
+  `projectsRelationship: "independent"` so each addon (`badger-ttk`, `badger-arena`, …) versions/tags/
+  releases on its own; the version source is each addon's **`.toc` `## Version:`** (read/written by a
+  custom `versionActions` under `tools/release/` — no `package.json` version); the bump **and** the
+  per-project changelog are derived from **Conventional Commits**; the full pipeline versions the `.toc`,
+  tags `{projectName}-{version}`, builds the zip, and cuts a GitHub Release with the zip attached.
+  **CurseForge publish stays manual + gated on the in-game `/reload`** (D-015). **`1.0.0` still only on
+  human sign-off.** WO-073 implements.
 - **Kill-history schema.** The Warcraft-Logs-based record schema (D-012-IJ,
   `docs/reference/kill-history-schema.md`: encounter/creature split, per-kill records, 50-cap) is
-  **implemented in code as of WO-072 (PR #91, pending human merge + the 1.0.0 `/reload`)** — recording
+  **implemented in code as of WO-072 (PR #91 merged; the 1.0.0 `/reload` still pending)** — recording
   writes per-kill records with all WCL-shared fields, the old WO-025 running-mean data is migrated/wiped,
   and co-boss encounters blend under one id (accepted, D-016). Closes the 1.0.0 gap audit's Tier-1 #3.
   Importer + external converter stay deferred (D-012 piece 2).
@@ -87,16 +91,40 @@ _As of 2026-07-30._
   `opts.rhythm` behind the frozen estimator API. The **regime structural-tail layer** (D-014, injected
   `opts.regime` + minimal seams) is **designed and accepted but deferred to 1.1** (D-015, Path B).
 - **1.0.0 status (Path B, D-015).** Out of alpha ships on the released rhythm library + the existing
-  confidence gate. Remaining before the human's version bump: **merge WO-072 (PR #91)** + the **deferred
+  confidence gate. WO-072 (PR #91) is **merged**; remaining before the human's version bump: the **deferred
   in-game `/reload`** (loads clean · confirms the `663` vs `150663` encounter id-space · `.toc` Interface ·
-  bars track · Majordomo-style hides). Regime PRs (WO-069 impl) + the CLEU tier (WO-073) are 1.1+.
-- **Next id:** D-017-IJ.
+  bars track · Majordomo-style hides). Regime PRs (WO-069 impl) + the CLEU off-target tier are 1.1+.
+- **Release infra (WO-073).** `nx release` multi-output pipeline (D-017): custom `.toc` `versionActions`,
+  Conventional-Commits bump + changelog, per-project tag + zip + GitHub Release; back-ported to the
+  `scaffold-project` creator. In progress.
+- **Next id:** D-018-IJ.
 
 ---
 
 ## Decision log
 
 ### 2026-07-30
+
+- **[D-017-IJ] Releases move to Nx Release — independent multi-output, Conventional Commits, full
+  pipeline. Status: Accepted.** *(Supersedes the D-011 changelog/version-bump **mechanism**; D-011's
+  deliberate-release + `1.0.0`-on-human-sign-off **principle** persists.)* The monorepo ships N addons
+  (`badger-ttk`, `badger-arena`, + future), each needing its own version · tag · changelog · zip ·
+  release. Chosen by the human (2026-07-30): **`nx release`** (Nx 23) with
+  **`projectsRelationship: "independent"`** so each addon versions/releases separately. *Version source* =
+  each addon's **`.toc` `## Version:`** line, read/written by a **custom `versionActions`** module under
+  `tools/release/` (no `package.json` version — the `.toc` stays the single source of truth the WoW client
+  + CurseForge read). *Specifier + changelog* = **Conventional Commits**: the bump **and** the changelog
+  are derived from commit messages (`feat`/`fix`/`feat!`|`BREAKING` → minor/patch/major), attributed to an
+  addon by the files each commit touches. *Full pipeline per `nx release <addon>`:* version → per-project
+  tag `{projectName}-{version}` → changelog appended to the addon's `CHANGELOG.md` → build the versioned
+  zip → **GitHub Release** with the zip attached. *CurseForge* stays a **manual, gated** upload (D-015: no
+  publish without the in-game test; the monorepo also blocks CF auto-packaging). *Build reproducibility* is
+  fixed so the zip builds without hand-assembly. *Consequences:* commits now follow **Conventional
+  Commits**, scoped/attributable per addon (the AI authors them — recorded in `CLAUDE.md`); the historical
+  hand-curated `CHANGELOG.md` entries stay, new ones are generated on top; the `1.0.0` milestone is an
+  explicit human specifier + a seeded section, with conventional-commits driving subsequent releases.
+  *Portable by design* (a `tools/release/` module + an `nx.json` block, no repo-specific hardcoding) so it
+  back-ports to the `scaffold-project` creator (a follow-up). **WO-073 implements.**
 
 - **[D-016-IJ] Multi-boss encounters blend their co-bosses under one `encounterID` in local kill history —
   accepted, not fixed. Status: Accepted.** *Surfaced by the WO-072 adversarial review (finding #2,
@@ -201,7 +229,8 @@ _As of 2026-07-30._
   format we'd have to bridge. Confirmed by the human 2026-07-29.
 
 - **[D-011-IJ] Version bumps are a deliberate release decision, not per build/WO (supersedes the
-  bump-every-build convention).** Routine code WOs merge to `main` **without changing `## Version`**;
+  bump-every-build convention).** *(MECHANISM superseded by D-017 — Nx Release + Conventional Commits;
+  the deliberate-release + `1.0.0`-on-human-sign-off principle below persists.)* Routine code WOs merge to `main` **without changing `## Version`**;
   player-facing changes accumulate under `## [Unreleased]` in `projects/badger-ttk/CHANGELOG.md`. When the
   human decides to release, ONE step: bump `## Version`, rename `[Unreleased]` → `## [x.y.z] - YYYY-MM-DD`,
   run `tools/build.sh badger-ttk` (which auto-names the zip from the `.toc` version), and upload to
