@@ -133,10 +133,19 @@ related:
   across the raid.** Next: the driver-side `opts.rhythm` wiring PR (the first shipped-code change —
   in-game, needs `/reload`).
 
+- **Rhythm wiring (PR #85, 2026-07-30) — the first SHIPPED-CODE change:** `opts.rhythm` in the shipped
+  estimator + `src/raids/rhythms.lua` (nine MC profiles, dual-keyed classic/+150000) + driver resolution
+  (`ENCOUNTER_START` id capture · pure `rhythmFor` — boss-level targets only · one-shot at-pull upgrade ·
+  stash continuity). Proof: gate green; `estimator-sim` byte-identical to main (solo untouched); full
+  506-fight corpus bit-identical to the ten-loop candidate; whole-corpus median 25.3% vs 41.5% baseline.
+  CHANGELOG `[Unreleased]` entry added; no version bump (D-011). **Awaits the human's in-game `/reload`
+  + an MC pull before this lands as verified.** Post-pass learnings recorded in
+  `docs/reference/estimator-replay.md` (§ Learnings after the MC pass).
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design
 fan-out runs when the human enables it.
 **Phase 1** 1. [ ] Design workflow → synthesised regime architecture.
-**Phase 2** 1. [ ] Implement behind the frozen API (chunk-clock preserved as the solo strategy).
+**Phase 2** 1. [~] Implement behind the frozen API — the rhythm path is SHIPPED (PR #85, pending /reload); regime detection + confidence remain.
 **Phase 3** 1. [ ] Adversarial verify + grade vs real corpus & sim → PR.

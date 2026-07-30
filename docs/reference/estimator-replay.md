@@ -148,8 +148,38 @@ on the first run:
 The corpus lives in the gitignored `tools/fights/corpus/` (empty it freely); only curated fixtures like
 `tools/fights/lucifron.lua` are committed.
 
+## Learnings after the MC pass (loops 1–10, ~500 kills, nine encounters)
+
+What the campaign taught — mulled deliberately before the wiring shipped, because several items shaped it:
+
+1. **The gate is universal; its depth is not.** All nine bosses open slow (0.29–0.55× in the top bin).
+   That regularity is *raid-regime* knowledge — a candidate for the future regime work — but it was
+   deliberately **not** shipped as a generic estimator change; only proven per-encounter profiles ship.
+2. **Execute acceleration is universal; its magnitude is per-boss** (Golemagg 1.3× → Shazzrah 3.2×). A
+   single global `executeModifier` guess is wrong-sized for *every* boss — which is why a profile
+   **subsumes** it (its execute bins are the measured version of that guess).
+3. **Profiles fix bias, not variance.** The systematic reads-long collapsed everywhere (e.g. Sulfuron
+   +16.1s → +6.2s); the residual ~20–30% MAPE is pull-to-pull variance (crit luck, strategy, deaths) a
+   shape cannot remove. In-game expectation: a *centered* bar that still breathes.
+4. **The structural tail is now precisely enumerated** — Majordomo (the fight is his adds), Sulfuron's
+   heal pollution, C'thun's immune windows, Skeram's splits, Vael's 30% start. That list *is* the
+   regime-work agenda; more profile data cannot fix any of it.
+5. **Shapes are stable properties of encounters** (retrains reproduce them) — safe to ship as static
+   data with kill-count provenance, refreshed only deliberately.
+6. **The corpus is speed-ranked (fast-end) biased** — so the human's own pug raids are the true
+   out-of-distribution test. The in-game `/reload` phase is not just verification; it is the next
+   experiment.
+7. **Wiring subtleties the mull caught:** (a) WCL's `150xxx` ids are likely a WCL partition namespace —
+   the live client probably fires the classic ids (663…672), so the shipped table keys **both**;
+   (b) profiles are **health-anchored**, so mid-fight retargeting works for free; (c) a profile must
+   apply to the **boss only** (level −1), never an add; (d) the boss is targeted *before* the pull, so
+   the driver needs a one-shot **at-pull upgrade** — `ENCOUNTER_START` arrives after the estimator was
+   built.
+8. **Method notes:** median beats mean on chaotic bosses (Geddon); grade only what the bar shows; one
+   variable per loop (confidence stayed untouched through all ten) is what made every delta attributable.
+
 ## The loop
 
 Real fight → replay → grade (single or **batch**) → read *where + why* it drifted → **learn that
 encounter's rhythm** (or add the phase knowledge the ceiling demands) → re-score. Lucifron is the first
-entry; the corpus is the first spectrum.
+entry; the corpus is the first spectrum; the MC library (nine profiles) is the first shipped payload.
