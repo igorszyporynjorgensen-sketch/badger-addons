@@ -1,6 +1,6 @@
 ---
 wo: WO-073-IJ
-status: Proposed
+status: Accepted
 assigned: IJ
 mr:
 decision: D-017-IJ
@@ -19,7 +19,9 @@ related:
 
 - **Created:** 2026-07-30
 - **Anchor:** [D-017-IJ] (Nx Release, Conventional Commits, full pipeline). Chosen by the human 2026-07-30
-  (AskUserQuestion: *Conventional Commits* + *Full pipeline*).
+  (AskUserQuestion: *Conventional Commits* + *Full pipeline* + tag scheme *`{projectName}/{version}`*).
+  **Accepted** on the human's build directive ("use the NX plugin … multi output release strategy") + those
+  three design answers; no `[NEEDS CLARIFICATION]` open; Constitution check passes (below).
 - **Objective:** turn the repo's release output from a single hand-run `tools/build.sh` into a
   **multi-output `nx release`** pipeline where each addon (`badger-ttk`, `badger-arena`, + future) versions,
   changelogs, tags, zips, and releases **independently** — with the addon's **`.toc` `## Version:`** line as
@@ -42,7 +44,7 @@ Verified against `node_modules/nx` (not assumed):
   `.toc` filename varies per addon (`BadgerTTK.toc`, `BadgerArena.toc`).
 - `currentVersionResolver: "disk"` calls our `readCurrentVersionFromSourceManifest` — we read the `.toc`
   `## Version:` line. This sidesteps the "no matching git tag yet" bootstrap (existing tags are `v0.9.44` /
-  `v0.9.45`, the legacy single-output scheme; the new independent scheme is `{projectName}@{version}`).
+  `v0.9.45`, the legacy single-output scheme; the new independent scheme is `{projectName}/{version}`).
 - `calculateNewVersion` default is semver-correct (our versions are semver) → **not overridden**. (Note:
   `adjustSemverBumpsForZeroMajorVersion` governs how `0.x` breaking bumps behave — kept at Nx default.)
 
@@ -63,8 +65,9 @@ Verified against `node_modules/nx` (not assumed):
 2. **`nx.json` `release` block:**
    - `projectsRelationship: "independent"`.
    - `projects: ["badger-ttk", "badger-arena"]` (WoW addons; excludes `tools/*`).
-   - `releaseTagPattern: "{projectName}@{version}"` (Nx-native; the value `createRelease` expects for
-     independent projects — parses back on the last `@`).
+   - `releaseTagPattern: "{projectName}/{version}"` (human's pick — a path-like tag namespace, e.g.
+     `badger-ttk/1.0.0`; parses back on the last `/`. Explicit override of Nx's `@` default, which
+     `releaseTagPattern` supports).
    - `version`: `{ currentVersionResolver: "disk", specifierSource: "conventional-commits",
      versionActions: "./tools/release/toc-version-actions.js" }`.
    - `changelog`: `{ projectChangelogs: true, workspaceChangelog: false, createRelease: "github" }` — one
@@ -93,7 +96,7 @@ Never pushes to `main`; the human always merges; publish stays gated. Per addon:
    commits on the branch. **No push.**
 3. `nx build <addon>` — builds the versioned zip (needs the bash-repro fix).
 4. Open PR → **human reviews + merges** (merging is human-only).
-5. **Post-merge, on `main` (human-gated):** create the tag `{addon}@{version}` + the GitHub Release
+5. **Post-merge, on `main` (human-gated):** create the tag `{addon}/{version}` + the GitHub Release
    (`nx release changelog --create-release=github` or `gh release create`), then `gh release upload` the zip.
 6. **CurseForge:** manual upload, only after the human's in-game `/reload` (D-015) — never automated here.
 
@@ -125,7 +128,7 @@ human-gated release act (D-011 principle; D-017 mechanism).
 
 - `nx release --dry-run --projects=badger-ttk` (and `badger-arena`) runs clean: resolves the current `.toc`
   version from disk, derives a bump from Conventional Commits, previews the new `.toc` + `CHANGELOG.md` + tag
-  `{projectName}@{version}` + the GitHub Release — **no files changed, nothing pushed.**
+  `{projectName}/{version}` + the GitHub Release — **no files changed, nothing pushed.**
 - The custom version actions round-trip a `.toc`: read `0.9.45` → write a bumped version → the `## Version:`
   line is the only change.
 - `tools/build.sh` produces the versioned zip on this machine (bash-repro fixed).

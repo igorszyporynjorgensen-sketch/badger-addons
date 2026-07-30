@@ -77,7 +77,7 @@ _As of 2026-07-30._
   releases on its own; the version source is each addon's **`.toc` `## Version:`** (read/written by a
   custom `versionActions` under `tools/release/` — no `package.json` version); the bump **and** the
   per-project changelog are derived from **Conventional Commits**; the full pipeline versions the `.toc`,
-  tags `{projectName}-{version}`, builds the zip, and cuts a GitHub Release with the zip attached.
+  tags `{projectName}/{version}`, builds the zip, and cuts a GitHub Release with the zip attached.
   **CurseForge publish stays manual + gated on the in-game `/reload`** (D-015). **`1.0.0` still only on
   human sign-off.** WO-073 implements.
 - **Kill-history schema.** The Warcraft-Logs-based record schema (D-012-IJ,
@@ -116,7 +116,7 @@ _As of 2026-07-30._
   + CurseForge read). *Specifier + changelog* = **Conventional Commits**: the bump **and** the changelog
   are derived from commit messages (`feat`/`fix`/`feat!`|`BREAKING` → minor/patch/major), attributed to an
   addon by the files each commit touches. *Full pipeline per `nx release <addon>`:* version → per-project
-  tag `{projectName}-{version}` → changelog appended to the addon's `CHANGELOG.md` → build the versioned
+  tag `{projectName}/{version}` (human's pick — e.g. `badger-ttk/1.0.0`) → changelog appended to the addon's `CHANGELOG.md` → build the versioned
   zip → **GitHub Release** with the zip attached. *CurseForge* stays a **manual, gated** upload (D-015: no
   publish without the in-game test; the monorepo also blocks CF auto-packaging). *Build reproducibility* is
   fixed so the zip builds without hand-assembly. *Consequences:* commits now follow **Conventional
