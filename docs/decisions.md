@@ -76,11 +76,15 @@ _As of 2026-07-25._
   **without touching `## Version`**; player-facing changes accumulate under `[Unreleased]` in
   `projects/badger-ttk/CHANGELOG.md`. A release bumps `## Version`, promotes `[Unreleased]` to the new
   section, and builds the auto-named zip (`tools/build.sh`). **`1.0.0` still only on human sign-off.**
-- **Kill-history schema.** Based on the **Warcraft Logs** standard (D-012-IJ): local recording and web-log
-  import share one record shape (encounter/NPC · duration→rate · group size · comp · difficulty); import is
-  copy-paste (LibSerialize+LibDeflate) via an external converter (the addon can't fetch the web). Schema
-  locked before 1.0; importer later. Schema finalised (reliability-first, TBC/Retail forward-compat): `docs/reference/kill-history-schema.md`.
-- **Next id:** D-013-IJ.
+- **Kill-history schema.** The Warcraft-Logs-based record *design* (D-012-IJ) is finalised **on paper**
+  (`docs/reference/kill-history-schema.md`): encounter/creature identity split, per-kill records
+  (`comp`/`size`/`diff`/`when`/`src`), 50-cap. **⚠️ NOT YET IMPLEMENTED in code** — local recording still
+  writes the old WO-025 running-mean shape (`history.lua` `store[level][key]={n,rate}`; `driver.lua:288`),
+  with none of the WCL-shared fields and no migration, so D-012's forward-compat promise is **unmet by the
+  running code**. Per the 1.0.0 gap audit (`docs/reference/v1.0.0-gap-audit.md` Tier-1 #3) this is a
+  **1.0.0 MUST**: migrate recording to the D-012 shape, or record an explicit human waiver (ship the old
+  shape + wipe when the importer lands). Importer + external converter stay deferred (D-012 piece 2).
+- **Next id:** D-015-IJ.
 
 ---
 

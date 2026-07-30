@@ -185,7 +185,17 @@ related:
   confCap honesty + suppressFlush · PR3 Thekal resetOnRise + stall tuning), each gated by sim
   byte-identity + corpus regression. *Caveat:* the workflow's 1.0.0 gap-audit agent returned a stub
   (spent tokens, emitted placeholder schema) — a **real gap audit is being re-run** before 1.0.0 sign-off;
-  §5's plan is reconstructed from repo state meanwhile. **Awaits human acceptance of D-014 before Phase 2.**
+  §5's plan is reconstructed from repo state meanwhile. **Awaits human acceptance of D-014 before Phase 2.** 
+
+- **1.0.0 gap audit (real, 2026-07-30) — `docs/reference/v1.0.0-gap-audit.md`** (replaces the workflow's
+  stubbed audit): the two genuine blockers to leaving alpha are **not** the regime code. (1) the **deferred
+  in-game `/reload`** (nothing verified live since the estimator overhaul; resolves the 663-vs-150663
+  id-space + `.toc` Interface too); (2) the **kill-history schema-vs-code gap** — recording still writes the
+  old WO-025 running-mean shape, not the D-012 record schema the docs claimed "finalised" (Current-state
+  snapshot corrected for honesty). **Product call surfaced for the human:** the regime layer (this WO) can
+  either gate 1.0.0, OR 1.0.0 ships on the rhythm library + existing confidence gate and the structural
+  tail lands in 1.1 — the D-013 catastrophe (Lucifron 1.00 conf) was a CSV artifact, so a minimal-honest
+  1.0.0 is defensible. Awaiting the human's 1.0.0-shape decision alongside D-014 acceptance.
 
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,

@@ -12,8 +12,10 @@ related:
 > 4 deep-readers → 4 independent architectures → 3-judge panel → this synthesis. The winner was
 > **unanimous** across all three judge lenses. This document is a **design proposal** — implementation
 > is the branch+PR increments in §4, each gated by sim byte-identity + corpus regression, human-merged.
-> (The workflow's separate 1.0.0 gap-audit input returned a stub; §5's plan was reconstructed from repo
-> state and a real gap audit is being run to replace it before 1.0.0 sign-off.)
+> A real, repo-grounded 1.0.0 gap audit
+> now exists at `docs/reference/v1.0.0-gap-audit.md` (it replaced the workflow's stubbed gap-audit input);
+> its Tier-1 findings — the deferred in-game /reload and the kill-history schema-vs-code gap — are the true
+> 1.0.0 blockers, and §5 below should be read alongside it.
 
 # WO-069 Phase 1 — Regime Architecture (Synthesis)
 
