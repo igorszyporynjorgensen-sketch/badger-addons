@@ -124,7 +124,8 @@ _As of 2026-07-30._
   hand-curated `CHANGELOG.md` entries stay, new ones are generated on top; the `1.0.0` milestone is an
   explicit human specifier + a seeded section, with conventional-commits driving subsequent releases.
   *Portable by design* (a `tools/release/` module + an `nx.json` block, no repo-specific hardcoding) so it
-  back-ports to the `scaffold-project` creator (a follow-up). **WO-073 implements.**
+  back-ports to the `scaffold-project` creator — a follow-up **gated on a real release cycle first** (a live
+  `nx release`, not a dry-run; human directive 2026-07-30). **WO-073 implements.**
 
 - **[D-016-IJ] Multi-boss encounters blend their co-bosses under one `encounterID` in local kill history —
   accepted, not fixed. Status: Accepted.** *Surfaced by the WO-072 adversarial review (finding #2,

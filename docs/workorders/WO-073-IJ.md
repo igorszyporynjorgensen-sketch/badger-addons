@@ -108,7 +108,9 @@ Never pushes to `main`; the human always merges; publish stays gated. Per addon:
   single-repo auto-packaging.
 - A workspace-level (root) changelog — per-addon only.
 - Inter-addon dependency versioning (addons are standalone; the dependency methods are no-ops).
-- Back-porting to the `scaffold-project` creator — a **follow-up** (tracked separately) once this is proven.
+- Back-porting to the `scaffold-project` creator — a **follow-up**, explicitly gated: **not until a real
+  release cycle has been run for real** (a live `nx release` → tag → GitHub Release → zip, not a dry-run),
+  per the human's 2026-07-30 directive. Prove it in anger here first, then propagate.
 
 ## Behavior delta
 
