@@ -1,13 +1,13 @@
 {
-  "what": "Badger TTK estimator \u2014 batch grades over real Warcraft Logs corpora (learning-how-to-learn phase). Raw corpora are local-only (gitignored); this file is the curated outcome.",
+  "what": "Badger TTK estimator — batch grades over real Warcraft Logs corpora (learning-how-to-learn phase). Raw corpora are local-only (gitignored); this file is the curated outcome.",
   "runs": [
     {
       "id": 1,
       "date": "2026-07-29",
       "estimator": "chunk-clock (WO-056/061) @ v0.9.44",
-      "corpus": "Fresh Lucifron \u00d712 (first corpus)",
-      "corpus_short": "Lucifron \u00d712",
-      "label": "Lucifron \u00d712",
+      "corpus": "Fresh Lucifron ×12 (first corpus)",
+      "corpus_short": "Lucifron ×12",
+      "label": "Lucifron ×12",
       "fights": 12,
       "fixtures": 12,
       "never_confident": 0,
@@ -24,9 +24,9 @@
       "id": 2,
       "date": "2026-07-29",
       "estimator": "chunk-clock (WO-056/061) @ v0.9.44",
-      "corpus": "Fresh MC \u00d710 \u00b7 BWL \u00d78 \u00b7 AQ \u00d72 \u2014 126 kills, each raid from its own relevance window",
-      "corpus_short": "MC+BWL+AQ \u00d7126",
-      "label": "MC+BWL+AQ \u00d7126",
+      "corpus": "Fresh MC ×10 · BWL ×8 · AQ ×2 — 126 kills, each raid from its own relevance window",
+      "corpus_short": "MC+BWL+AQ ×126",
+      "label": "MC+BWL+AQ ×126",
       "fights": 121,
       "fixtures": 126,
       "never_confident": 5,
@@ -42,9 +42,9 @@
     {
       "id": 3,
       "date": "2026-07-29",
-      "estimator": "rhythm-injected candidate (loop 1) \u2014 tools/candidates/estimator-rhythm.lua",
-      "corpus": "Lucifron \u00d720, frozen (the human's hunt) \u2014 rhythm learned from the same 20 (mechanism proof; validation on fresh kills next loop)",
-      "corpus_short": "Lucifron \u00d720 \u00b7 loop 1",
+      "estimator": "rhythm-injected candidate (loop 1) — tools/candidates/estimator-rhythm.lua",
+      "corpus": "Lucifron ×20, frozen (the human's hunt) — rhythm learned from the same 20 (mechanism proof; validation on fresh kills next loop)",
+      "corpus_short": "Lucifron ×20 · loop 1",
       "label": "loop 1: rhythm",
       "fights": 20,
       "fixtures": 20,
@@ -67,9 +67,9 @@
     {
       "id": 4,
       "date": "2026-07-29",
-      "estimator": "rhythm candidate, retrained (loop 2) \u2014 profile from 25-kill TRAIN half",
-      "corpus": "Lucifron \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split; fresh-30 view: 38.7%\u219226.9%, 25/30 better)",
-      "corpus_short": "Lucifron \u00d750 \u00b7 loop 2 (held-out)",
+      "estimator": "rhythm candidate, retrained (loop 2) — profile from 25-kill TRAIN half",
+      "corpus": "Lucifron ×50 — graded on the HELD-OUT 25 (train/test split; fresh-30 view: 38.7%→26.9%, 25/30 better)",
+      "corpus_short": "Lucifron ×50 · loop 2 (held-out)",
       "label": "loop 2: validated",
       "fights": 25,
       "fixtures": 50,
@@ -85,17 +85,17 @@
       "compare": {
         "baseline_mean": 0.355,
         "baseline_bias": 3.3,
-        "better_on": "18/25 held-out \u00b7 25/30 fresh",
+        "better_on": "18/25 held-out · 25/30 fresh",
         "train_mean": 0.247,
-        "note": "train\u2248test \u2192 no overfitting; profile stable across retrains"
+        "note": "train≈test → no overfitting; profile stable across retrains"
       }
     },
     {
       "id": 5,
       "date": "2026-07-29",
-      "estimator": "rhythm candidate \u2014 Magmadar profile from 25-kill TRAIN half (loop 3)",
-      "corpus": "Magmadar \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split)",
-      "corpus_short": "Magmadar \u00d750 \u00b7 loop 3 (held-out)",
+      "estimator": "rhythm candidate — Magmadar profile from 25-kill TRAIN half (loop 3)",
+      "corpus": "Magmadar ×50 — graded on the HELD-OUT 25 (train/test split)",
+      "corpus_short": "Magmadar ×50 · loop 3 (held-out)",
       "label": "loop 3: Magmadar",
       "fights": 25,
       "fixtures": 50,
@@ -111,7 +111,7 @@
       "compare": {
         "baseline_mean": 0.385,
         "baseline_bias": 6.7,
-        "better_on": "24/25 held-out \u00b7 25/25 train",
+        "better_on": "24/25 held-out · 25/25 train",
         "train_mean": 0.192,
         "note": "second encounter, different shape (Frenzy slow-phase), bigger win"
       }
@@ -119,9 +119,9 @@
     {
       "id": 6,
       "date": "2026-07-29",
-      "estimator": "rhythm candidate \u2014 Gehennas profile from 25-kill TRAIN half (loop 4)",
-      "corpus": "Gehennas \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split)",
-      "corpus_short": "Gehennas \u00d750 \u00b7 loop 4 (held-out)",
+      "estimator": "rhythm candidate — Gehennas profile from 25-kill TRAIN half (loop 4)",
+      "corpus": "Gehennas ×50 — graded on the HELD-OUT 25 (train/test split)",
+      "corpus_short": "Gehennas ×50 · loop 4 (held-out)",
       "label": "loop 4: Gehennas",
       "fights": 25,
       "fixtures": 50,
@@ -137,7 +137,7 @@
       "compare": {
         "baseline_mean": 0.484,
         "baseline_bias": 4.8,
-        "better_on": "22/25 held-out \u00b7 23/25 train",
+        "better_on": "22/25 held-out · 23/25 train",
         "train_mean": 0.291,
         "note": "largest absolute drop yet (-21.6pp); test beats train"
       }
@@ -145,9 +145,9 @@
     {
       "id": 7,
       "date": "2026-07-29",
-      "estimator": "rhythm candidate \u2014 Garr profile from 25-kill TRAIN half (loop 5)",
-      "corpus": "Garr \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split)",
-      "corpus_short": "Garr \u00d750 \u00b7 loop 5 (held-out)",
+      "estimator": "rhythm candidate — Garr profile from 25-kill TRAIN half (loop 5)",
+      "corpus": "Garr ×50 — graded on the HELD-OUT 25 (train/test split)",
+      "corpus_short": "Garr ×50 · loop 5 (held-out)",
       "label": "loop 5: Garr",
       "fights": 25,
       "fixtures": 50,
@@ -163,17 +163,17 @@
       "compare": {
         "baseline_mean": 0.442,
         "baseline_bias": 6.9,
-        "better_on": "24/25 held-out \u00b7 25/25 train",
+        "better_on": "24/25 held-out · 25/25 train",
         "train_mean": 0.246,
-        "note": "adds smear the shape (mildest execute 1.4-1.6x; small train/test gap) \u2014 still a big win"
+        "note": "adds smear the shape (mildest execute 1.4-1.6x; small train/test gap) — still a big win"
       }
     },
     {
       "id": 8,
       "date": "2026-07-29",
-      "estimator": "rhythm candidate \u2014 Shazzrah profile from 25-kill TRAIN half (loop 6)",
-      "corpus": "Shazzrah \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split)",
-      "corpus_short": "Shazzrah \u00d750 \u00b7 loop 6 (held-out)",
+      "estimator": "rhythm candidate — Shazzrah profile from 25-kill TRAIN half (loop 6)",
+      "corpus": "Shazzrah ×50 — graded on the HELD-OUT 25 (train/test split)",
+      "corpus_short": "Shazzrah ×50 · loop 6 (held-out)",
       "label": "loop 6: Shazzrah",
       "fights": 22,
       "fixtures": 50,
@@ -189,7 +189,7 @@
       "compare": {
         "baseline_mean": 0.411,
         "baseline_bias": 3.2,
-        "better_on": "22/25 held-out \u00b7 24/25 train",
+        "better_on": "22/25 held-out · 24/25 train",
         "train_mean": 0.256,
         "note": "short-fight floor test passed; most violent execute yet (3.2x); NC identical both configs"
       }
@@ -197,9 +197,9 @@
     {
       "id": 9,
       "date": "2026-07-29",
-      "estimator": "rhythm candidate \u2014 Geddon profile from 25-kill TRAIN half (loop 7)",
-      "corpus": "Baron Geddon \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split)",
-      "corpus_short": "Geddon \u00d750 \u00b7 loop 7 (held-out)",
+      "estimator": "rhythm candidate — Geddon profile from 25-kill TRAIN half (loop 7)",
+      "corpus": "Baron Geddon ×50 — graded on the HELD-OUT 25 (train/test split)",
+      "corpus_short": "Geddon ×50 · loop 7 (held-out)",
       "label": "loop 7: Geddon",
       "fights": 25,
       "fixtures": 50,
@@ -216,16 +216,16 @@
         "baseline_mean": 0.52,
         "baseline_median": 0.405,
         "baseline_bias": 5.8,
-        "better_on": "24/25 held-out \u00b7 23/25 train",
+        "better_on": "24/25 held-out · 23/25 train",
         "note": "noisiest boss yet (mean>>median both sides: Living Bomb chaos pulls); median improvement in line with the rest"
       }
     },
     {
       "id": 10,
       "date": "2026-07-29",
-      "estimator": "rhythm candidate \u2014 Sulfuron profile from 25-kill TRAIN half (loop 8)",
-      "corpus": "Sulfuron Harbinger \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split)",
-      "corpus_short": "Sulfuron \u00d750 \u00b7 loop 8 (held-out)",
+      "estimator": "rhythm candidate — Sulfuron profile from 25-kill TRAIN half (loop 8)",
+      "corpus": "Sulfuron Harbinger ×50 — graded on the HELD-OUT 25 (train/test split)",
+      "corpus_short": "Sulfuron ×50 · loop 8 (held-out)",
       "label": "loop 8: Sulfuron",
       "fights": 25,
       "fixtures": 50,
@@ -242,16 +242,16 @@
         "baseline_mean": 0.919,
         "baseline_median": 0.75,
         "baseline_bias": 16.1,
-        "better_on": "24/25 held-out \u00b7 20/25 train",
-        "note": "worst baseline in MC (priest heals suppress net damage: +16.1s bias) \u2014 biggest correction (-42pp) but weakest absolute endpoint; heal residual is structural"
+        "better_on": "24/25 held-out · 20/25 train",
+        "note": "worst baseline in MC (priest heals suppress net damage: +16.1s bias) — biggest correction (-42pp) but weakest absolute endpoint; heal residual is structural"
       }
     },
     {
       "id": 11,
       "date": "2026-07-30",
-      "estimator": "rhythm candidate \u2014 Golemagg profile from 25-kill TRAIN half (loop 9)",
-      "corpus": "Golemagg \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split)",
-      "corpus_short": "Golemagg \u00d750 \u00b7 loop 9 (held-out)",
+      "estimator": "rhythm candidate — Golemagg profile from 25-kill TRAIN half (loop 9)",
+      "corpus": "Golemagg ×50 — graded on the HELD-OUT 25 (train/test split)",
+      "corpus_short": "Golemagg ×50 · loop 9 (held-out)",
       "label": "loop 9: Golemagg",
       "fights": 25,
       "fixtures": 50,
@@ -267,17 +267,17 @@
       "compare": {
         "baseline_mean": 0.306,
         "baseline_bias": 5.7,
-        "better_on": "25/25 held-out (first perfect sweep) \u00b7 24/25 train",
+        "better_on": "25/25 held-out (first perfect sweep) · 24/25 train",
         "train_mean": 0.204,
-        "note": "train == test exactly (20.4%) \u2014 textbook generalization on the textbook boss"
+        "note": "train == test exactly (20.4%) — textbook generalization on the textbook boss"
       }
     },
     {
       "id": 12,
       "date": "2026-07-30",
-      "estimator": "rhythm candidate \u2014 Ragnaros profile from 25-kill TRAIN half (loop 10)",
-      "corpus": "Ragnaros \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split). THE MC LIBRARY IS COMPLETE.",
-      "corpus_short": "Ragnaros \u00d750 \u00b7 loop 10 (held-out)",
+      "estimator": "rhythm candidate — Ragnaros profile from 25-kill TRAIN half (loop 10)",
+      "corpus": "Ragnaros ×50 — graded on the HELD-OUT 25 (train/test split). THE MC LIBRARY IS COMPLETE.",
+      "corpus_short": "Ragnaros ×50 · loop 10 (held-out)",
       "label": "loop 10: Ragnaros",
       "fights": 25,
       "fixtures": 50,
@@ -293,7 +293,7 @@
       "compare": {
         "baseline_mean": 0.444,
         "baseline_bias": 11.5,
-        "better_on": "24/25 held-out \u00b7 25/25 train",
+        "better_on": "24/25 held-out · 25/25 train",
         "train_mean": 0.305,
         "note": "library complete: nine encounters, nine held-out wins, zero overfit in nine splits"
       }
@@ -301,9 +301,9 @@
     {
       "id": 13,
       "date": "2026-07-30",
-      "estimator": "shipped estimator + Razorgore profile from 25-kill TRAIN half (loop 11 \u2014 first BWL boss)",
-      "corpus": "Razorgore \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split); baseline = pre-wiring estimator",
-      "corpus_short": "Razorgore \u00d750 \u00b7 loop 11 (held-out)",
+      "estimator": "shipped estimator + Razorgore profile from 25-kill TRAIN half (loop 11 — first BWL boss)",
+      "corpus": "Razorgore ×50 — graded on the HELD-OUT 25 (train/test split); baseline = pre-wiring estimator",
+      "corpus_short": "Razorgore ×50 · loop 11 (held-out)",
       "label": "loop 11: Razorgore",
       "fights": 25,
       "fixtures": 50,
@@ -328,8 +328,8 @@
       "id": 14,
       "date": "2026-07-30",
       "estimator": "shipped estimator + Vaelastrasz profile from 25-kill TRAIN half (loop 12)",
-      "corpus": "Vaelastrasz \u00d750 \u2014 held-out 25 (baseline = pre-wiring estimator). PERFECT 50/50 sweep.",
-      "corpus_short": "Vaelastrasz \u00d750 \u00b7 loop 12",
+      "corpus": "Vaelastrasz ×50 — held-out 25 (baseline = pre-wiring estimator). PERFECT 50/50 sweep.",
+      "corpus_short": "Vaelastrasz ×50 · loop 12",
       "label": "loop 12: Vaelastrasz",
       "fights": 25,
       "fixtures": 50,
@@ -349,9 +349,9 @@
     {
       "id": 15,
       "date": "2026-07-30",
-      "estimator": "shipped estimator + six new BWL profiles (loop 13 \u2014 the wing finisher)",
-      "corpus": "Broodlord/Firemaw/Ebonroc/Flamegor/Chromaggus/Nefarian \u00d750 each \u2014 held-out 25s; BWL COMPLETE and SHIPPED as a set",
-      "corpus_short": "BWL finish \u00d76 \u00b7 loop 13",
+      "estimator": "shipped estimator + six new BWL profiles (loop 13 — the wing finisher)",
+      "corpus": "Broodlord/Firemaw/Ebonroc/Flamegor/Chromaggus/Nefarian ×50 each — held-out 25s; BWL COMPLETE and SHIPPED as a set",
+      "corpus_short": "BWL finish ×6 · loop 13",
       "label": "loop 13: BWL complete",
       "fights": 150,
       "fixtures": 300,
@@ -365,23 +365,64 @@
         "baseline_mean": 0.549,
         "baseline_bias": 12.1,
         "better_on": "146/150 (Firemaw/Flamegor/Chromaggus/Nefarian perfect 25/25)",
-        "detail": "Broodlord 41.1\u219225.8 \u00b7 Firemaw 81.8\u219231.6 \u00b7 Ebonroc 66.4\u219232.4 \u00b7 Flamegor 36.1\u219220.4 \u00b7 Chromaggus 71.2\u219254.1 \u00b7 Nefarian 32.6\u219221.8",
+        "detail": "Broodlord 41.1→25.8 · Firemaw 81.8→31.6 · Ebonroc 66.4→32.4 · Flamegor 36.1→20.4 · Chromaggus 71.2→54.1 · Nefarian 32.6→21.8",
         "note": "wing ships as a set into rhythms.lua (17 profiles total); Chromaggus residual = random vulnerability rotations (structural)"
       }
     },
     {
       "id": 16,
       "date": "2026-07-30",
-      "estimator": "shipped estimator + 24 new profiles (loop 14 \u2014 the full remaining-raids sweep)",
-      "corpus": "ZG \u00d79 + AQ40 \u00d79 + AQ20 \u00d76 (50 kills each, held-out 25s). Library \u2192 41 profiles across five raids.",
-      "corpus_short": "ZG+AQ sweep \u00b7 loop 14",
+      "estimator": "shipped estimator + 24 new profiles (loop 14 — the full remaining-raids sweep)",
+      "corpus": "ZG ×9 + AQ40 ×9 + AQ20 ×6 (50 kills each, held-out 25s). Library → 41 profiles across five raids.",
+      "corpus_short": "ZG+AQ sweep · loop 14",
       "label": "loop 14: ZG+AQ sweep",
       "fights": 575,
       "fixtures": 1250,
       "compare": {
-        "highlights": "Viscidus 608\u219286 (bias +270s\u2192\u221213s!) \u00b7 C'Thun 225\u219255 \u00b7 Bug Trio 379\u219284 \u00b7 Sartura 178\u219260 \u00b7 Venoxis 364\u219295 \u00b7 Huhuran 46\u219224 \u00b7 Fankriss 44\u219228 \u00b7 Ouro 38\u219229",
-        "structural": "Twin Emperors 466\u2192418 (heal-council) \u00b7 Rajaxx 424\u2192348 (wave event) \u00b7 Skeram 177\u2192174 (splits) \u00b7 Thekal (tiger reset) \u00b7 Buru (egg boss) \u2014 improve but stay rough: regime-work agenda",
-        "excluded": "Edge of Madness (4 random bosses share the id, ungated) \u00b7 Naxx + Onyxia (no Fresh-window corpus exists)"
+        "highlights": "Viscidus 608→86 (bias +270s→−13s!) · C'Thun 225→55 · Bug Trio 379→84 · Sartura 178→60 · Venoxis 364→95 · Huhuran 46→24 · Fankriss 44→28 · Ouro 38→29",
+        "structural": "Twin Emperors 466→418 (heal-council) · Rajaxx 424→348 (wave event) · Skeram 177→174 (splits) · Thekal (tiger reset) · Buru (egg boss) — improve but stay rough: regime-work agenda",
+        "excluded": "Edge of Madness (4 random bosses share the id, ungated) · Naxx + Onyxia (no Fresh-window corpus exists)"
+      }
+    },
+    {
+      "id": 17,
+      "date": "2026-07-30",
+      "estimator": "shipped estimator + Onyxia profile (WO-074) @ 0.9.47",
+      "corpus": "Fresh Onyxia ×40 (WCL id 151084), 20 held-out. Library → 42 profiles — Onyxia was the last missing raid boss.",
+      "corpus_short": "Onyxia ×40 · WO-074",
+      "label": "Onyxia (0.9.47)",
+      "fights": 20,
+      "fixtures": 40,
+      "mape_mean": 0.527,
+      "mape_median": 0.507,
+      "mape_p90": 0.671,
+      "bias_s": 34.0,
+      "dur_min": 74.4,
+      "dur_max": 222.1,
+      "baseline": {
+        "mape_mean": 0.742,
+        "mape_median": 0.711,
+        "mape_p90": 0.958,
+        "bias_s": 49.3
+      },
+      "compare": {
+        "highlights": "Onyxia — TWO out-of-sample tests agree: held-out (20 kills) MAPE 74.2%->52.7%; a separate FRESH dps batch (26 slower kills) 79.8%->59.3%. Both ~20-pt cuts, driven by the ~50%-health air-phase dip (untargetable, whelps) a flat rate can't see. Generalizes across pace.",
+        "structural": "Onyxia stays rough (~53%) — the air phase is inherently unpredictable — but strictly better than flat",
+        "excluded": "Naxxramas (still no Fresh-window corpus) · Edge of Madness (4 random bosses share the id) · Majordomo (fight is his adds)"
+      },
+      "fresh_batch": {
+        "kills": 26,
+        "note": "separate dps harvest, slower 167-382s, deduped vs training",
+        "mape_mean": 0.593,
+        "mape_median": 0.562,
+        "mape_p90": 0.733,
+        "bias_s": 49.6,
+        "baseline": {
+          "mape_mean": 0.798,
+          "mape_median": 0.801,
+          "mape_p90": 0.967,
+          "bias_s": 63.4
+        }
       }
     }
   ]
