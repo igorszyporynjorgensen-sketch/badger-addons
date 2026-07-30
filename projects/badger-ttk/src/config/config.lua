@@ -999,7 +999,9 @@ local function buildEstimator(db)
                 confirm = true,
                 func = function()
                     if ns.addon and ns.addon.db and ns.addon.db.global then
-                        ns.addon.db.global.history = {}
+                        -- The D-012 split shape, not a bare {} — a bare table would silently break
+                        -- recording until the next OnInitialize re-runs ensureShape (WO-072 review).
+                        ns.addon.db.global.history = ns.History.ensureShape(nil)
                     end
                 end,
             },

@@ -31,3 +31,6 @@ projects/**/Libs/
 
 # Ephemeral WCL corpus harvest zone (WO-070) — bulk pulled curves; never committed
 tools/fights/corpus/
+
+# Python bytecode cache (ttk-lab imports wcl-corpus.py)
+__pycache__/

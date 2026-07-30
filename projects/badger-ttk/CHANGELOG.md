@@ -9,6 +9,13 @@ All notable, player-facing changes to **Badger Time To Kill (TTK)**. Version num
 
 ## [Unreleased]
 
+### Changed
+- **Kill history now records the full Warcraft-Logs-shaped record** for each kill — encounter/creature,
+  fight duration, group size & composition, and a timestamp — instead of a single running-mean rate. This
+  makes your own kills forward-compatible with the planned log-import (they'll blend into one prior). *One
+  time only:* existing pre-1.0 kill history (the old running-mean data) is reset on upgrade; it rebuilds as
+  you play.
+
 ## [0.9.45] - 2026-07-30
 
 ### Added

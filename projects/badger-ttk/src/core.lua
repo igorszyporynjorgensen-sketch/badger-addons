@@ -93,7 +93,8 @@ local DEFAULTS = {
     -- Account-wide namespace reserved for imported/recorded kill history (see WO-007). History is
     -- observational data, not a per-settings-profile value, so it lives in `global`, never `profile`.
     global = {
-        history = {},
+        history = { encounter = {}, creature = {} }, -- D-012 record schema (WO-072); see src/engine/history.lua
+
         -- User-saved skins (WO-029): [name] = skin table (see src/skin/skin.lua). Persisted here so a
         -- "save current config as a skin" survives /reload; built-in skins stay code-defined.
         skins = {},
@@ -119,6 +120,10 @@ end
 
 function BadgerTTK:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("BadgerTTKDB", DEFAULTS, true)
+    -- Migrate kill history to the D-012 record schema (WO-072). A pre-D-012 store (the WO-025
+    -- running-mean shape) is a collapsed mean with none of the record fields, so it can't be reconstructed
+    -- into records — ensureShape wipes it to the empty split shape; the prior regenerates as you play.
+    self.db.global.history = ns.History.ensureShape(self.db.global.history)
     -- Re-register persisted user skins into the runtime registry (so they list + re-apply after a reload)
     -- BEFORE normalizing, so a profile pointing at a saved skin validates instead of being reset.
     for name, skin in pairs(self.db.global.skins or {}) do
