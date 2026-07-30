@@ -29,7 +29,7 @@ working agreement → [../CLAUDE.md](../CLAUDE.md).
 
 ## Current state
 
-_As of 2026-07-25._
+_As of 2026-07-30._
 
 - **Scaffolded and verified green.** Nx (pnpm) monorepo orchestrating a Lua toolchain — StyLua ·
   Luacheck (LuaJIT/5.1) · Busted — behind one `pnpm validate` gate. Framework: Ace3. `pnpm validate`
@@ -76,14 +76,20 @@ _As of 2026-07-25._
   **without touching `## Version`**; player-facing changes accumulate under `[Unreleased]` in
   `projects/badger-ttk/CHANGELOG.md`. A release bumps `## Version`, promotes `[Unreleased]` to the new
   section, and builds the auto-named zip (`tools/build.sh`). **`1.0.0` still only on human sign-off.**
-- **Kill-history schema.** The Warcraft-Logs-based record *design* (D-012-IJ) is finalised **on paper**
-  (`docs/reference/kill-history-schema.md`): encounter/creature identity split, per-kill records
-  (`comp`/`size`/`diff`/`when`/`src`), 50-cap. **⚠️ NOT YET IMPLEMENTED in code** — local recording still
-  writes the old WO-025 running-mean shape (`history.lua` `store[level][key]={n,rate}`; `driver.lua:288`),
-  with none of the WCL-shared fields and no migration, so D-012's forward-compat promise is **unmet by the
-  running code**. Per the 1.0.0 gap audit (`docs/reference/v1.0.0-gap-audit.md` Tier-1 #3) this is a
-  **1.0.0 MUST**: migrate recording to the D-012 shape, or record an explicit human waiver (ship the old
-  shape + wipe when the importer lands). Importer + external converter stay deferred (D-012 piece 2).
+- **Kill-history schema.** The Warcraft-Logs-based record schema (D-012-IJ,
+  `docs/reference/kill-history-schema.md`: encounter/creature split, per-kill records, 50-cap) is
+  **implemented in code as of WO-072 (PR #91, pending human merge + the 1.0.0 `/reload`)** — recording
+  writes per-kill records with all WCL-shared fields, the old WO-025 running-mean data is migrated/wiped,
+  and co-boss encounters blend under one id (accepted, D-016). Closes the 1.0.0 gap audit's Tier-1 #3.
+  Importer + external converter stay deferred (D-012 piece 2).
+- **Estimator, shipped (0.9.45).** The full **41-profile rhythm library** across five raids (MC · BWL · ZG
+  · AQ20 · AQ40) is released — learned from ~2,000 real WCL kills, held-out-validated, injected as
+  `opts.rhythm` behind the frozen estimator API. The **regime structural-tail layer** (D-014, injected
+  `opts.regime` + minimal seams) is **designed and accepted but deferred to 1.1** (D-015, Path B).
+- **1.0.0 status (Path B, D-015).** Out of alpha ships on the released rhythm library + the existing
+  confidence gate. Remaining before the human's version bump: **merge WO-072 (PR #91)** + the **deferred
+  in-game `/reload`** (loads clean · confirms the `663` vs `150663` encounter id-space · `.toc` Interface ·
+  bars track · Majordomo-style hides). Regime PRs (WO-069 impl) + the CLEU tier (WO-073) are 1.1+.
 - **Next id:** D-017-IJ.
 
 ---
