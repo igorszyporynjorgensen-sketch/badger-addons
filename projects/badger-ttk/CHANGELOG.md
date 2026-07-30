@@ -9,6 +9,8 @@ All notable, player-facing changes to **Badger Time To Kill (TTK)**. Version num
 
 ## [Unreleased]
 
+## [0.9.45] - 2026-07-30
+
 ### Added
 - **Learned boss rhythms — Molten Core, Blackwing Lair, Zul'Gurub & both Ahn'Qiraj raids.** The TTK
   bar now *anticipates* each boss's fight shape — slow pulls, Frenzy lulls, priest-heal suppression,
