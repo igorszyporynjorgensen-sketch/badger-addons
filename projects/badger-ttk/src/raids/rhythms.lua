@@ -1,20 +1,229 @@
 local _, ns = ...
 
 -- Learned per-encounter RHYTHM PROFILES (WO-069) — the fight's shape, learned from real Warcraft Logs
--- kill curves and validated on held-out kills (nine encounters, nine wins, zero overfit; see
--- docs/reference/estimator-replay.md and docs/reference/estimator-scoreboard.json). Each profile is
--- m(h): the kill-rate at health h relative to the fight's AVERAGE rate — bins[i] covers health
--- ((i-1)/K, i/K], so bins[1] is the execute end and bins[20] the pull. The estimator consumes a profile
--- as an injected dependency (opts.rhythm): live observation calibrates the SCALE (this group's speed),
--- the profile supplies the SHAPE (what the fight does next). The driver resolves which profile applies
--- (ENCOUNTER_START id + a boss-level target); no profile => exactly the previous behavior.
+-- kill curves and validated on held-out kills (seventeen encounters, seventeen held-out wins, zero
+-- overfit; see docs/reference/estimator-replay.md and docs/reference/estimator-scoreboard.json). Each
+-- profile is m(h): the kill-rate at health h relative to the fight's AVERAGE rate — bins[i] covers
+-- health ((i-1)/K, i/K], so bins[1] is the execute end and bins[20] the pull. The estimator consumes a
+-- profile as an injected dependency (opts.rhythm): live observation calibrates the SCALE (this group's
+-- speed), the profile supplies the SHAPE (what the fight does next). The driver resolves which profile
+-- applies (ENCOUNTER_START id + a boss-level target); no profile => exactly the previous behavior.
 --
 -- AUTO-GENERATED from the lab's tools/candidates/rhythm-*.lua (learned by tools/learn-rhythm.py from
--- ~50-kill batches, TRAIN half of an even/odd split, Fresh Molten Core relevance window). Regenerate
+-- ~50-kill batches, TRAIN half of an even/odd split, each raid's Fresh relevance window). Regenerate
 -- through the lab; never hand-edit values. Majordomo is deliberately ABSENT (his fight is his adds —
--- a boss-health profile cannot describe it).
+-- a boss-health profile cannot describe it). Vaelastrasz's never-visited >30% bins are neutralized to
+-- 1.0 (he engages at 30% health; the learner's caps there were unread placeholders).
 
 local profiles = {
+    -- Razorgore the Untamed — 25 train kills
+    [610] = {
+        kills = 25,
+        bins = {
+            1.261,
+            1.546,
+            1.702,
+            2.006,
+            0.978,
+            0.878,
+            0.941,
+            0.866,
+            0.893,
+            1.051,
+            1.029,
+            1.04,
+            1.054,
+            0.887,
+            1.153,
+            0.872,
+            0.904,
+            0.854,
+            0.87,
+            0.774,
+        },
+    },
+    -- Vaelastrasz the Corrupt — 25 train kills (top bins neutralized — 30% start)
+    [611] = {
+        kills = 25,
+        bins = {
+            0.379,
+            0.377,
+            0.385,
+            0.407,
+            0.235,
+            0.198,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+        },
+    },
+    -- Broodlord Lashlayer — 25 train kills
+    [612] = {
+        kills = 25,
+        bins = {
+            1.485,
+            1.586,
+            1.509,
+            2.486,
+            1.025,
+            1.221,
+            1.142,
+            1.216,
+            1.235,
+            1.258,
+            1.231,
+            1.144,
+            1.023,
+            1.116,
+            1.107,
+            1.136,
+            0.993,
+            0.887,
+            0.862,
+            0.278,
+        },
+    },
+    -- Firemaw — 25 train kills
+    [613] = {
+        kills = 25,
+        bins = {
+            1.397,
+            1.763,
+            1.529,
+            2.417,
+            1.163,
+            1.202,
+            1.141,
+            1.22,
+            1.269,
+            1.247,
+            1.201,
+            1.297,
+            1.023,
+            1.097,
+            1.107,
+            0.984,
+            0.966,
+            0.918,
+            0.816,
+            0.261,
+        },
+    },
+    -- Ebonroc — 25 train kills
+    [614] = {
+        kills = 25,
+        bins = {
+            1.499,
+            1.483,
+            1.367,
+            1.954,
+            1.132,
+            1.182,
+            1.078,
+            1.15,
+            1.257,
+            1.166,
+            1.322,
+            1.347,
+            1.256,
+            1.09,
+            1.168,
+            1.069,
+            0.965,
+            0.939,
+            0.941,
+            0.317,
+        },
+    },
+    -- Flamegor — 25 train kills
+    [615] = {
+        kills = 25,
+        bins = {
+            1.368,
+            1.331,
+            1.426,
+            1.894,
+            1.039,
+            1.059,
+            1.129,
+            1.135,
+            1.054,
+            1.092,
+            1.198,
+            1.11,
+            1.017,
+            1.002,
+            1.031,
+            0.961,
+            0.972,
+            0.933,
+            0.922,
+            0.382,
+        },
+    },
+    -- Chromaggus — 25 train kills
+    [616] = {
+        kills = 25,
+        bins = {
+            1.504,
+            1.455,
+            1.517,
+            1.703,
+            1.179,
+            1.163,
+            1.157,
+            1.074,
+            0.999,
+            1.063,
+            1.092,
+            1.005,
+            1.097,
+            1.02,
+            1.068,
+            1.115,
+            0.977,
+            1.031,
+            0.895,
+            0.429,
+        },
+    },
+    -- Nefarian — 25 train kills
+    [617] = {
+        kills = 25,
+        bins = {
+            1.213,
+            1.304,
+            1.389,
+            1.494,
+            1.048,
+            1.079,
+            1.039,
+            1.084,
+            1.02,
+            1.032,
+            0.971,
+            1.075,
+            1.026,
+            1.034,
+            1.029,
+            1.051,
+            1.02,
+            0.933,
+            0.862,
+            0.518,
+        },
+    },
     -- Lucifron — 25 train kills
     [663] = {
         kills = 25,
@@ -84,7 +293,7 @@ local profiles = {
             1.071,
             1.09,
             1.053,
-            1.0,
+            1,
             1.063,
             0.98,
             1.023,
@@ -251,7 +460,7 @@ local profiles = {
     },
 }
 
--- Key aliasing: the live client is expected to fire the classic DungeonEncounterID (663…672) in
+-- Key aliasing: the live client is expected to fire the classic DungeonEncounterID (610…672) in
 -- ENCOUNTER_START, while Warcraft Logs' Fresh partition names the same encounters at +150000 (the ids
 -- the lab's fixtures carry). Alias both so either reality resolves; the in-game /reload confirms which.
 local rhythms = {}
