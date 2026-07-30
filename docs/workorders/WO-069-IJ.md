@@ -163,6 +163,13 @@ related:
   extended. **Program: 17 encounters · 400/425 held-out kills better · mean 50%→29% · bias +8.5→+3.3s ·
   0/17 overfit.**
 
+- **Loop 14 outcome (PR #89, 2026-07-30):** **the remaining-raids sweep — ZG + AQ20 + AQ40 in one go; the
+  library ships at 41 profiles across five raids.** Crown jewels: **Viscidus 608→86 (bias +270s→−13s)**,
+  **C'Thun 225→55**, Bug Trio 379→84, Sartura 178→60. Structural tier (improves, stays rough — regime
+  agenda): Twin Emperors, Rajaxx, Skeram, Thekal, Buru. Excluded honestly: Edge of Madness (4 random
+  bosses per id, ungated), **Naxx + Onyxia (no Fresh-window corpus exists — probed)**. Program:
+  **41 bosses · 973/1025 held-out kills better · 0/41 overfit · ~1,868 kills.**
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design

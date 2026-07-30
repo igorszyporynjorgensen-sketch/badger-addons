@@ -368,6 +368,21 @@
         "detail": "Broodlord 41.1\u219225.8 \u00b7 Firemaw 81.8\u219231.6 \u00b7 Ebonroc 66.4\u219232.4 \u00b7 Flamegor 36.1\u219220.4 \u00b7 Chromaggus 71.2\u219254.1 \u00b7 Nefarian 32.6\u219221.8",
         "note": "wing ships as a set into rhythms.lua (17 profiles total); Chromaggus residual = random vulnerability rotations (structural)"
       }
+    },
+    {
+      "id": 16,
+      "date": "2026-07-30",
+      "estimator": "shipped estimator + 24 new profiles (loop 14 \u2014 the full remaining-raids sweep)",
+      "corpus": "ZG \u00d79 + AQ40 \u00d79 + AQ20 \u00d76 (50 kills each, held-out 25s). Library \u2192 41 profiles across five raids.",
+      "corpus_short": "ZG+AQ sweep \u00b7 loop 14",
+      "label": "loop 14: ZG+AQ sweep",
+      "fights": 575,
+      "fixtures": 1250,
+      "compare": {
+        "highlights": "Viscidus 608\u219286 (bias +270s\u2192\u221213s!) \u00b7 C'Thun 225\u219255 \u00b7 Bug Trio 379\u219284 \u00b7 Sartura 178\u219260 \u00b7 Venoxis 364\u219295 \u00b7 Huhuran 46\u219224 \u00b7 Fankriss 44\u219228 \u00b7 Ouro 38\u219229",
+        "structural": "Twin Emperors 466\u2192418 (heal-council) \u00b7 Rajaxx 424\u2192348 (wave event) \u00b7 Skeram 177\u2192174 (splits) \u00b7 Thekal (tiger reset) \u00b7 Buru (egg boss) \u2014 improve but stay rough: regime-work agenda",
+        "excluded": "Edge of Madness (4 random bosses share the id, ungated) \u00b7 Naxx + Onyxia (no Fresh-window corpus exists)"
+      }
     }
   ]
 }
