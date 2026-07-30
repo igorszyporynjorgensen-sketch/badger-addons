@@ -170,6 +170,10 @@ related:
   bosses per id, ungated), **Naxx + Onyxia (no Fresh-window corpus exists — probed)**. Program:
   **41 bosses · 973/1025 held-out kills better · 0/41 overfit · ~1,868 kills.**
 
+- **0.9.45 RELEASED (2026-07-30, PR #90 merged, tag v0.9.45):** the learned-rhythms release — the
+  five-raid library is public. The human is running the in-game test + CurseForge upload. **Ultracode is
+  now ON: Phase 1 (the regime design fan-out) begins**, targeting **1.0.0 / out of alpha**.
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design
