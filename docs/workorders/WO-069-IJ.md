@@ -149,6 +149,12 @@ related:
   roll-in 0.77×, clean 2× execute). **Ten encounters, ten held-out wins.** BWL profiles stay in the lab
   until the wing ships as a set.
 
+- **Loop 12 outcome (PR #87, 2026-07-30):** **Vaelastrasz ×50 — perfect 50/50 sweep** (25/25 held-out AND
+  train): mean **61.5% → 26.6%**, bias +6.0s → +1.9s. The 30%-start math (scale-invariance) proven live;
+  his shape is the library's only *decelerating* one (6× Essence burn → 0.38× Burning-Adrenaline end).
+  **Eleven encounters, eleven held-out wins, zero overfit in eleven splits.** Dashboard rebuilt as a
+  program-state view (before→after per boss · coverage · campaign learnings) on the human's re-think ask.
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design
