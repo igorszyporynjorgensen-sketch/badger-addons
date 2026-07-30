@@ -2,6 +2,13 @@ package-as: BadgerTTK
 
 enable-nolib-creation: no
 
+# Ship our own curated CHANGELOG.md verbatim — do NOT let the packager generate one from git log (it would
+# otherwise emit the throwaway staging commit, and its generator trips BSD sed on macOS). See tools/build.sh
+# for why the addon is staged as a standalone checkout at build time.
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
+
 # Embedded libraries are fetched at build time — never committed (Libs/ is gitignored).
 externals:
   Libs/LibStub: https://repos.wowace.com/wow/libstub/trunk
