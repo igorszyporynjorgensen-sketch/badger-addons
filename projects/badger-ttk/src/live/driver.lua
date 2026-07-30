@@ -87,6 +87,17 @@ function LiveDriver.showUtility(settings, context)
     return (context.inRaidEncounter or settings.showUtilityOutsideRaid) and true or false
 end
 
+-- PURE: which learned rhythm profile (if any) applies to the current target (WO-069). Three conditions:
+-- a live encounter id, a profile learned for it (ns.Rhythms), and the target being the encounter's BOSS —
+-- boss/skull level (UnitLevel −1) — never an add: injecting Lucifron's shape into a Flamewaker's
+-- estimator would be wrong.
+function LiveDriver.rhythmFor(rhythms, encounterID, targetLevel)
+    if rhythms and encounterID and targetLevel == -1 then
+        return rhythms[encounterID]
+    end
+    return nil
+end
+
 -- ===== the client edge (untestable off-client; delegates all decisions to the pure helpers above) =====
 
 local frame -- event + ticker frame
@@ -95,6 +106,8 @@ local lastGUID
 local shown = false -- sticky per-target show-state (feeds the gate's minTTK initial-qualify); reset on
 -- a target change so each new target must re-qualify.
 local encounterActive = false -- true between ENCOUNTER_START and ENCOUNTER_END (instance raid encounters)
+local currentEncounterID -- ENCOUNTER_START's id while an encounter is live (nil outside one); keys ns.Rhythms
+local estHasRhythm = false -- whether the live estimator was built with a rhythm profile (one-shot upgrade)
 -- Kill-history tracking for the current target (WO-025): its NPC id + the player level at engage. The
 -- fight-start reference is set at FIRST DAMAGE (not target acquisition) so idle-before-combat doesn't
 -- inflate the recorded rate (WO-027); `prevHealth` detects that first drop. Reset on target change.
@@ -128,6 +141,24 @@ local suspended = false -- pushed true by the display while a sim preview owns t
 -- update() guard ALSO checks the db flags, so a real target is never blocked even if this desynced.
 function LiveDriver.setSuspended(v)
     suspended = v and true or false
+end
+
+-- One construction path for the live estimator, so the new-target build and the at-pull rhythm upgrade
+-- can never drift apart in which opts they pass.
+local function buildEst(p, prior, rhythm)
+    return Estimator.new({
+        reactivity = p.reactivity,
+        executeThreshold = p.executeThreshold,
+        executeModifier = p.executeModifier,
+        priorRate = prior,
+        rhythm = rhythm,
+    })
+end
+
+local function historyPrior(p)
+    return (p.useHistory and curKey)
+            and ns.History.rate(ns.addon.db.global.history, curLevel, curKey)
+        or nil
 end
 
 local function rescan()
@@ -169,13 +200,13 @@ local function update()
     -- not just the show/hide gate below, which would still let update() keep writing db.global.history while
     -- the addon is "off" (audit #5). Mirror the no-target reset.
     if not p.enabled then
-        est, lastGUID, shown = nil, nil, false
+        est, lastGUID, shown, estHasRhythm = nil, nil, false, false
         curKey, recorded, fightStartT, prevHealth = nil, false, nil, nil
         ns.Display.hide()
         return
     end
     if not UnitExists("target") then
-        est, lastGUID, shown = nil, nil, false
+        est, lastGUID, shown, estHasRhythm = nil, nil, false, false
         curKey, recorded, fightStartT, prevHealth = nil, false, nil, nil
         ns.Display.hide()
         return
@@ -190,6 +221,7 @@ local function update()
             -- Stash the outgoing target's tracking state for a possible swap-back.
             recent[lastGUID] = {
                 est = est,
+                estHasRhythm = estHasRhythm,
                 shown = shown,
                 curKey = curKey,
                 curLevel = curLevel,
@@ -212,6 +244,7 @@ local function update()
             -- dealt while untargeted simply goes unobserved.
             recent[guid] = nil
             est, shown = back.est, back.shown
+            estHasRhythm = back.estHasRhythm or false
             curKey, curLevel = back.curKey, back.curLevel
             fightStartT, fightStartH, recorded = back.fightStartT, back.fightStartH, back.recorded
             prevHealth = h
@@ -223,15 +256,21 @@ local function update()
             curKey = npcIdFromGUID(guid)
             curLevel = UnitLevel("player")
             fightStartT, fightStartH, recorded, prevHealth = nil, nil, false, h
-            local prior = (p.useHistory and curKey)
-                    and ns.History.rate(ns.addon.db.global.history, curLevel, curKey)
-                or nil
-            est = Estimator.new({
-                reactivity = p.reactivity,
-                executeThreshold = p.executeThreshold,
-                executeModifier = p.executeModifier,
-                priorRate = prior,
-            })
+            local rhythm = LiveDriver.rhythmFor(ns.Rhythms, currentEncounterID, UnitLevel("target"))
+            est = buildEst(p, historyPrior(p), rhythm)
+            estHasRhythm = rhythm ~= nil
+        end
+    end
+    -- Rhythm upgrade (WO-069): the boss is usually targeted BEFORE the pull, so its estimator is built
+    -- before ENCOUNTER_START can supply the encounter id. The moment a live encounter + a learned
+    -- profile + a boss-level target line up, rebuild ONCE with the rhythm injected — the pull just
+    -- started, so at most a tick or two of evidence is repaid for a whole fight of anticipation.
+    -- Upgrade-only: a profile is never torn down mid-fight (target changes rebuild naturally).
+    if est and not estHasRhythm then
+        local rhythm = LiveDriver.rhythmFor(ns.Rhythms, currentEncounterID, UnitLevel("target"))
+        if rhythm then
+            est = buildEst(p, historyPrior(p), rhythm)
+            estHasRhythm = true
         end
     end
     -- Start the recording clock at the first observed health drop (the real fight), with the health just
@@ -294,11 +333,15 @@ function LiveDriver.start()
     frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
     frame:RegisterEvent("ENCOUNTER_START")
     frame:RegisterEvent("ENCOUNTER_END")
-    frame:SetScript("OnEvent", function(_, event)
+    frame:SetScript("OnEvent", function(_, event, ...)
         if event == "ENCOUNTER_START" then
             encounterActive = true
+            -- First arg: the encounter's DungeonEncounterID — keys ns.Rhythms (WO-069). The rhythm
+            -- upgrade itself happens in update(), where the target/estimator context lives.
+            currentEncounterID = ...
         elseif event == "ENCOUNTER_END" then
             encounterActive = false
+            currentEncounterID = nil
         elseif event ~= "PLAYER_TARGET_CHANGED" then
             rescan()
         end
