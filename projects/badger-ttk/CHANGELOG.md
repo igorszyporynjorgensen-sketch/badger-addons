@@ -1,15 +1,7 @@
-# Changelog
-
-All notable, player-facing changes to **Badger Time To Kill (TTK)**. Version numbers match the addon's
-`## Version` (and each CurseForge upload). Newest first. Format: [Keep a Changelog](https://keepachangelog.com/).
-
-<!-- RELEASE PROCESS: accumulate changes under [Unreleased]. When a version bumps the .toc, rename
-     [Unreleased] to "## [x.y.z] - YYYY-MM-DD" and paste that section's body into the CurseForge file's
-     "Changelog" box on upload. Then start a fresh empty [Unreleased] above it. -->
-
-## [Unreleased]
+## 0.9.46 (2026-07-30)
 
 ### Changed
+
 - **Kill history now records the full Warcraft-Logs-shaped record** for each kill — encounter/creature,
   fight duration, group size & composition, and a timestamp — instead of a single running-mean rate. This
   makes your own kills forward-compatible with the planned log-import (they'll blend into one prior). *One
