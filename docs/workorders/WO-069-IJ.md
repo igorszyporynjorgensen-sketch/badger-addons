@@ -143,6 +143,12 @@ related:
   (open item; the id-space question rides on it). Proceeding with the BWL library meanwhile.** Post-pass learnings recorded in
   `docs/reference/estimator-replay.md` (§ Learnings after the MC pass).
 
+- **Loop 11 outcome (PR #86, 2026-07-30):** **Razorgore ×50 — BWL begins; best median endpoint yet.**
+  Held-out 25 (baseline = pre-wiring estimator): mean **26.4% → 20.4%**, median 22.1% → **15.3%**,
+  within-15% 32.2% → 55.7%, better on 20/25; train ≈ test. Ranked window = the post-egg burn (soft
+  roll-in 0.77×, clean 2× execute). **Ten encounters, ten held-out wins.** BWL profiles stay in the lab
+  until the wing ships as a set.
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design

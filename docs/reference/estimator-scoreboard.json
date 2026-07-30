@@ -297,6 +297,32 @@
         "train_mean": 0.305,
         "note": "library complete: nine encounters, nine held-out wins, zero overfit in nine splits"
       }
+    },
+    {
+      "id": 13,
+      "date": "2026-07-30",
+      "estimator": "shipped estimator + Razorgore profile from 25-kill TRAIN half (loop 11 \u2014 first BWL boss)",
+      "corpus": "Razorgore \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split); baseline = pre-wiring estimator",
+      "corpus_short": "Razorgore \u00d750 \u00b7 loop 11 (held-out)",
+      "label": "loop 11: Razorgore",
+      "fights": 25,
+      "fixtures": 50,
+      "never_confident": 0,
+      "mape_mean": 0.204,
+      "mape_median": 0.153,
+      "mape_p90": 0.386,
+      "bias_s": 1.1,
+      "within15": 0.557,
+      "shown": 0.86,
+      "dur_min": 8.2,
+      "dur_max": 12.4,
+      "compare": {
+        "baseline_mean": 0.264,
+        "baseline_bias": 1.8,
+        "better_on": "20/25 held-out",
+        "train_mean": 0.209,
+        "note": "BWL begins; best median endpoint yet (15.3%); ranked window = post-egg burn only"
+      }
     }
   ]
 }
