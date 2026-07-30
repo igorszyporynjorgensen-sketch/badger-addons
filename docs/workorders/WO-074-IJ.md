@@ -1,6 +1,6 @@
 ---
 wo: WO-074-IJ
-status: In progress
+status: Done
 assigned: IJ
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/94
 decision: D-013-IJ
@@ -67,4 +67,6 @@ key in `.env`, corpus gitignored) — never in CI.
 - Shipped as **0.9.47** through the pipeline; PR human-merged; tag + GitHub Release cut. CurseForge +
   in-game `/reload` remain the human's (D-015).
 
-**Phase 1** 1. [ ] harvest + learn + held-out grade (done). 2. [ ] integrate into rhythms.lua + spec; gate green. 3. [ ] cut 0.9.47 (branch + PR); post-merge tag + release.
+**Phase 1** 1. [x] harvest + learn + held-out + fresh-batch grade. 2. [x] integrate into rhythms.lua + spec; gate green. 3. [x] cut 0.9.47 (PR #94 merged); tag `badger-ttk/0.9.47` + GitHub Release + zip.
+
+**Outcome:** Onyxia shipped in 0.9.47. Two out-of-sample validations (held-out 74.2%→52.7%, fresh dps batch 79.8%→59.3%). By time-left: error is ~3s in the final 10s, ~17s at 30s-left, and the rhythm roughly halves mid-fight error (the air-phase navigation). The residual (air phase, ~99% shown) is the seam D-018/0.9.48 addresses.

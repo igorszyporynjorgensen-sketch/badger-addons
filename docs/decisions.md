@@ -89,11 +89,13 @@ _As of 2026-07-30._
 - **Estimator, shipped (0.9.45).** The full **41-profile rhythm library** across five raids (MC · BWL · ZG
   · AQ20 · AQ40) is released — learned from ~2,000 real WCL kills, held-out-validated, injected as
   `opts.rhythm` behind the frozen estimator API. The **regime structural-tail layer** (D-014, injected
-  `opts.regime` + minimal seams) is **designed and accepted but deferred to 1.1** (D-015, Path B).
+  `opts.regime` + minimal seams) is **designed and accepted (D-014); pulled forward to ship as 0.9.48**,
+  before 1.0.0 (D-018) — the Onyxia air-phase weakness made it the next priority.
 - **1.0.0 status (Path B, D-015).** Out of alpha ships on the released rhythm library + the existing
   confidence gate. WO-072 (PR #91) is **merged**; remaining before the human's version bump: the **deferred
   in-game `/reload`** (loads clean · confirms the `663` vs `150663` encounter id-space · `.toc` Interface ·
-  bars track · Majordomo-style hides). Regime PRs (WO-069 impl) + the CLEU off-target tier are 1.1+.
+  bars track · Majordomo-style hides). The regime layer (WO-069 impl, WO-075) now ships as **0.9.48**
+  (D-018), so 1.0.0 includes it; the CLEU off-target tier remains a later follow-up.
 - **Release infra (WO-073, D-017) — shipped (PR #92 merged).** `nx release` multi-output pipeline:
   custom `.toc` `versionActions`, `currentVersionResolver: git-tag` + `disk` fallback, Conventional-Commits
   bump + nx-owned per-project changelog, tag `{projectName}/{version}`, zip + a post-merge/human-gated
@@ -107,13 +109,32 @@ _As of 2026-07-30._
   (releases moved, zips kept; old `v*` deleted). The pipeline is now **proven in production**, so the
   **`scaffold-project` back-port is unlocked** (was gated on a real cycle). CurseForge publish + the 1.0.0
   cut still await the human's in-game `/reload`.
-- **Next id:** D-018-IJ.
+- **Onyxia shipped (0.9.47).** The last missing raid boss now has a learned rhythm (dual-key 1084/151084),
+  held-out + fresh-batch validated (MAPE ~74%→~53–60%); released via the pipeline (tag `badger-ttk/0.9.47`,
+  GitHub Release). It exposed the rhythm ceiling (the untargetable air phase), which motivated D-018.
+- **Next release: 0.9.48 = the regime layer** (D-018/WO-075) — makes the bar go quiet in phases it can't
+  read (Onyxia's air phase the first beneficiary). Then 1.0.0 (with regime), gated on the in-game `/reload`.
+- **Next id:** D-019-IJ.
 
 ---
 
 ## Decision log
 
 ### 2026-07-30
+
+- **[D-018-IJ] The regime structural-tail layer moves from 1.1 to 0.9.48 — it ships BEFORE 1.0.0.
+  Status: Accepted.** *(Human directive 2026-07-30, on seeing Onyxia's air-phase weakness: "whatever 1.1
+  does, I want it next but as 0.9.48." Supersedes D-015's deferral of the regime layer to 1.1; the D-014
+  design stands unchanged.)* Shipping the Onyxia rhythm (0.9.47) exposed the limit a rhythm profile provably
+  can't cross: through a structural phase where the boss is untargetable (Onyxia's ~40s air phase, zero
+  damage events), the confidence-gated bar still shows a confidently-wrong countdown (~99% shown, reads
+  long) — measured, not assumed. D-014's **Minimal Seams** design is exactly the fix: an injected
+  `opts.regime` table + nil-guarded, health-anchored seams that freeze/immune/reset off `h` **and cap
+  confidence so the bar goes QUIET instead of guessing** through such a phase. The human wants that quality
+  in players' hands next, not deferred past 1.0.0. *Consequence:* the release order is 0.9.47 (Onyxia) →
+  **0.9.48 (regime, WO-069's 3 PR-sized increments)** → … → 1.0.0, so **1.0.0 now ships WITH the regime
+  layer** — a stronger out-of-alpha than Path B's rhythm-only 1.0.0. Implementation stays gated by sim
+  byte-identity + corpus regression, human-merged (D-014 §4). **WO-075 implements.**
 
 - **[D-017-IJ] Releases move to Nx Release — independent multi-output, Conventional Commits, full
   pipeline. Status: Accepted.** *(Supersedes the D-011 changelog/version-bump **mechanism**; D-011's
