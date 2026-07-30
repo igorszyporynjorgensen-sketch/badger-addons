@@ -9,8 +9,9 @@ describe("Rhythms", function()
         ns = mock.load("projects/badger-ttk/src/raids/rhythms.lua")
     end)
 
-    it("ships nine MC profiles, aliased on both id spaces", function()
-        local classic = { 663, 664, 665, 666, 667, 668, 669, 670, 672 }
+    it("ships seventeen profiles (MC 9 + BWL 8), aliased on both id spaces", function()
+        local classic =
+            { 663, 664, 665, 666, 667, 668, 669, 670, 672, 610, 611, 612, 613, 614, 615, 616, 617 }
         for _, id in ipairs(classic) do
             assert.is_table(ns.Rhythms[id], "missing classic id " .. id)
             -- The WCL Fresh partition names the same encounter at +150000 — same table, by identity.
