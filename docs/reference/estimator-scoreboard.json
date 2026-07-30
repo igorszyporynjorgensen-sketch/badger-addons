@@ -245,6 +245,32 @@
         "better_on": "24/25 held-out \u00b7 20/25 train",
         "note": "worst baseline in MC (priest heals suppress net damage: +16.1s bias) \u2014 biggest correction (-42pp) but weakest absolute endpoint; heal residual is structural"
       }
+    },
+    {
+      "id": 11,
+      "date": "2026-07-30",
+      "estimator": "rhythm candidate \u2014 Golemagg profile from 25-kill TRAIN half (loop 9)",
+      "corpus": "Golemagg \u00d750 \u2014 graded on the HELD-OUT 25 (train/test split)",
+      "corpus_short": "Golemagg \u00d750 \u00b7 loop 9 (held-out)",
+      "label": "loop 9: Golemagg",
+      "fights": 25,
+      "fixtures": 50,
+      "never_confident": 0,
+      "mape_mean": 0.204,
+      "mape_median": 0.196,
+      "mape_p90": 0.283,
+      "bias_s": 2.7,
+      "within15": 0.687,
+      "shown": 0.92,
+      "dur_min": 28.0,
+      "dur_max": 38.6,
+      "compare": {
+        "baseline_mean": 0.306,
+        "baseline_bias": 5.7,
+        "better_on": "25/25 held-out (first perfect sweep) \u00b7 24/25 train",
+        "train_mean": 0.204,
+        "note": "train == test exactly (20.4%) \u2014 textbook generalization on the textbook boss"
+      }
     }
   ]
 }

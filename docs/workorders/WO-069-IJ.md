@@ -121,6 +121,11 @@ related:
   *Honest residual:* weakest absolute endpoint (heal pollution is structural — for the regime work, not
   more data). **Seven encounters, seven held-out wins.**
 
+- **Loop 9 outcome (PR #83, 2026-07-30):** **Golemagg ×50 — the first perfect sweep: 25/25 held-out kills
+  better.** Mean MAPE **30.6% → 20.4%**, within-15% 43.0% → 68.7%, bias +5.7s → +2.7s; train ≈ test
+  *exactly* (20.4% both). Textbook shape (gate 0.41× → flat burn → 1.3–1.5× enrage). **Eight encounters,
+  eight held-out wins, zero overfit in eight straight splits.** Ragnaros closes the library next.
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design
