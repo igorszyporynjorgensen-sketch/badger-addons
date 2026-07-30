@@ -174,6 +174,19 @@ related:
   five-raid library is public. The human is running the in-game test + CurseForge upload. **Ultracode is
   now ON: Phase 1 (the regime design fan-out) begins**, targeting **1.0.0 / out of alpha**.
 
+- **Phase 1 DESIGN complete (2026-07-30) — fable-5 + ultracode fan-out (12 agents):** 4 deep-readers → 4
+  independent architectures → 3-judge panel → synthesis. **Unanimous winner:** "minimal seams" — an
+  injected `opts.regime` per-encounter playbook consumed by nil-guarded, health-anchored seams inside the
+  estimator (freeze/hideBar/resetOnRise/suppressFlush/confCap) + a `ns.Regimes` data table + a universal
+  raid-gate `confCap` default. Rejected: full strategy-split (over-engineered — integrator never forks),
+  driver encounter-controller (highest ceiling but CLEU-dependent, not corpus-provable today → deferred as
+  WO-072). Design of record: **`docs/reference/estimator-regime-design.md`**. Refinement recorded as
+  **[D-014-IJ] (Proposed)**. Implementation = **3 PR increments** (PR1 freeze/hide/default + lab · PR2
+  confCap honesty + suppressFlush · PR3 Thekal resetOnRise + stall tuning), each gated by sim
+  byte-identity + corpus regression. *Caveat:* the workflow's 1.0.0 gap-audit agent returned a stub
+  (spent tokens, emitted placeholder schema) — a **real gap audit is being re-run** before 1.0.0 sign-off;
+  §5's plan is reconstructed from repo state meanwhile. **Awaits human acceptance of D-014 before Phase 2.**
+
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
 (each raid sampled from its own relevance window; Onyxia/Patchwerk excluded — their rankings predate Fresh,
 a different variant's population). 2. [x] fable on · [ ] ultracode — deferred; the multi-agent design

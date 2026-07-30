@@ -86,6 +86,31 @@ _As of 2026-07-25._
 
 ## Decision log
 
+### 2026-07-30
+
+- **[D-014-IJ] Regime behavior ships as injected per-encounter DATA + minimal nil-guarded seams inside the
+  estimator — not a strategy-class split (refines D-013). Status: Proposed.** *Origin:* the WO-069 Phase-1
+  **fable-5 + ultracode** design fan-out (4 deep-readers → 4 independent architectures → 3-judge panel)
+  chose, **unanimously across all three judge lenses**, the "minimal seams" architecture: a new
+  `opts.regime` injected dependency (mirroring the shipped `opts.rhythm`) consumed by ~45 **nil-guarded,
+  health-anchored** lines inside `estimator.lua` — freeze bands (immune/gate/submerge), `hideBar`
+  (Majordomo), `resetOnRise` (Thekal's tiger phase), `suppressFlush` (Buru's egg cliffs), and per-bin
+  **confidence caps** — plus a `ns.Regimes` data table (numbers learned from the same even/odd corpus
+  pipeline as the 41 rhythm profiles; categorical flags hand-authored) and a **universal raid-gate
+  `confCap` default** applied to every boss-level target (fixes D-013's motivating defect: Lucifron's
+  1.00 confidence at 99% HP). *Why not the full solo/party/raid strategy split D-013 sketched:* the rate
+  **integrator** provably never needs to fork (solo already nails smooth curves) — only **confidence and
+  phase behavior** differ, which injected regime data delivers. *The decisive constraint:* the grader
+  (`tools/estimator-batch.lua`) hard-wires `sample(t,h,true)`, so the **only** way a freeze/immune
+  mechanism is byte-identically provable **offline and live** is for the estimator to freeze **itself**
+  off the health it already receives — one injection point, zero offline↔live divergence. *Honest about
+  limits:* heal-pollution (Sulfuron/Jin'do) and second-pool/targeting-artifact bosses (Twins/Skeram) are
+  **physically invisible to health polling** → the design **caps confidence** (never a fake fix) and
+  reserves forward-compatible CLEU slots for a scheduled follow-up WO (WO-072). *Design of record:*
+  `docs/reference/estimator-regime-design.md` (3 PR-sized increments, each gated by sim byte-identity +
+  corpus regression). *Status:* **Proposed** — awaiting human acceptance before the implementation
+  increments run.
+
 ### 2026-07-29
 
 - **[D-013-IJ] The estimator is restructured into regime-aware strategies (solo · party · raid) behind
