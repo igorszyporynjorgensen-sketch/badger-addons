@@ -2,7 +2,7 @@
 wo: WO-073-IJ
 status: In progress
 assigned: IJ
-mr:
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/92
 decision: D-017-IJ
 depends_on: []
 related:
