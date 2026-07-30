@@ -1,3 +1,17 @@
+## 0.9.47 (2026-07-30)
+
+### Added
+
+- **Onyxia now anticipated.** The TTK bar reads Onyxia's fight shape — the fast ground phase, the ~50%-health
+  **air phase** where she's untargetable (whelps out), and the final execute burn — instead of assuming
+  steady damage. Learned from real raid kills and validated on held-out fights, like the other boss rhythms.
+  Applies automatically when the encounter starts; no configuration. (Naxxramas still awaits a log corpus.)
+
+### ❤️ Thank You
+
+- Claude Opus 4.8 (1M context)
+- Igor Szyporyn
+
 ## 0.9.46 (2026-07-30)
 
 ### Changed

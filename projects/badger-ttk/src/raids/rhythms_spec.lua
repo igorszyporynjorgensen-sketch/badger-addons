@@ -52,6 +52,7 @@ describe("Rhythms", function()
             791,
             792,
             793,
+            1084, -- Onyxia (WO-074)
         }
         for _, id in ipairs(classic) do
             assert.is_table(ns.Rhythms[id], "missing classic id " .. id)
@@ -59,7 +60,7 @@ describe("Rhythms", function()
             assert.equals(ns.Rhythms[id], ns.Rhythms[id + 150000])
         end
         assert.equals(
-            41 * 2,
+            42 * 2,
             (function()
                 local n = 0
                 for _ in pairs(ns.Rhythms) do
