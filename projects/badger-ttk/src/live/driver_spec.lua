@@ -205,3 +205,29 @@ describe("LiveDriver", function()
         end)
     end)
 end)
+
+describe("LiveDriver.rhythmFor (WO-069)", function()
+    local ns
+
+    before_each(function()
+        ns = {}
+        require("tools.wow-mock.init").load("projects/badger-ttk/src/abilities/abilities.lua", ns)
+        require("tools.wow-mock.init").load("projects/badger-ttk/src/live/driver.lua", ns)
+    end)
+
+    local RHYTHMS = { [663] = { kills = 25, bins = { 1 } } }
+
+    it("resolves only when encounter + profile + boss-level target line up", function()
+        assert.equals(RHYTHMS[663], ns.LiveDriver.rhythmFor(RHYTHMS, 663, -1))
+    end)
+
+    it("never applies to an add (non-boss level) during the encounter", function()
+        assert.is_nil(ns.LiveDriver.rhythmFor(RHYTHMS, 663, 62))
+    end)
+
+    it("nil outside an encounter, for unknown encounters, and without data", function()
+        assert.is_nil(ns.LiveDriver.rhythmFor(RHYTHMS, nil, -1))
+        assert.is_nil(ns.LiveDriver.rhythmFor(RHYTHMS, 999, -1))
+        assert.is_nil(ns.LiveDriver.rhythmFor(nil, 663, -1))
+    end)
+end)

@@ -1,0 +1,263 @@
+local _, ns = ...
+
+-- Learned per-encounter RHYTHM PROFILES (WO-069) — the fight's shape, learned from real Warcraft Logs
+-- kill curves and validated on held-out kills (nine encounters, nine wins, zero overfit; see
+-- docs/reference/estimator-replay.md and docs/reference/estimator-scoreboard.json). Each profile is
+-- m(h): the kill-rate at health h relative to the fight's AVERAGE rate — bins[i] covers health
+-- ((i-1)/K, i/K], so bins[1] is the execute end and bins[20] the pull. The estimator consumes a profile
+-- as an injected dependency (opts.rhythm): live observation calibrates the SCALE (this group's speed),
+-- the profile supplies the SHAPE (what the fight does next). The driver resolves which profile applies
+-- (ENCOUNTER_START id + a boss-level target); no profile => exactly the previous behavior.
+--
+-- AUTO-GENERATED from the lab's tools/candidates/rhythm-*.lua (learned by tools/learn-rhythm.py from
+-- ~50-kill batches, TRAIN half of an even/odd split, Fresh Molten Core relevance window). Regenerate
+-- through the lab; never hand-edit values. Majordomo is deliberately ABSENT (his fight is his adds —
+-- a boss-health profile cannot describe it).
+
+local profiles = {
+    -- Lucifron — 25 train kills
+    [663] = {
+        kills = 25,
+        bins = {
+            1.538,
+            1.504,
+            1.561,
+            1.578,
+            1.212,
+            1.136,
+            1.194,
+            1.21,
+            1.251,
+            1.087,
+            1.152,
+            1.045,
+            1.165,
+            1.044,
+            1.062,
+            1.073,
+            0.981,
+            1.085,
+            0.9,
+            0.294,
+        },
+    },
+    -- Magmadar — 25 train kills
+    [664] = {
+        kills = 25,
+        bins = {
+            1.454,
+            1.574,
+            1.394,
+            1.824,
+            1.126,
+            1.055,
+            1.098,
+            1.121,
+            1.094,
+            1.102,
+            1.072,
+            1.11,
+            1.049,
+            0.923,
+            0.941,
+            0.918,
+            0.865,
+            0.841,
+            0.919,
+            0.426,
+        },
+    },
+    -- Gehennas — 25 train kills
+    [665] = {
+        kills = 25,
+        bins = {
+            1.67,
+            1.525,
+            1.687,
+            2.016,
+            1.224,
+            1.227,
+            1.224,
+            1.138,
+            1.156,
+            1.067,
+            1.071,
+            1.09,
+            1.053,
+            1.0,
+            1.063,
+            0.98,
+            1.023,
+            0.899,
+            0.789,
+            0.316,
+        },
+    },
+    -- Garr — 25 train kills
+    [666] = {
+        kills = 25,
+        bins = {
+            1.487,
+            1.416,
+            1.495,
+            1.6,
+            1.123,
+            1.136,
+            1.031,
+            1.114,
+            1.071,
+            1.132,
+            1.207,
+            1.187,
+            1.059,
+            1.082,
+            1.08,
+            1.099,
+            1.008,
+            0.868,
+            0.828,
+            0.345,
+        },
+    },
+    -- Shazzrah — 25 train kills
+    [667] = {
+        kills = 25,
+        bins = {
+            1.39,
+            1.365,
+            2.73,
+            3.204,
+            1.118,
+            1.061,
+            1.099,
+            1.076,
+            1.215,
+            1.16,
+            1.091,
+            0.999,
+            0.967,
+            1.004,
+            1.036,
+            0.961,
+            1.014,
+            1.179,
+            0.878,
+            0.294,
+        },
+    },
+    -- Baron Geddon — 25 train kills
+    [668] = {
+        kills = 25,
+        bins = {
+            1.429,
+            1.511,
+            1.508,
+            1.883,
+            0.997,
+            1.193,
+            1.163,
+            1.115,
+            1.202,
+            1.317,
+            1.182,
+            1.211,
+            1.215,
+            1.278,
+            1.078,
+            1.14,
+            1.083,
+            0.998,
+            0.908,
+            0.35,
+        },
+    },
+    -- Sulfuron Harbinger — 25 train kills
+    [669] = {
+        kills = 25,
+        bins = {
+            1.606,
+            1.996,
+            1.687,
+            2.566,
+            1.196,
+            1.312,
+            1.229,
+            1.273,
+            1.175,
+            1.241,
+            1.126,
+            1.162,
+            1.191,
+            1.093,
+            1.017,
+            1.074,
+            0.902,
+            0.826,
+            0.876,
+            0.289,
+        },
+    },
+    -- Golemagg the Incinerator — 25 train kills
+    [670] = {
+        kills = 25,
+        bins = {
+            1.303,
+            1.367,
+            1.319,
+            1.488,
+            1.053,
+            1.04,
+            1.022,
+            1.044,
+            1.087,
+            1.073,
+            1.079,
+            1.142,
+            1.171,
+            1.068,
+            1.023,
+            0.992,
+            0.993,
+            0.908,
+            0.889,
+            0.407,
+        },
+    },
+    -- Ragnaros — 25 train kills
+    [672] = {
+        kills = 25,
+        bins = {
+            1.277,
+            1.271,
+            1.454,
+            1.514,
+            0.928,
+            1.021,
+            1.024,
+            1.009,
+            1.033,
+            0.986,
+            0.994,
+            0.989,
+            1.013,
+            1.101,
+            1.085,
+            0.951,
+            1.006,
+            0.935,
+            0.828,
+            0.548,
+        },
+    },
+}
+
+-- Key aliasing: the live client is expected to fire the classic DungeonEncounterID (663…672) in
+-- ENCOUNTER_START, while Warcraft Logs' Fresh partition names the same encounters at +150000 (the ids
+-- the lab's fixtures carry). Alias both so either reality resolves; the in-game /reload confirms which.
+local rhythms = {}
+for id, prof in pairs(profiles) do
+    rhythms[id] = prof
+    rhythms[id + 150000] = prof
+end
+
+ns.Rhythms = rhythms

@@ -452,3 +452,65 @@ describe("Estimator (verify-panel gap cases)", function()
         assert.is_true(math.abs(build(0, 1) / build(0.25, 2) - 2) < 1e-9)
     end)
 end)
+
+describe("Estimator rhythm profile (WO-069)", function()
+    local ns
+
+    before_each(function()
+        ns = require("tools.wow-mock.init").load("projects/badger-ttk/src/engine/estimator.lua")
+    end)
+
+    local function flat(v, n)
+        local t = {}
+        for i = 1, n or 20 do
+            t[i] = v
+        end
+        return t
+    end
+    local function feed(e)
+        -- steady 10%/s continuous decay
+        e:sample(0, 1.00)
+        e:sample(1, 0.90)
+        e:sample(2, 0.80)
+        e:sample(3, 0.70)
+        return e:ttk()
+    end
+
+    it("m == 1 everywhere reproduces the naive estimate exactly", function()
+        local plain = ns.Estimator.new({ reactivity = 1 })
+        local flat1 = ns.Estimator.new({ reactivity = 1, rhythm = { bins = flat(1.0) } })
+        assert.near(feed(plain), feed(flat1), 1e-9)
+    end)
+
+    it("a back-loaded profile anticipates: reads SHORTER than naive at high health", function()
+        -- slow top half (0.5x), fast bottom half (2x): the fight will accelerate — anticipate it.
+        local bins = {}
+        for i = 1, 10 do
+            bins[i] = 2.0 -- h < 50%: execute end
+        end
+        for i = 11, 20 do
+            bins[i] = 0.5 -- h >= 50%: slow opening
+        end
+        local naive = feed(ns.Estimator.new({ reactivity = 1 }))
+        local shaped = feed(ns.Estimator.new({ reactivity = 1, rhythm = { bins = bins } }))
+        assert.is_true(shaped < naive, ("shaped %s should be < naive %s"):format(shaped, naive))
+    end)
+
+    it("the profile supersedes the execute correction (no double-count)", function()
+        local mk = function(mod)
+            local e = ns.Estimator.new({
+                reactivity = 1,
+                executeThreshold = 0.5,
+                executeModifier = mod,
+                rhythm = { bins = flat(1.0) },
+            })
+            e:sample(0, 0.40) -- below the execute threshold from the start
+            e:sample(1, 0.35)
+            e:sample(2, 0.30)
+            e:sample(3, 0.25)
+            return e:ttk()
+        end
+        -- with a rhythm present the modifier must not change the estimate
+        assert.near(mk(1.0), mk(4.0), 1e-9)
+    end)
+end)

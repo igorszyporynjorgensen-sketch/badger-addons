@@ -67,8 +67,8 @@ local function tauFor(reactivity)
     return TAU_MAX - clamp01(reactivity or 0.5) * (TAU_MAX - TAU_MIN)
 end
 
--- opts: { reactivity, executeThreshold, executeModifier, rateFloor, priorRate, priorWeight }. The
--- caller (a driver) reads these from db.profile and passes plain values; the estimator never touches
+-- opts: { reactivity, executeThreshold, executeModifier, rateFloor, priorRate, priorWeight, rhythm }.
+-- The caller (a driver) reads these from db.profile and passes plain values; the estimator never touches
 -- db or the WoW API. priorWeight is optional and defaulted — existing call sites are untouched.
 function Estimator.new(opts)
     opts = opts or {}
@@ -79,6 +79,10 @@ function Estimator.new(opts)
     self.rateFloor = opts.rateFloor or DEFAULT_RATE_FLOOR
     self.priorRate = opts.priorRate
     self.priorWeight = opts.priorWeight or PRIOR_WEIGHT_DEFAULT
+    -- Rhythm profile (WO-069): an INJECTED dependency — the encounter's learned SHAPE (see
+    -- src/raids/rhythms.lua). The driver resolves which profile applies and passes it here; the
+    -- estimator never looks anything up. nil ⇒ exactly the previous behavior.
+    self.rhythm = opts.rhythm
     self:reset()
     return self
 end
@@ -261,11 +265,36 @@ function Estimator:ttk()
     if rate < self.rateFloor then
         return nil, conf
     end
-    local ttk = self.lastH / rate
-    -- Execute-phase correction: below the threshold a plain linear model over-estimates (raids dump
-    -- burst), so shorten.
-    if self.lastH < self.executeThreshold then
-        ttk = ttk / self.executeModifier
+    local ttk
+    if self.rhythm and self.rhythm.bins and #self.rhythm.bins > 0 then
+        -- Rhythm-aware remaining time (WO-069): live rate calibrates the SCALE (this group's speed),
+        -- the profile supplies the SHAPE (what the fight does next). m(h) = rate at health h relative
+        -- to the fight average; implied average R = rate / m(hNow); remaining = S(h) / R with
+        -- S(h) = ∫₀ʰ dh'/m (piecewise-constant bins; bins[1] = the execute end). m ≡ 1 reproduces
+        -- lastH/rate exactly. Validated on nine MC encounters' held-out kills (median error ~halved).
+        -- The profile SUBSUMES the execute correction — its execute bins ARE the per-boss measured
+        -- version of that guess, so applying both would double-count.
+        local bins = self.rhythm.bins
+        local K = #bins
+        local h = self.lastH
+        local idx = math.floor(h * K) + 1
+        if idx > K then
+            idx = K
+        end
+        local w = 1 / K
+        local S = 0
+        for i = 1, idx - 1 do
+            S = S + w / bins[i]
+        end
+        S = S + (h - (idx - 1) * w) / bins[idx]
+        ttk = S * bins[idx] / rate
+    else
+        ttk = self.lastH / rate
+        -- Execute-phase correction: below the threshold a plain linear model over-estimates (raids
+        -- dump burst), so shorten.
+        if self.lastH < self.executeThreshold then
+            ttk = ttk / self.executeModifier
+        end
     end
     -- The between-event countdown: the readout falls 1s per second like a timer, re-syncing at each
     -- event and pausing at the grace boundary when a hit is overdue (it never marches to zero on a

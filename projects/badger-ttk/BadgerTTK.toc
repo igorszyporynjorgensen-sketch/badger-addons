@@ -46,6 +46,7 @@ src\util\icon.lua
 src\abilities\table.lua
 src\abilities\abilities.lua
 src\raids\table.lua
+src\raids\rhythms.lua
 src\live\driver.lua
 src\core.lua
 src\config\config.lua
