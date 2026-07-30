@@ -138,8 +138,9 @@ related:
   (`ENCOUNTER_START` id capture · pure `rhythmFor` — boss-level targets only · one-shot at-pull upgrade ·
   stash continuity). Proof: gate green; `estimator-sim` byte-identical to main (solo untouched); full
   506-fight corpus bit-identical to the ten-loop candidate; whole-corpus median 25.3% vs 41.5% baseline.
-  CHANGELOG `[Unreleased]` entry added; no version bump (D-011). **Awaits the human's in-game `/reload`
-  + an MC pull before this lands as verified.** Post-pass learnings recorded in
+  CHANGELOG `[Unreleased]` entry added; no version bump (D-011). **Merged 2026-07-30; the human explicitly DEFERRED
+  in-game verification** — the behavior delta remains unverified-live until a later `/reload` + MC pull
+  (open item; the id-space question rides on it). Proceeding with the BWL library meanwhile.** Post-pass learnings recorded in
   `docs/reference/estimator-replay.md` (§ Learnings after the MC pass).
 
 **Phase 0** 1. [x] D-013 Accepted (2026-07-29) · [ ] corpus — in progress: Fresh MC ×10 + BWL ×8 + AQ ×2
