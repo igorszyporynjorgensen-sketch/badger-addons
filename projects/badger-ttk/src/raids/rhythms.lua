@@ -12,11 +12,38 @@ local _, ns = ...
 -- AUTO-GENERATED from the lab's tools/candidates/rhythm-*.lua (learned by tools/learn-rhythm.py from
 -- ~50-kill batches, TRAIN half of an even/odd split, each raid's Fresh relevance window). Regenerate
 -- through the lab; never hand-edit values. Deliberately ABSENT: Majordomo (his fight is his adds),
--- Edge of Madness (four random bosses share the encounter id), Naxxramas + Onyxia (no Fresh-window log
--- corpus exists yet — learnable the moment one does). Fights that start below full health (Vaelastrasz)
--- have their never-visited top bins neutralized to 1.0.
+-- Edge of Madness (four random bosses share the encounter id), and Naxxramas (no Fresh-window log
+-- corpus exists yet — learnable the moment one does; Onyxia joined in 0.9.47 once its corpus existed).
+-- Fights that start below full health (Vaelastrasz) have their never-visited top bins neutralized to 1.0.
 
 local profiles = {
+    -- Onyxia — 20 train kills. Fresh id 151084 → classic 1084. Slow pull, fast ground phase, a sharp dip
+    -- at ~50% health (the air phase — untargetable, whelps), recovery, then execute burn.
+    [1084] = {
+        kills = 20,
+        bins = {
+            1.292,
+            1.155,
+            1.222,
+            1.213,
+            0.922,
+            0.85,
+            0.83,
+            0.893,
+            0.767,
+            0.527,
+            0.745,
+            1.1,
+            1.521,
+            1.669,
+            1.653,
+            1.722,
+            1.625,
+            1.56,
+            1.36,
+            0.62,
+        },
+    },
     -- Razorgore the Untamed — 25 train kills
     [610] = {
         kills = 25,
