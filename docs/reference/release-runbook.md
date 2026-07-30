@@ -89,8 +89,13 @@ git add -A && git commit -m "chore(release): badger-ttk <version>"
 pnpm exec nx build badger-ttk         # → projects/badger-ttk/.release/BadgerTTK-<version>.zip
 ```
 
-(Requires the modern bash from Prerequisites. The zip is named from the **packaged** `.toc`, so it can't
-drift from what the client reports.)
+Requires the modern bash from Prerequisites. The zip is named from the **packaged** `.toc`, so it can't
+drift from what the client reports. Under the hood `tools/build.sh` **stages the addon as a throwaway
+standalone git checkout in a temp dir** and runs the BigWigs packager there (the packager assumes a
+standalone-addon layout the monorepo can't provide in place), then pulls the packaged tree back. The
+packager is **pinned to a released tag** (not `master`) for reproducibility — bump `packager_version` in
+`build.sh` deliberately. The staged copy reflects your **current working tree**, so commit the version bump
+(step 2) before building a release zip.
 
 ### 4. PR → **human merges**
 
