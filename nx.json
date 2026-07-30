@@ -17,5 +17,23 @@
     "test": { "cache": true, "inputs": ["default", "mock", "sharedGlobals"] },
     "build": { "cache": false }
   },
+  "release": {
+    "projectsRelationship": "independent",
+    "projects": ["badger-ttk", "badger-arena"],
+    "releaseTag": { "pattern": "{projectName}/{version}" },
+    "version": {
+      "currentVersionResolver": "git-tag",
+      "fallbackCurrentVersionResolver": "disk",
+      "specifierSource": "conventional-commits",
+      "versionActions": "./tools/release/toc-version-actions.js",
+      "git": { "commit": false, "tag": false, "push": false }
+    },
+    "changelog": {
+      "workspaceChangelog": false,
+      "projectChangelogs": true,
+      "automaticFromRef": true,
+      "git": { "commit": false, "tag": false, "push": false }
+    }
+  },
   "defaultBase": "main"
 }
