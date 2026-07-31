@@ -67,6 +67,54 @@ local function tauFor(reactivity)
     return TAU_MAX - clamp01(reactivity or 0.5) * (TAU_MAX - TAU_MIN)
 end
 
+-- Regime layer (WO-075 / D-014): read-only per-encounter data injected as opts.regime, consumed by the
+-- nil-guarded seams below. Every seam is a literal no-op when self.regime == nil, so solo / sim / any
+-- un-profiled encounter is byte-identical to the baseline (the sim injects no regime — that IS the gate).
+local REGIME_K = 20 -- confCap per-bin resolution (mirrors the rhythm bin math)
+local STALL_RATE = 0.004 -- fraction/s; health falling slower than this in-band is a TRUE stall (the boss is
+-- untargetable / frozen), NOT a slow ranged drop. RATE-based (Δh/Δt) so the gate is independent of poll
+-- cadence — a per-sample |Δh| threshold would mis-read any slow continuous drop at a fast cadence as a stall.
+
+-- Is health h in a FROZEN band right now? Stateless bands freeze whenever lo≤h≤hi. Stall-gated bands freeze
+-- only after health has STALLED in-band for stallSec. The stall test is the RECENT drop rate (Δh over the
+-- last sample interval, tracked via self.regimeStall.lastT/lastH — NOT prevSampleT, which the freeze nils),
+-- so it is (a) independent of poll cadence, (b) valid across the frozen hold, and (c) releases on the FIRST
+-- sample where health genuinely resumes falling: the reference advances every sample, so a resumed drop is
+-- judged against recent time, never diluted by the length of the stall. A ranged kill dropping through never
+-- freezes; a true near-zero-rate stall does. Side effect: maintains self.regimeStall, cleared on band exit.
+local function inFreezeBand(self, t, h)
+    local bands = self.regime.freeze
+    if not bands then
+        self.regimeStall = nil
+        return false
+    end
+    for i = 1, #bands do
+        local band = bands[i]
+        if h >= band.lo and h <= band.hi then
+            if not band.stallSec then
+                return true -- stateless band: in-band ⇒ frozen
+            end
+            local s = self.regimeStall
+            if not s then
+                self.regimeStall = { lastT = t, lastH = h, stalled = 0 } -- open a stall window on band entry
+                return false
+            end
+            local dt = t - s.lastT
+            if dt > 0 then
+                if (s.lastH - h) / dt < STALL_RATE then
+                    s.stalled = s.stalled + dt -- health ~still (or healing): accrue stall time
+                else
+                    s.stalled = 0 -- a real drop resumed: release the timer
+                end
+                s.lastT, s.lastH = t, h -- advance the reference EVERY sample (survives the frozen hold)
+            end
+            return s.stalled >= band.stallSec
+        end
+    end
+    self.regimeStall = nil -- out of every band
+    return false
+end
+
 -- opts: { reactivity, executeThreshold, executeModifier, rateFloor, priorRate, priorWeight, rhythm }.
 -- The caller (a driver) reads these from db.profile and passes plain values; the estimator never touches
 -- db or the WoW API. priorWeight is optional and defaulted — existing call sites are untouched.
@@ -83,6 +131,9 @@ function Estimator.new(opts)
     -- src/raids/rhythms.lua). The driver resolves which profile applies and passes it here; the
     -- estimator never looks anything up. nil ⇒ exactly the previous behavior.
     self.rhythm = opts.rhythm
+    -- Regime profile (WO-075): the encounter's structural playbook (freeze/hideBar/confCap/resetOnRise;
+    -- see src/raids/regimes.lua). Injected like opts.rhythm; the estimator never looks it up. nil ⇒ no-op.
+    self.regime = opts.regime
     self:reset()
     return self
 end
@@ -103,6 +154,7 @@ function Estimator:reset()
     self.runD, self.runT = 0, 0 -- the armed run's own evidence (graft: re-seeds the fit on flush)
     self.slowFlushed = false -- a jumpLo flush fired: live evidence proved the fight SLOWER than the
     -- prior, so the prior floor must stop binding (WO-061 — it capped genuinely slow fights forever)
+    self.regimeStall = nil -- open stall window { t0, h0 } for stall-gated freeze bands (WO-075); nil = none
 end
 
 -- Feed one sample: t (seconds, monotonic), h (health fraction in [0,1]). `damageable` defaults true;
@@ -110,6 +162,14 @@ end
 -- freeze, and ttk() holds bit-identically until damage resumes.
 function Estimator:sample(t, h, damageable)
     if damageable == false then
+        self.prevSampleT = nil
+        return
+    end
+    -- Regime freeze (WO-075 seam 3): a frozen band reuses the immune-hold path — drop the reference so no
+    -- event forms and the open span/evidence freeze; ttk() then holds bit-identically and confidence stops
+    -- growing. Placed AFTER the damageable short-circuit, so the driver's swap-back sample(0,0,false) is
+    -- untouched. No-op when self.regime == nil.
+    if self.regime and inFreezeBand(self, t, h) then
         self.prevSampleT = nil
         return
     end
@@ -199,11 +259,49 @@ function Estimator:sample(t, h, damageable)
         self.openSpan = 0
         self.lastH = h
     elseif drop < 0 then
+        -- Regime resetOnRise (WO-075 seam 4): a phase-reset boss (Thekal) refills to a new pool — a
+        -- one-sample rise ≥ the threshold is a NEW fight, so clear all live evidence and re-anchor here
+        -- (the old pool's "about to die" must not bleed into the new one). No-op when unflagged.
+        if
+            self.regime
+            and self.regime.resetOnRise
+            and (h - self.lastH) >= self.regime.resetOnRise
+        then
+            self:reset()
+            self.prevSampleT, self.lastH = t, h
+            return
+        end
         -- Heal: raise the level reference only — no event, nothing negative; openSpan keeps timing
         -- the next chunk (a heal doesn't reset the swing clock).
         self.lastH = h
     end
     -- drop == 0: a waiting tick carries no rate information; openSpan already advanced.
+end
+
+-- Regime confidence cap (WO-075 seam 7): clamp confidence DOWN (never up) so the bar goes quiet where the
+-- fight is unreadable — a scalar caps everywhere, a per-bin table caps by health bin (K=20, idx = the same
+-- bin math as the rhythm branch; bin 20 = h∈(0.95,1.0], bin 1 = execute; absent bin ⇒ no cap). Applied at
+-- every real-conf return site AFTER the prior-share raise, so a full-strength prior can't re-inflate past
+-- the cap; it flows through the driver's already-sticky gate, so a cap blocks only the FIRST appearance.
+function Estimator:_capConf(conf)
+    local cap = self.regime and self.regime.confCap
+    if not cap then
+        return conf
+    end
+    local ceil
+    if type(cap) == "number" then
+        ceil = cap
+    else
+        local idx = math.floor((self.lastH or 0) * REGIME_K) + 1
+        if idx > REGIME_K then
+            idx = REGIME_K
+        end
+        ceil = cap[idx]
+    end
+    if ceil and conf > ceil then
+        return ceil
+    end
+    return conf
 end
 
 -- Returns (ttk_seconds, confidence) — ttk is nil while unknown (no evidence and no prior) or when the
@@ -212,6 +310,11 @@ end
 -- 1.2 seconds in (the old tick-counting bug that neutered the history blend).
 function Estimator:ttk()
     if self.lastH == nil then
+        return nil, 0
+    end
+    -- Regime hideBar (WO-075 seam 6): a boss whose health is pure noise (Majordomo — his fight is his
+    -- adds) never shows a bar. No-op when unflagged.
+    if self.regime and self.regime.hideBar then
         return nil, 0
     end
     local a = self.dmgTime / CONF_TIME
@@ -242,7 +345,7 @@ function Estimator:ttk()
         den = den + self.priorT
     end
     if den <= 0 then
-        return nil, conf -- no evidence, no prior: unknown
+        return nil, self:_capConf(conf) -- no evidence, no prior: unknown
     end
     -- A full-strength history prior IS confidence (WO-061): its evidence share starts at 1 (instant
     -- show on a history-backed pull) and fades exactly as live evidence takes over — while the live
@@ -263,7 +366,7 @@ function Estimator:ttk()
         end
     end
     if rate < self.rateFloor then
-        return nil, conf
+        return nil, self:_capConf(conf)
     end
     local ttk
     if self.rhythm and self.rhythm.bins and #self.rhythm.bins > 0 then
@@ -305,7 +408,7 @@ function Estimator:ttk()
         -- blanked the text + utility bars on a still-alive target (WO-061). nil stays the only unknown.
         ttk = 0.05
     end
-    return ttk, conf
+    return ttk, self:_capConf(conf)
 end
 
 ns.Estimator = Estimator

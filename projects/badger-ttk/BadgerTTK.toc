@@ -47,6 +47,7 @@ src\abilities\table.lua
 src\abilities\abilities.lua
 src\raids\table.lua
 src\raids\rhythms.lua
+src\raids\regimes.lua
 src\live\driver.lua
 src\core.lua
 src\config\config.lua
