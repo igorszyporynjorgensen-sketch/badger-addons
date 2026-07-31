@@ -92,7 +92,7 @@ runs client-side. No `_G` leak. Version bump only at the 0.9.48 release (D-011/D
 **Phases** — PR1 (freeze+hideBar+lab) · PR2 (confCap+suppressFlush) · PR3 (resetOnRise+tuning). Each is a
 branch + PR, corpus-graded, human-merged. Detailed per-boss mechanism/acceptance in design §3.
 
-## Outcome — PR1 (PR #95, awaiting human merge)
+## Outcome — PR1 (PR #95 merged; main green)
 
 The architecture is in and **byte-identical when `regime=nil`** (sim-gated). Shipped: Onyxia's **per-bin
 air-phase confCap** + Majordomo `hideBar` + the universal default confCap. **Key finding:** the FREEZE was
