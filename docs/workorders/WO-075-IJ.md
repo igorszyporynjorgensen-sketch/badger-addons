@@ -103,3 +103,4 @@ reads-long bias +41s→+20s, shown 99%→55%. The freeze mechanism ships **teste
 re-verifies caught & fixed **three real freeze bugs** (cadence-dependent gate, stuck-freeze, delayed in-band
 release) + a latent `reset()` bug — each now guarded by a regression test (20 regime tests; gate green).
 **PR2** = `learn-regime.py`/`assemble-regimes.py` + confCap-at-scale roster + `suppressFlush`.
+ *(PR3 caveat, from the PR1 freeze verify: a boss with BOTH a `freeze` band AND `resetOnRise` can have the resetOnRise swallowed — the freeze's nil'd `prevSampleT` routes an out-of-band up-jump to the reacquire path before the resetOnRise check. Pre-existing, latent (no profile combines them). Confirm Thekal has no freeze band, or fix the seam ordering.)*
