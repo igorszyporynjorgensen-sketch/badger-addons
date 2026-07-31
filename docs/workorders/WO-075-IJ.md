@@ -1,8 +1,8 @@
 ---
 wo: WO-075-IJ
-status: Accepted
+status: In progress
 assigned: IJ
-mr:
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/95
 decision: D-014-IJ
 depends_on:
   - docs/workorders/WO-069-IJ.md
@@ -91,3 +91,15 @@ runs client-side. No `_G` leak. Version bump only at the 0.9.48 release (D-011/D
 
 **Phases** — PR1 (freeze+hideBar+lab) · PR2 (confCap+suppressFlush) · PR3 (resetOnRise+tuning). Each is a
 branch + PR, corpus-graded, human-merged. Detailed per-boss mechanism/acceptance in design §3.
+
+## Outcome — PR1 (PR #95, awaiting human merge)
+
+The architecture is in and **byte-identical when `regime=nil`** (sim-gated). Shipped: Onyxia's **per-bin
+air-phase confCap** + Majordomo `hideBar` + the universal default confCap. **Key finding:** the FREEZE was
+the wrong tool for Onyxia — 200 real kills show the air phase is a *slowdown*, not a true stall, so a freeze
+over-holds (heavy right tail); the honest fix is the bar going **quiet** there (a confCap): MAPE 57%→44%,
+reads-long bias +41s→+20s, shown 99%→55%. The freeze mechanism ships **tested but unused by any PR1 profile**
+(its first users are the true-stall bosses in a later PR). An adversarial 6-lens verify + two focused
+re-verifies caught & fixed **three real freeze bugs** (cadence-dependent gate, stuck-freeze, delayed in-band
+release) + a latent `reset()` bug — each now guarded by a regression test (20 regime tests; gate green).
+**PR2** = `learn-regime.py`/`assemble-regimes.py` + confCap-at-scale roster + `suppressFlush`.
