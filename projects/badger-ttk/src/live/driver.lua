@@ -98,6 +98,16 @@ function LiveDriver.rhythmFor(rhythms, encounterID, targetLevel)
     return nil
 end
 
+-- PURE: which regime profile applies (WO-075). Same three conditions as rhythmFor (live encounter id +
+-- boss-level −1 target), but with a DEFAULT fallback: an un-profiled boss-level raid target still gets
+-- `ns.Regimes.default` (the universal "never certain near full" confCap), so every raid boss is gated.
+function LiveDriver.regimeFor(regimes, encounterID, targetLevel)
+    if regimes and encounterID and targetLevel == -1 then
+        return regimes[encounterID] or regimes.default
+    end
+    return nil
+end
+
 -- ===== the client edge (untestable off-client; delegates all decisions to the pure helpers above) =====
 
 local frame -- event + ticker frame
@@ -199,15 +209,16 @@ function LiveDriver.setSuspended(v)
     suspended = v and true or false
 end
 
--- One construction path for the live estimator, so the new-target build and the at-pull rhythm upgrade
--- can never drift apart in which opts they pass.
-local function buildEst(p, prior, rhythm)
+-- One construction path for the live estimator, so the new-target build and the at-pull rhythm/regime
+-- upgrade can never drift apart in which opts they pass.
+local function buildEst(p, prior, rhythm, regime)
     return Estimator.new({
         reactivity = p.reactivity,
         executeThreshold = p.executeThreshold,
         executeModifier = p.executeModifier,
         priorRate = prior,
         rhythm = rhythm,
+        regime = regime,
     })
 end
 
@@ -330,7 +341,8 @@ local function update()
             fightStartT, fightStartH, recorded, prevHealth = nil, nil, false, h
             recSpace, recId = nil, nil -- resolved at engage (first damage), below
             local rhythm = LiveDriver.rhythmFor(ns.Rhythms, currentEncounterID, UnitLevel("target"))
-            est = buildEst(p, historyPrior(p), rhythm)
+            local regime = LiveDriver.regimeFor(ns.Regimes, currentEncounterID, UnitLevel("target"))
+            est = buildEst(p, historyPrior(p), rhythm, regime)
             estHasRhythm = rhythm ~= nil
             -- If the encounter was already live at acquisition (targeted mid-encounter), historyPrior()
             -- already resolved the encounter prior, so no upgrade is owed — mark it done. Only a boss
@@ -348,7 +360,8 @@ local function update()
     -- the creature space (recSpace/recId are only read at death, so this is lossless).
     if est and not estEncounterUpgraded and currentEncounterID and UnitLevel("target") == -1 then
         local rhythm = LiveDriver.rhythmFor(ns.Rhythms, currentEncounterID, UnitLevel("target"))
-        est = buildEst(p, historyPrior(p), rhythm)
+        local regime = LiveDriver.regimeFor(ns.Regimes, currentEncounterID, UnitLevel("target"))
+        est = buildEst(p, historyPrior(p), rhythm, regime)
         estHasRhythm = rhythm ~= nil
         estEncounterUpgraded = true
         if recSpace ~= "encounter" then

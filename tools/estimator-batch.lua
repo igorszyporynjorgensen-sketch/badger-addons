@@ -45,6 +45,20 @@ local function rhythmFor(encounterID)
     return (ok and type(prof) == "table") and prof or nil
 end
 
+-- Regime injection (WO-075): the grader plays the DRIVER's role for regimes too — a candidate
+-- tools/candidates/regime-<enc>.lua is injected via opts.regime, EXACTLY as the live driver will on
+-- ENCOUNTER_START. The est:sample(s.t, s.h, true) call is UNCHANGED — the estimator freezes ITSELF off h.
+-- No candidate ⇒ nil ⇒ baseline (the non-regime regression guard: those boss rows stay byte-identical).
+local function regimeFor(encounterID)
+    if not encounterID then
+        return nil
+    end
+    local ok, prof = pcall(function()
+        return assert(loadfile(("tools/candidates/regime-%d.lua"):format(encounterID)))()
+    end)
+    return (ok and type(prof) == "table") and prof or nil
+end
+
 -- Grade one fixture → { name, dur, mape, bias, within, shown, n } (nil if nothing graded).
 local function grade(path)
     local ok, fight = pcall(function()
@@ -60,6 +74,7 @@ local function grade(path)
         executeThreshold = 0.20,
         executeModifier = 1.2,
         rhythm = rhythmFor(fight.encounterID),
+        regime = regimeFor(fight.encounterID),
     })
     local relSum, biasSum, within, n, scored = 0, 0, 0, 0, 0
     for i = 1, #samples do

@@ -514,3 +514,145 @@ describe("Estimator rhythm profile (WO-069)", function()
         assert.near(mk(1.0), mk(4.0), 1e-9)
     end)
 end)
+
+-- Regime seams (WO-075). Every seam is a no-op when regime == nil (proven byte-identical by the sim gate);
+-- these assert the behavior when a regime IS present.
+describe("Estimator — regime seams (WO-075)", function()
+    local ns
+    before_each(function()
+        ns = mock.load("projects/badger-ttk/src/engine/estimator.lua")
+    end)
+
+    -- a steady 1.0→~0.2 drop, one event/second, enough to reach full confidence
+    local function steady(regime)
+        local e = ns.Estimator.new({ regime = regime })
+        for i = 0, 16 do
+            e:sample(i * 1.0, 1.0 - i * 0.05)
+        end
+        return e
+    end
+
+    it("an EMPTY regime reproduces the baseline exactly (nil-guard invariant)", function()
+        local base, withEmpty = steady(nil), steady({})
+        local t1, c1 = base:ttk()
+        local t2, c2 = withEmpty:ttk()
+        assert.equals(t1, t2)
+        assert.equals(c1, c2)
+    end)
+
+    it("hideBar → (nil, 0) even with strong evidence", function()
+        local e = steady({ hideBar = true })
+        local ttk, conf = e:ttk()
+        assert.is_nil(ttk)
+        assert.equals(0, conf)
+    end)
+
+    it("confCap clamps confidence DOWN, never up", function()
+        local _, cBase = steady(nil):ttk()
+        local _, cCap = steady({ confCap = 0.2 }):ttk()
+        assert.is_true(cBase > 0.2, "baseline should be confident here (" .. cBase .. ")")
+        assert.is_true(cCap <= 0.2 + 1e-9)
+        assert.is_true(cCap <= cBase)
+    end)
+
+    it("a per-bin confCap uses the health bin (K=20); absent bin ⇒ no cap", function()
+        -- cap only bin 20 (h∈(0.95,1]) to 0; at h≈0.5 (bin 11, uncapped) confidence is untouched
+        local capped = ns.Estimator.new({ regime = { confCap = { [20] = 0.0 } } })
+        for i = 0, 16 do
+            capped:sample(i * 1.0, 1.0 - i * 0.05)
+        end -- ends at h≈0.2 (bin 5, no cap)
+        local _, c = capped:ttk()
+        local _, cBase = steady(nil):ttk()
+        assert.equals(cBase, c) -- uncapped bin: identical
+    end)
+
+    it("stall-gated freeze HOLDS ttk through an in-band stall (no ballooning)", function()
+        local e =
+            ns.Estimator.new({ regime = { freeze = { { lo = 0.45, hi = 0.55, stallSec = 2.0 } } } })
+        for i = 0, 10 do
+            e:sample(i * 1.0, 1.0 - i * 0.05)
+        end -- reaches h=0.5 at t=10, in-band
+        for i = 11, 14 do
+            e:sample(i * 1.0, 0.5)
+        end -- stall past stallSec ⇒ frozen from ~t=13
+        local a = select(1, e:ttk())
+        e:sample(15.0, 0.5)
+        e:sample(16.0, 0.5)
+        local b = select(1, e:ttk())
+        assert.is_not_nil(a)
+        assert.near(a, b, 0.01) -- frozen: the readout does not balloon while health stalls
+        -- resumed drop re-acquires without a spurious event
+        e:sample(17.0, 0.45)
+        e:sample(18.0, 0.40)
+        assert.is_not_nil((e:ttk()))
+    end)
+
+    it(
+        "a stall-gated band does NOT freeze health passing THROUGH it (rate-gated, not per-sample)",
+        function()
+            -- The whole point of stallSec: a boss DROPPING through the band (a ranged kill) must be untouched;
+            -- only a true near-zero-rate stall freezes. Steady 1%/s drop (> STALL_RATE) ⇒ byte-identical to
+            -- baseline. (Guards against a regression that dropped the stall gate — mutation-tested.)
+            local through = ns.Estimator.new({
+                regime = { freeze = { { lo = 0.45, hi = 0.55, stallSec = 2.0 } } },
+            })
+            local base = ns.Estimator.new({})
+            for i = 0, 60 do
+                local h = 1.0 - i * 0.01
+                through:sample(i * 1.0, h)
+                base:sample(i * 1.0, h)
+            end
+            assert.near(select(1, through:ttk()), select(1, base:ttk()), 1e-9)
+        end
+    )
+
+    it("releases the freeze on a real in-band resumed drop (not only on band exit)", function()
+        -- Regression guard: a long stall must NOT pin the countdown once the boss resumes taking damage while
+        -- STILL inside the band. The freeze's rate reference advances every sample, so a resumed drop is judged
+        -- against RECENT time — a since-entry rate would stay diluted and keep the readout frozen.
+        local e =
+            ns.Estimator.new({ regime = { freeze = { { lo = 0.35, hi = 0.62, stallSec = 2.0 } } } })
+        for i = 0, 16 do
+            e:sample(i * 1.0, 1.0 - i * 0.03) -- drop to h≈0.52 (in band) at 3%/s
+        end
+        for i = 17, 28 do
+            e:sample(i * 1.0, 0.52) -- 12s flat stall → frozen (long enough a since-entry rate never releases)
+        end
+        local frozen = select(1, e:ttk())
+        for i = 1, 4 do
+            e:sample((28 + i) * 1.0, 0.52 - i * 0.03) -- resume dropping 3%/s, staying IN-band (0.49 → 0.40)
+        end
+        local after = select(1, e:ttk())
+        assert.is_not_nil(frozen)
+        assert.is_not_nil(after)
+        assert.is_true(
+            after < frozen - 1.0,
+            ("stuck freeze: frozen=%.2f after=%.2f"):format(frozen, after)
+        )
+    end)
+
+    it(
+        "resetOnRise clears + re-anchors on a phase reset (old pool doesn't bleed into the new)",
+        function()
+            local e = ns.Estimator.new({ regime = { resetOnRise = 0.5 } })
+            for i = 0, 9 do
+                e:sample(i * 1.0, 1.0 - i * 0.09)
+            end -- drop toward death
+            e:sample(10.0, 0.95) -- phase reset: refill (rise ≥ 0.5)
+            assert.equals(0, e.events) -- evidence cleared
+            e:sample(11.0, 0.90)
+            local _, conf = e:ttk()
+            assert.is_true(conf < 0.5) -- fresh fight: not carrying the old pool's confidence
+        end
+    )
+
+    it("an UN-flagged profile does NOT reset on an up-jump (Twin/Skeram negative test)", function()
+        local e = ns.Estimator.new({ regime = { confCap = 0.9 } }) -- no resetOnRise
+        for i = 0, 9 do
+            e:sample(i * 1.0, 1.0 - i * 0.09)
+        end
+        local before = e.events
+        e:sample(10.0, 0.95) -- up-jump (heal / second-pool artifact)
+        assert.equals(before, e.events) -- NOT reset — evidence preserved
+    end)
+end)

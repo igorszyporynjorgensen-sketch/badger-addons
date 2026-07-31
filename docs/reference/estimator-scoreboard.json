@@ -424,6 +424,31 @@
           "bias_s": 63.4
         }
       }
+    },
+    {
+      "id": 18,
+      "date": "2026-07-31",
+      "estimator": "shipped estimator + regime layer PR1 (WO-075/0.9.48) — Onyxia air-phase confCap",
+      "corpus": "Fresh Onyxia ×200 (id 151084). Regime = per-health-bin confCap over the air-phase bins (8-12).",
+      "corpus_short": "Onyxia ×200 · regime PR1",
+      "label": "Onyxia regime (PR1)",
+      "fights": 200,
+      "fixtures": 200,
+      "mape_mean": 0.443,
+      "mape_median": 0.427,
+      "bias_s": 20.1,
+      "shown": 0.55,
+      "baseline": {
+        "note": "rhythm only, no regime",
+        "mape_mean": 0.57,
+        "mape_median": 0.554,
+        "bias_s": 41.3,
+        "shown": 0.99
+      },
+      "compare": {
+        "highlights": "Onyxia regime (WO-075 PR1): a per-bin confCap makes the bar go QUIET through the unreadable air phase → MAPE mean 57%→44%, median 55%→43%, reads-long bias +41s→+20s, shown 99%→55%.",
+        "method": "A stall-gated FREEZE was tried first and found WRONG for Onyxia: 200 kills show the air phase is a SLOWDOWN (ranged chips health), not a true stall, so the freeze over-holds and grows a heavy right tail (mean 63-83%). The honest fix is the confCap (bar quiet where unreadable). The freeze mechanism ships for TRUE-stall bosses (Viscidus/Ouro, later PRs). An adversarial 6-lens verify also caught + fixed a cadence-dependent freeze gate."
+      }
     }
   ]
 }

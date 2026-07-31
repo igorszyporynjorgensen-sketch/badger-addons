@@ -231,3 +231,40 @@ describe("LiveDriver.rhythmFor (WO-069)", function()
         assert.is_nil(ns.LiveDriver.rhythmFor(nil, 663, -1))
     end)
 end)
+
+describe("LiveDriver.regimeFor (WO-075)", function()
+    local ns
+
+    before_each(function()
+        ns = {}
+        require("tools.wow-mock.init").load("projects/badger-ttk/src/abilities/abilities.lua", ns)
+        require("tools.wow-mock.init").load("projects/badger-ttk/src/live/driver.lua", ns)
+    end)
+
+    local REGIMES =
+        { [663] = { hideBar = true }, [150663] = { hideBar = true }, default = { confCap = 0.5 } }
+
+    it(
+        "resolves the profile for a boss-level target in a live encounter (base + aliased id)",
+        function()
+            assert.equals(REGIMES[663], ns.LiveDriver.regimeFor(REGIMES, 663, -1))
+            assert.equals(REGIMES[150663], ns.LiveDriver.regimeFor(REGIMES, 150663, -1))
+        end
+    )
+
+    it(
+        "falls back to `default` for an UN-profiled boss-level target (every raid boss is gated)",
+        function()
+            assert.equals(REGIMES.default, ns.LiveDriver.regimeFor(REGIMES, 999, -1))
+        end
+    )
+
+    it("never applies to an add (non-boss level), even a profiled encounter", function()
+        assert.is_nil(ns.LiveDriver.regimeFor(REGIMES, 663, 62))
+    end)
+
+    it("nil outside an encounter and without data", function()
+        assert.is_nil(ns.LiveDriver.regimeFor(REGIMES, nil, -1))
+        assert.is_nil(ns.LiveDriver.regimeFor(nil, 663, -1))
+    end)
+end)
