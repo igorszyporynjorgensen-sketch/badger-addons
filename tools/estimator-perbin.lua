@@ -10,11 +10,18 @@
 -- as the dispersion of remaining time explodes near death purely because the denominator vanishes, which
 -- would silence the endgame, the very stretch the readout gets RIGHT.
 --
--- Output: one TSV row per bin — bin  n  medianRel  medianAbs  (bin 20 = h in (0.95,1.0], bin 1 = execute).
+-- Output: one TSV row per bin — bin  n  medianRel  medianAbs  preShow
+-- (bin 20 = h in (0.95,1.0], bin 1 = execute).
 -- `--even` uses only the EVEN-indexed fixtures — the same deterministic train half the learners use.
+--
+-- `preShow` (WO-076) is the REACHABILITY of the bin: the fraction of its in-scope samples where the bar
+-- had not yet latched. The client's show gate is sticky (src/live/driver.lua:55-80), so a confCap can only
+-- ever act while the bar is still hidden — a cap in a bin with preShow ≈ 0 is dead data that will never
+-- fire in game. `learn-regime.py` drops those rather than emitting them. Measuring it here (rather than
+-- assuming it) is the same discipline as measuring the error itself.
 
-local WARMUP = 3.0 -- ignore the opening: no evidence yet
-local TAIL = 6.0 -- ignore the last seconds: everything is "about to die"
+local G = require("tools.estimator-grade")
+local WARMUP, TAIL = G.WARMUP, G.TAIL
 local K = 20 -- health bins (mirrors the estimator's confCap/rhythm bin math)
 
 local mock = require("tools.wow-mock.init")
@@ -56,8 +63,10 @@ if #files == 0 then
 end
 
 local rel, abs = {}, {} -- per bin: lists of relative / absolute error
+local preShow, seenN = {}, {} -- per bin: in-scope samples reached BEFORE the bar latched / in total
 for i = 1, K do
     rel[i], abs[i] = {}, {}
+    preShow[i], seenN[i] = 0, 0
 end
 
 local used = 0
@@ -77,10 +86,15 @@ for idx, path in ipairs(files) do
                 rhythm = rhythm,
                 regime = contextRegime,
             })
+            local gate = G.newGate()
             for i = 1, #samples do
                 local s = samples[i]
-                est:sample(s.t, s.h, true)
-                local pred = est:ttk()
+                est:sample(s.t, s.h, G.damageable(s.h))
+                local pred, conf = est:ttk()
+                -- Reachability is read BEFORE the gate updates: "was the bar still hidden when the
+                -- fight reached this sample?" The gate itself sees every tick, in-scope or not.
+                local hiddenHere = not gate:latched()
+                gate:update(pred, conf)
                 local actual = death - s.t
                 if pred and s.t >= WARMUP and actual > TAIL then
                     local b = math.floor(s.h * K) + 1
@@ -92,6 +106,10 @@ for idx, path in ipairs(files) do
                     end
                     rel[b][#rel[b] + 1] = math.abs(pred - actual) / actual
                     abs[b][#abs[b] + 1] = math.abs(pred - actual)
+                    seenN[b] = seenN[b] + 1
+                    if hiddenHere then
+                        preShow[b] = preShow[b] + 1
+                    end
                 end
             end
         end
@@ -117,6 +135,7 @@ io.stderr:write(
 for b = K, 1, -1 do
     local mr, ma = median(rel[b]), median(abs[b])
     if mr then
-        print(("%d\t%d\t%.4f\t%.2f"):format(b, #rel[b], mr, ma))
+        local reach = seenN[b] > 0 and (preShow[b] / seenN[b]) or 0
+        print(("%d\t%d\t%.4f\t%.2f\t%.4f"):format(b, #rel[b], mr, ma, reach))
     end
 end

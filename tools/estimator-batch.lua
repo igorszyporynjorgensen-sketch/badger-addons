@@ -9,9 +9,10 @@
 -- module reload), so a 200-fight corpus grades in one quick pass. The corpus dir is gitignored (WO-070).
 -- (Grading mirrors estimator-replay.lua; a shared tools/estimator-grade.lua is a future refactor.)
 
-local WARMUP = 3.0
-local TAIL = 6.0
-local MINCONF = 0.5 -- src/core.lua default minConfidenceToShow — grade only what the bar would show
+-- The grading window and the client's STICKY show gate both live in the shared harness (WO-076), so the
+-- three graders cannot drift apart again. Grade only what the bar would actually show.
+local G = require("tools.estimator-grade")
+local WARMUP, TAIL = G.WARMUP, G.TAIL
 
 local mock = require("tools.wow-mock.init")
 -- Positional args are the first two NON-flag arguments, so flags may appear anywhere.
@@ -54,7 +55,8 @@ end
 
 -- Regime injection (WO-075): the grader plays the DRIVER's role for regimes too — a candidate
 -- tools/candidates/regime-<enc>.lua is injected via opts.regime, EXACTLY as the live driver will on
--- ENCOUNTER_START. The est:sample(s.t, s.h, true) call is UNCHANGED — the estimator freezes ITSELF off h.
+-- ENCOUNTER_START. The estimator still freezes ITSELF off h; the sample call passes only `damageable`
+-- (alive/dead, WO-076) and carries no regime knowledge of its own.
 -- No candidate ⇒ nil ⇒ baseline (the non-regime regression guard: those boss rows stay byte-identical).
 -- `--shipped` grades the profile that actually SHIPS (src/raids/regimes.lua) instead of the lab candidate.
 -- They are not the same artifact: the shipped profile also carries the hand-authored categorical facts
@@ -100,14 +102,17 @@ local function grade(path)
         regime = regimeFor(fight.encounterID),
     })
     local relSum, biasSum, within, n, scored = 0, 0, 0, 0, 0
+    local gate = G.newGate()
     for i = 1, #samples do
         local s = samples[i]
-        est:sample(s.t, s.h, true)
+        est:sample(s.t, s.h, G.damageable(s.h))
         local pred, conf = est:ttk()
+        -- The gate sees EVERY tick (it can latch during the warm-up); grading stays in-window.
+        local onScreen = gate:update(pred, conf)
         local actual = death - s.t
         if pred and s.t >= WARMUP and actual > TAIL then
             scored = scored + 1
-            if conf and conf >= MINCONF then
+            if onScreen then
                 local rel = math.abs(pred - actual) / actual
                 relSum = relSum + rel
                 biasSum = biasSum + (pred - actual)

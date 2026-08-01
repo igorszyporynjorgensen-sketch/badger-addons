@@ -47,7 +47,12 @@ describe("Regimes (WO-075 structural playbook)", function()
         assert.is_nil(ns.Regimes[150790].resetOnRise, "Fresh alias 150790 must NOT carry it")
     end)
 
-    it("never ships an EMPTY profile (a profile must actually say something)", function()
+    -- A KILLS-ONLY profile is legitimate — [D-019-IJ](b) decided this, and WO-076 made it reachable in
+    -- practice: once unreachable caps are dropped (the sticky show gate means a cap can only act before
+    -- the bar latches), a boss can be measured over many kills and still end up with nothing to say.
+    -- That is a real, honest result — "we studied this encounter and found no behaviour worth shipping"
+    -- — and it carries provenance. What must never ship is a profile that says nothing AT ALL.
+    it("never ships a profile with no content and no provenance", function()
         for key, prof in pairs(ns.Regimes) do
             if type(prof) == "table" and key ~= "default" then
                 local says = prof.hideBar
@@ -56,6 +61,7 @@ describe("Regimes (WO-075 structural playbook)", function()
                     or prof.resetOnRise
                     or prof.healPolluted
                     or prof.secondPool
+                    or (prof.kills and prof.kills > 0)
                 assert.is_true(says and true or false, "empty profile @ " .. tostring(key))
             end
         end
