@@ -566,70 +566,9 @@ describe("Estimator — regime seams (WO-075)", function()
         assert.equals(cBase, c) -- uncapped bin: identical
     end)
 
-    it("stall-gated freeze HOLDS ttk through an in-band stall (no ballooning)", function()
-        local e =
-            ns.Estimator.new({ regime = { freeze = { { lo = 0.45, hi = 0.55, stallSec = 2.0 } } } })
-        for i = 0, 10 do
-            e:sample(i * 1.0, 1.0 - i * 0.05)
-        end -- reaches h=0.5 at t=10, in-band
-        for i = 11, 14 do
-            e:sample(i * 1.0, 0.5)
-        end -- stall past stallSec ⇒ frozen from ~t=13
-        local a = select(1, e:ttk())
-        e:sample(15.0, 0.5)
-        e:sample(16.0, 0.5)
-        local b = select(1, e:ttk())
-        assert.is_not_nil(a)
-        assert.near(a, b, 0.01) -- frozen: the readout does not balloon while health stalls
-        -- resumed drop re-acquires without a spurious event
-        e:sample(17.0, 0.45)
-        e:sample(18.0, 0.40)
-        assert.is_not_nil((e:ttk()))
-    end)
-
-    it(
-        "a stall-gated band does NOT freeze health passing THROUGH it (rate-gated, not per-sample)",
-        function()
-            -- The whole point of stallSec: a boss DROPPING through the band (a ranged kill) must be untouched;
-            -- only a true near-zero-rate stall freezes. Steady 1%/s drop (> STALL_RATE) ⇒ byte-identical to
-            -- baseline. (Guards against a regression that dropped the stall gate — mutation-tested.)
-            local through = ns.Estimator.new({
-                regime = { freeze = { { lo = 0.45, hi = 0.55, stallSec = 2.0 } } },
-            })
-            local base = ns.Estimator.new({})
-            for i = 0, 60 do
-                local h = 1.0 - i * 0.01
-                through:sample(i * 1.0, h)
-                base:sample(i * 1.0, h)
-            end
-            assert.near(select(1, through:ttk()), select(1, base:ttk()), 1e-9)
-        end
-    )
-
-    it("releases the freeze on a real in-band resumed drop (not only on band exit)", function()
-        -- Regression guard: a long stall must NOT pin the countdown once the boss resumes taking damage while
-        -- STILL inside the band. The freeze's rate reference advances every sample, so a resumed drop is judged
-        -- against RECENT time — a since-entry rate would stay diluted and keep the readout frozen.
-        local e =
-            ns.Estimator.new({ regime = { freeze = { { lo = 0.35, hi = 0.62, stallSec = 2.0 } } } })
-        for i = 0, 16 do
-            e:sample(i * 1.0, 1.0 - i * 0.03) -- drop to h≈0.52 (in band) at 3%/s
-        end
-        for i = 17, 28 do
-            e:sample(i * 1.0, 0.52) -- 12s flat stall → frozen (long enough a since-entry rate never releases)
-        end
-        local frozen = select(1, e:ttk())
-        for i = 1, 4 do
-            e:sample((28 + i) * 1.0, 0.52 - i * 0.03) -- resume dropping 3%/s, staying IN-band (0.49 → 0.40)
-        end
-        local after = select(1, e:ttk())
-        assert.is_not_nil(frozen)
-        assert.is_not_nil(after)
-        assert.is_true(
-            after < frozen - 1.0,
-            ("stuck freeze: frozen=%.2f after=%.2f"):format(frozen, after)
-        )
-    end)
+    -- (The `freeze` tier and its three tests were removed in PR3 — D-020. A profile can no longer declare
+    -- health bands that hold the countdown; an immune/hardened phase is stated as FACT by the driver via
+    -- sample(t, h, damageable = false), which is covered by "pauses through an immune phase" above.)
 
     it(
         "resetOnRise clears + re-anchors on a phase reset (old pool doesn't bleed into the new)",

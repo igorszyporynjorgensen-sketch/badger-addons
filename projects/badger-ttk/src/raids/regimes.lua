@@ -2,9 +2,9 @@ local _, ns = ...
 
 -- Per-encounter REGIME PROFILES (WO-075 / D-014) — the fight's STRUCTURE that a health curve alone can't
 -- convey, consumed by nil-guarded seams in the estimator: `confCap` (where the readout is measurably wrong,
--- cap confidence so the bar goes QUIET rather than showing a confident-wrong countdown), `freeze` (hold the
--- countdown while health truly stalls), `hideBar` (health is pure noise), `suppressFlush` (scripted chunk
--- damage must not trigger the regime-change flush), `resetOnRise` (a phase reset starts a fresh pool).
+-- cap confidence so the bar goes QUIET rather than showing a confident-wrong countdown), `hideBar` (health
+-- is pure noise), `suppressFlush` (scripted chunk damage must not trigger the regime-change flush), and
+-- `resetOnRise` (a phase reset starts a fresh pool).
 -- Injected as `opts.regime` behind the frozen estimator API; every field is optional, an absent field is a
 -- no-op, and `regime = nil` reproduces the baseline EXACTLY. Kept separate from rhythms.lua so the two
 -- pipelines never mix. Dual-keyed classic + WCL-Fresh (+150000).
@@ -105,6 +105,21 @@ local profiles = {
             [6] = 0.0,
             [5] = 0.61,
         },
+        kills = 30,
+    },
+    -- High Priest Thekal — he RESURRECTS — the pool refills mid-encounter, so the old pool's "about to die" must not
+    -- bleed into the new one (`resetOnRise`, learned: 30/30 kills show a >=25% one-sample rise). NOTE the id:
+    -- Thekal is 789 and Gahz'ranka is 790 — verified against WCL fixture names; keying the reset on 790 would
+    -- silently no-op. The caps still quiet the bar: measured 55-100% error in EVERY bin (three priests behind
+    -- one health readout), so the reset improves the underlying estimate without yet making it showable.
+    [789] = {
+        resetOnRise = 0.25,
+        confCap = 0.37, -- every bin measured unreadable
+        kills = 30,
+    },
+    -- Gahz'ranka (the id next to Thekal's — must NOT carry his reset)
+    [790] = {
+        confCap = { [20] = 0.39, [19] = 0.97, [9] = 0.94, [7] = 0.92, [2] = 0.0 },
         kills = 30,
     },
     -- Jin'do the Hexxer — healed by adds — same invisible-heal pollution as Sulfuron. Reserved for the CLEU tier.

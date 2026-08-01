@@ -606,6 +606,49 @@
     "The FREEZE tier is subsumed by confCap: on this roster no freeze band improved a grade, and freeze-only made Viscidus worse (85.5%->90.5%). No shipped profile uses one.",
     "Categorical facts must be active while measuring: Buru's caps learned without suppressFlush were calibrated to an estimator ~3x worse and over-silenced a usable readout."
    ]
+  },
+  {
+   "id": 20,
+   "date": "2026-07-31",
+   "estimator": "shipped estimator + regime layer PR3 (WO-075/0.9.48) — Thekal resetOnRise; freeze tier REMOVED",
+   "corpus": "Thekal x60 + Gahz'ranka x60 added (920 fixtures total). Graded held-out against the SHIPPED profiles.",
+   "corpus_short": "Thekal/Gahz'ranka x60 · regime PR3",
+   "label": "Thekal + freeze removal (PR3)",
+   "fights": 920,
+   "fixtures": 920,
+   "per_boss_heldout": {
+    "thekal": {
+     "baseline": {
+      "mape_mean": 1.278,
+      "bias_s": 4.4,
+      "shown": 0.97
+     },
+     "regime": {
+      "silent": true,
+      "shown": 0.0
+     },
+     "why": "three priests behind one health readout: 55-100% measured error in EVERY bin, so the bar stays quiet. resetOnRise (30/30 kills resurrect) improves the underlying estimate 124.9%->84.9% but is not yet enough to make it showable."
+    },
+    "gahzranka": {
+     "baseline": {
+      "mape_mean": 0.838,
+      "bias_s": 17.9,
+      "shown": 0.97
+     },
+     "regime": {
+      "mape_mean": 0.803,
+      "bias_s": 16.0,
+      "shown": 0.88
+     },
+     "why": "the NEGATIVE CONTROL for the id discipline — 0/60 kills show a rise, and he correctly gets no resetOnRise"
+    }
+   },
+   "findings": [
+    "The id fact is verified against real data, not assumed: WCL fixture names give 150789 = 'High Priest Thekal' and 150790 = \"Gahz'ranka\". Thekal resurrects in 60/60 kills (largest rise 100%); Gahz'ranka in 0/60. A spec asserts the reset is keyed on 789 and absent on 790 in BOTH id spaces.",
+    "The FREEZE tier was REMOVED (D-020): no shipped profile used it, it never improved a grade, freeze-only made Viscidus worse (85.5%->90.5%), and it duplicated the driver's first-class sample(t,h,damageable=false). Three real defects had already been found in it by verification — in code nothing invoked.",
+    "The learner now determines curve/categorical facts BEFORE measuring and feeds them back as a context regime, so derived caps are always calibrated against the estimator that actually ships (Thekal ~1.5x, Buru ~3x better with their own facts active). The context never includes confCap, which would make the derivation circular.",
+    "The assembler now hard-fails on a generated comment line >120 chars: StyLua rewraps code but not comments, so a long note would silently break the lint gate on a file nobody hand-edits."
+   ]
   }
  ]
 }

@@ -55,6 +55,11 @@ FACTS = {
         "note": "two bosses share one health pool readout and swap places; the true remaining pool is not\n    -- visible to health polling alone. Reserved for the CLEU/second-pool tier.",
         "secondPool": True,
     },
+    789: {
+        "name": "High Priest Thekal",
+        "note": "he RESURRECTS — the pool refills mid-encounter, so the old pool's \"about to die\" must not\n    -- bleed into the new one (`resetOnRise`, learned: 30/30 kills show a >=25% one-sample rise). NOTE the id:\n    -- Thekal is 789 and Gahz'ranka is 790 — verified against WCL fixture names; keying the reset on 790 would\n    -- silently no-op. The caps still quiet the bar: measured 55-100% error in EVERY bin (three priests behind\n    -- one health readout), so the reset improves the underlying estimate without yet making it showable.",
+    },
+    790: {"name": "Gahz'ranka (the id next to Thekal's — must NOT carry his reset)"},
     709: {"name": "The Prophet Skeram"},
     616: {"name": "Chromaggus"},
     713: {"name": "Viscidus"},
@@ -79,11 +84,6 @@ def parse_candidate(path):
     m = re.search(r"confCap\s*=\s*\{(.*?)\}", txt, re.S)
     if m:
         out["confCap"] = {int(k): float(v) for k, v in re.findall(r"\[(\d+)\]\s*=\s*([\d.]+)", m.group(1))}
-    m = re.search(r"freeze\s*=\s*\{\s*\{(.*?)\}\s*\}", txt, re.S)
-    if m:
-        band = dict(re.findall(r"(\w+)\s*=\s*([\d.]+)", m.group(1)))
-        if {"lo", "hi"} <= set(band):
-            out["freeze"] = band
     m = re.search(r"resetOnRise\s*=\s*([\d.]+)", txt)
     if m:
         out["resetOnRise"] = float(m.group(1))
@@ -127,7 +127,7 @@ for cid in ids:
     # measurement nor a categorical fact is skipped.
     has_content = (
         cid in learned
-        or bool(fields.get("confCap") or fields.get("freeze") or fields.get("resetOnRise"))
+        or bool(fields.get("confCap") or fields.get("resetOnRise"))
         or any(k in facts for k in ("hideBar", "suppressFlush", "healPolluted", "secondPool"))
     )
     if not has_content:
@@ -138,10 +138,6 @@ for cid in ids:
         lines.append("        hideBar = true,")
     if facts.get("suppressFlush"):
         lines.append("        suppressFlush = true,")
-    if fields.get("freeze"):
-        b = fields["freeze"]
-        stall = f", stallSec = {b['stallSec']}" if "stallSec" in b else ""
-        lines.append(f"        freeze = {{ {{ lo = {b['lo']}, hi = {b['hi']}{stall} }} }},")
     if fields.get("resetOnRise"):
         lines.append(f"        resetOnRise = {fields['resetOnRise']},")
     if not facts.get("hideBar"):  # a hidden bar needs no confidence cap
@@ -175,9 +171,9 @@ header = f"""local _, ns = ...
 
 -- Per-encounter REGIME PROFILES (WO-075 / D-014) — the fight's STRUCTURE that a health curve alone can't
 -- convey, consumed by nil-guarded seams in the estimator: `confCap` (where the readout is measurably wrong,
--- cap confidence so the bar goes QUIET rather than showing a confident-wrong countdown), `freeze` (hold the
--- countdown while health truly stalls), `hideBar` (health is pure noise), `suppressFlush` (scripted chunk
--- damage must not trigger the regime-change flush), `resetOnRise` (a phase reset starts a fresh pool).
+-- cap confidence so the bar goes QUIET rather than showing a confident-wrong countdown), `hideBar` (health
+-- is pure noise), `suppressFlush` (scripted chunk damage must not trigger the regime-change flush), and
+-- `resetOnRise` (a phase reset starts a fresh pool).
 -- Injected as `opts.regime` behind the frozen estimator API; every field is optional, an absent field is a
 -- no-op, and `regime = nil` reproduces the baseline EXACTLY. Kept separate from rhythms.lua so the two
 -- pipelines never mix. Dual-keyed classic + WCL-Fresh (+{FRESH_OFFSET}).
@@ -209,6 +205,17 @@ ns.Regimes = regimes
 """
 
 out = header + "\n".join(blocks) + "\n" + footer
+
+# Luacheck caps lines at 120 (W631). StyLua re-wraps long CODE lines, but never comments — so a long note in
+# FACTS would silently break the gate on a file nobody hand-edits. Fail here instead, pointing at the line.
+too_long = [
+    (i, ln) for i, ln in enumerate(out.splitlines(), 1) if len(ln) > 120 and ln.lstrip().startswith("--")
+]
+if too_long:
+    for i, ln in too_long:
+        sys.stderr.write(f"error: generated comment line {i} is {len(ln)} chars (>120): {ln[:80]}...\n")
+    sys.exit("aborting: shorten the offending note in FACTS (the linter would reject this file)")
+
 if DRY:
     print(out)
 else:

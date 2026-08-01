@@ -63,50 +63,11 @@ if split_even:
     files = files[0::2]
     print(f"train/test split: learning from {len(files)} of {total} (even-indexed); odd half held out")
 
-# ── 1. per-bin measured error, from the real estimator ──────────────────────────────────────────────
-luajit = shutil.which("luajit") or shutil.which("lua")
-if not luajit:
-    sys.exit("luajit not found (needed to replay the estimator)")
-# --suppress-flush: measure with that categorical fact already enabled, because it is going to ship. Caps
-# must be calibrated against the estimator the client actually runs (on Buru the flag cuts the error ~3x;
-# caps learned without it would silence a readout that is, with the flag, perfectly usable).
+
+# A categorical fact supplied by the operator (it is domain knowledge, not a statistic); it is active while
+# measuring so the derived caps match the shipping configuration.
 suppress_flush = "--suppress-flush" in sys.argv
-cmd = (
-    [luajit, "tools/estimator-perbin.lua", str(enc), corpus]
-    + (["--even"] if split_even else [])
-    + (["--suppress-flush"] if suppress_flush else [])
-)
-proc = subprocess.run(cmd, capture_output=True, text=True)
-if proc.returncode != 0:
-    sys.exit(f"estimator-perbin failed: {proc.stderr.strip()[:300]}")
-
-measured = {}  # bin -> (n, medianRel, medianAbs)
-for line in proc.stdout.splitlines():
-    parts = line.split("\t")
-    if len(parts) == 4:
-        b, n, mr, ma = int(parts[0]), int(parts[1]), float(parts[2]), float(parts[3])
-        measured[b] = (n, mr, ma)
-
-caps = {}
-for b, (n, mr, ma) in measured.items():
-    if n < 20:  # too little evidence in this bin to judge it
-        continue
-    if ma <= ABS_OK or mr <= REL_OK:
-        continue  # measurably useful here — no cap, whichever currency says so
-    if ma >= ABS_BAD:
-        caps[b] = 0.0  # tens of seconds wrong: unusable regardless of ratio
-        continue
-    frac = (mr - REL_OK) / (REL_BAD - REL_OK)
-    cap = round(max(0.0, min(1.0, 1.0 - frac)), 2)
-    if cap < 0.995:
-        caps[b] = cap
-
-# NOTE: the universal raid floor (ns.Regimes.default) is deliberately NOT folded in here. It is a blanket
-# assumption for bosses we have never measured; where we HAVE measured, the measurement wins — folding the
-# floor in anyway silenced bins the data shows are accurate (measured on Chromaggus, whose 90-95% band is
-# among the most readable in the corpus, yet the blanket floor hid it and made the grade worse).
-
-# ── 2. curve shape: genuine flat stalls and phase resets ────────────────────────────────────────────
+# ── 1. curve shape: phase resets (and stall diagnostics) — determined BEFORE measuring ──────────────
 stalls, rises, kills = [], 0, 0
 for f in files:
     pts = [(float(a), float(b)) for a, b in re.findall(r"t = ([\d.]+), h = ([\d.]+)", open(f).read())]
@@ -151,51 +112,60 @@ if len(mid_fight) >= max(4, 0.5 * kills):  # at least half the kills have a real
 reset_on_rise = round(RISE_MIN, 2) if rises >= 0.5 * kills else None
 
 
-def freeze_earns_its_keep(band):
-    """A detected stall only SHIPS if freezing it measurably improves the grade.
+# NOTE — the `freeze` tier was REMOVED from the estimator in PR3 (D-020): across the whole roster no freeze
+# band improved a grade and freezing alone made Viscidus worse, and it duplicated the driver's first-class
+# `damageable = false`. The stall DETECTION below is kept as a printed diagnostic only (knowing a boss stalls
+# at h≈0.92 in 29/30 kills is real knowledge for the future CLEU tier) and is never emitted into a profile.
 
-    Detection alone is not evidence: a fight can stall briefly and still be better served by the rhythm
-    (Onyxia's air phase is a slowdown — freezing it changes nothing), while a true freeze phase transforms
-    the readout (Viscidus). Decided on the TRAIN half only; the held-out half stays clean for reporting.
-    """
-    import shutil as _sh
-    import tempfile as _tf
+# ── 2. per-bin measured error, from the real estimator RUNNING THE FACTS IT WILL SHIP WITH ──────────
+luajit = shutil.which("luajit") or shutil.which("lua")
+if not luajit:
+    sys.exit("luajit not found (needed to replay the estimator)")
+# The caps are DERIVED, so they must be measured against an estimator already carrying this profile's OTHER
+# fields — the ones the client will run with. Measured without them the error is inflated (Buru ~3x without
+# suppressFlush, Thekal ~1.5x without resetOnRise) and the caps would silence readouts that are in fact fine.
+context = []
+if suppress_flush:
+    context.append("suppressFlush = true")
+if reset_on_rise:
+    context.append(f"resetOnRise = {reset_on_rise}")
+context_lua = "{ " + ", ".join(context) + " }" if context else ""
+if context:
+    print(f"  measuring with the shipping facts active: {{{', '.join(context)}}}")
+cmd = (
+    [luajit, "tools/estimator-perbin.lua", str(enc), corpus]
+    + (["--even"] if split_even else [])
+    + (["--regime", context_lua] if context_lua else [])
+)
+proc = subprocess.run(cmd, capture_output=True, text=True)
+if proc.returncode != 0:
+    sys.exit(f"estimator-perbin failed: {proc.stderr.strip()[:300]}")
 
-    train = files  # already the train half when --split-even
-    if len(train) < 6:
-        return False
-    tmp = _tf.mkdtemp()
-    try:
-        for f in train:
-            _sh.copy(f, tmp)
-        cand = f"tools/candidates/regime-{enc}.lua"
-        saved = open(cand).read() if glob.glob(cand) else None
+measured = {}  # bin -> (n, medianRel, medianAbs)
+for line in proc.stdout.splitlines():
+    parts = line.split("\t")
+    if len(parts) == 4:
+        b, n, mr, ma = int(parts[0]), int(parts[1]), float(parts[2]), float(parts[3])
+        measured[b] = (n, mr, ma)
 
-        def grade_with(extra):
-            with open(cand, "w") as fh:
-                fh.write(f"return {{ encounterID = {enc},{extra} }}\n")
-            out = subprocess.run([luajit, "tools/estimator-batch.lua", tmp], capture_output=True, text=True).stdout
-            m = re.search(r"MAPE\s+mean\s+([\d.]+)%", out)
-            return float(m.group(1)) if m else None
+caps = {}
+for b, (n, mr, ma) in measured.items():
+    if n < 20:  # too little evidence in this bin to judge it
+        continue
+    if ma <= ABS_OK or mr <= REL_OK:
+        continue  # measurably useful here — no cap, whichever currency says so
+    if ma >= ABS_BAD:
+        caps[b] = 0.0  # tens of seconds wrong: unusable regardless of ratio
+        continue
+    frac = (mr - REL_OK) / (REL_BAD - REL_OK)
+    cap = round(max(0.0, min(1.0, 1.0 - frac)), 2)
+    if cap < 0.995:
+        caps[b] = cap
 
-        caps_lua = " suppressFlush = true," if suppress_flush else ""  # both arms carry the shipping facts
-        if caps:
-            caps_lua += " confCap = { " + ", ".join(f"[{b}] = {caps[b]}" for b in sorted(caps, reverse=True)) + " },"
-        band_lua = f" freeze = {{ {{ lo = {band[0]}, hi = {band[1]}, stallSec = {band[2]} }} }},"
-        without, with_ = grade_with(caps_lua), grade_with(caps_lua + band_lua)
-        if saved is not None:
-            open(cand, "w").write(saved)
-        if without is None or with_ is None:
-            return False
-        print(f"  freeze check (train): MAPE {without:.1f}% without → {with_:.1f}% with")
-        return with_ <= without - 0.5  # must actually help, not merely not-hurt
-    finally:
-        _sh.rmtree(tmp, ignore_errors=True)
-
-
-if freeze and not freeze_earns_its_keep(freeze):
-    print("  freeze band detected but does NOT improve the grade — not emitted (a slowdown, not a stall)")
-    freeze = None
+# NOTE: the universal raid floor (ns.Regimes.default) is deliberately NOT folded in here. It is a blanket
+# assumption for bosses we have never measured; where we HAVE measured, the measurement wins — folding the
+# floor in anyway silenced bins the data shows are accurate (measured on Chromaggus, whose 90-95% band is
+# among the most readable in the corpus, yet the blanket floor hid it and made the grade worse).
 
 # ── 3. emit ─────────────────────────────────────────────────────────────────────────────────────────
 src = f"{kills} kills" + (", TRAIN half of an even/odd split — odd half held out" if split_even else "")
@@ -203,8 +173,6 @@ lines = [f"    encounterID = {enc},", f"    kills = {kills},"]
 if caps:
     body = ", ".join(f"[{b}] = {caps[b]}" for b in sorted(caps, reverse=True))
     lines.append(f"    confCap = {{ {body} }},")
-if freeze:
-    lines.append(f"    freeze = {{ {{ lo = {freeze[0]}, hi = {freeze[1]}, stallSec = {freeze[2]} }} }},")
 if reset_on_rise:
     lines.append(f"    resetOnRise = {reset_on_rise},")
 
@@ -233,7 +201,7 @@ for b in range(BINS, 0, -1):
     tag = " ← QUIET (measurably wrong)" if cap < 0.5 else (" ← capped" if cap < 0.995 else "")
     print(f"  {hi:3d}–{lo:3d}%  err {mr * 100:5.1f}% / {ma:5.1f}s  n{n:6d}  cap {cap:4.2f}  {bar}{tag}")
 if freeze:
-    print(f"\n  freeze band: h {freeze[0]:.2f}–{freeze[1]:.2f}, stallSec {freeze[2]}  ({len(mid_fight)} stalls / {kills} kills)")
+    print(f"\n  [diagnostic only, not emitted] stall band: h {freeze[0]:.2f}–{freeze[1]:.2f}, ~{freeze[2]}s  ({len(mid_fight)}/{kills} kills)")
 if reset_on_rise:
     print(f"  resetOnRise: {reset_on_rise}  ({rises}/{kills} kills show a >={RISE_MIN} one-sample rise)")
 quiet = sum(1 for b in caps if caps[b] < 0.5)

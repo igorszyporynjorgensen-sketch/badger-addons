@@ -34,12 +34,24 @@ describe("Regimes (WO-075 structural playbook)", function()
         assert.is_true(ns.Regimes[721].suppressFlush) -- Buru: scripted chunk damage must not flush
     end)
 
+    it("keys Thekal's resurrect reset on 789 — NOT on 790, which is Gahz'ranka", function()
+        -- The load-bearing id correction (design §1.3 graft 6), verified against real WCL fixture names:
+        -- 150789 = "High Priest Thekal", 150790 = "Gahz'ranka". `resetOnRise` on the wrong key silently
+        -- no-ops, and nothing else in the gate would notice — so assert both id spaces explicitly.
+        assert.is_true(
+            (ns.Regimes[789].resetOnRise or 0) > 0,
+            "Thekal (789) lost his resurrect reset"
+        )
+        assert.is_true((ns.Regimes[150789].resetOnRise or 0) > 0, "Fresh alias 150789 lost it")
+        assert.is_nil(ns.Regimes[790].resetOnRise, "Gahz'ranka (790) must NOT carry Thekal's reset")
+        assert.is_nil(ns.Regimes[150790].resetOnRise, "Fresh alias 150790 must NOT carry it")
+    end)
+
     it("never ships an EMPTY profile (a profile must actually say something)", function()
         for key, prof in pairs(ns.Regimes) do
             if type(prof) == "table" and key ~= "default" then
                 local says = prof.hideBar
                     or prof.suppressFlush
-                    or prof.freeze
                     or prof.confCap
                     or prof.resetOnRise
                     or prof.healPolluted
@@ -50,19 +62,14 @@ describe("Regimes (WO-075 structural playbook)", function()
     end)
 
     it(
-        "STRUCTURE: confCap bins in 1..K with values in [0,1]; freeze {lo<hi}; resetOnRise in (0,1]",
+        "STRUCTURE: confCap bins in 1..K with values in [0,1]; resetOnRise in (0,1]; no removed fields",
         function()
             for key, prof in pairs(ns.Regimes) do
                 if type(prof) == "table" then
                     local at = " @ " .. tostring(key)
-                    if prof.freeze then
-                        for _, b in ipairs(prof.freeze) do
-                            assert.is_true(b.lo >= 0 and b.lo <= 1, "freeze.lo range" .. at)
-                            assert.is_true(b.hi >= 0 and b.hi <= 1, "freeze.hi range" .. at)
-                            assert.is_true(b.lo < b.hi, "freeze lo<hi" .. at)
-                            assert.is_true(b.stallSec == nil or b.stallSec > 0, "stallSec>0" .. at)
-                        end
-                    end
+                    -- `freeze` was removed in PR3 (D-020) — the estimator no longer reads it, so a profile
+                    -- carrying one would be silently dead data. Fail the gate if the assembler regresses.
+                    assert.is_nil(prof.freeze, "removed `freeze` field still emitted" .. at)
                     if prof.confCap then
                         if type(prof.confCap) == "number" then
                             assert.is_true(
