@@ -124,3 +124,25 @@ measured boss — it silenced Chromaggus' most readable band and made his grade 
 un-profiled bosses only. (3) Categorical facts must be active while measuring — Buru's caps learned without
 `suppressFlush` were calibrated to an estimator ~3x worse. **See also D-019: the freeze tier is subsumed by
 confCap and ships unused.**
+
+## Outcome — PR3 (awaiting human merge)
+
+**Thekal `resetOnRise`** — the id fact the design flagged is now **verified against real data**, not assumed:
+WCL fixture names give `150789` = "High Priest Thekal" and `150790` = "Gahz'ranka"; Thekal resurrects in
+**60/60** kills (largest rise 100%), Gahz'ranka in **0/60** (a clean negative control). A spec asserts the
+reset is keyed on 789 and **absent on 790**, in both id spaces. `resetOnRise` alone improves his estimate
+**124.9%→84.9%**, but his caps still quiet the bar: measured **55-100% error in every bin** (three priests
+behind one health readout), so it improves the underlying estimate without yet making it showable.
+
+**The `freeze` tier is REMOVED (D-020)** — the keep-or-remove call D-019 deferred here. Nothing used it, it
+never improved a grade, freezing alone made Viscidus worse, and it duplicated the driver's first-class
+`sample(t, h, damageable = false)`. This also dissolves the PR1 caveat above: with no freeze there is no
+freeze↔`resetOnRise` interaction left to guard.
+
+**Method fix:** the learner now determines the curve/categorical facts **before** measuring and feeds them
+back as a context regime, so derived caps are always calibrated against the estimator that ships (Thekal is
+~1.5x better with his own reset active, Buru ~3x with `suppressFlush`). The assembler hard-fails on a
+generated comment line >120 chars — StyLua rewraps code but not comments, so a long note would otherwise
+break the lint gate silently in a file nobody hand-edits.
+
+14 profiles ship. Gate green (151 tests); estimator sim **byte-identical**.

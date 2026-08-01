@@ -117,13 +117,32 @@ _As of 2026-07-30._
   and the keep-or-remove call on the now-unused freeze tier — D-019) follows, then the 0.9.48 cut. Headline:
   Buru **188.6%→37.3%** MAPE, Twin Emperors' unreadable bar now stays **silent**, and two bosses measured as
   readable correctly get **no caps**. Then 1.0.0 (with regime), gated on the in-game `/reload`.
-- **Next id:** D-020-IJ.
+- **Next id:** D-021-IJ.
 
 ---
 
 ## Decision log
 
 ### 2026-07-31
+
+- **[D-020-IJ] The regime `freeze` tier is REMOVED, not kept-inert; an immune phase is stated as FACT by the
+  driver, never inferred from the health curve. Status: Accepted.** *(Resolves the keep-or-remove call D-019
+  deferred to PR3 — WO-075.)* The tier let a profile declare health bands in which the countdown should hold,
+  inferring "the boss cannot be damaged right now" from health alone. It is removed because every argument
+  ran against it: **(a) nothing used it** — across the whole structural roster no learned freeze band improved
+  a grade, and freezing *alone* made Viscidus **worse** (85.5%→90.5%); wherever a fight stalls, the confidence
+  caps have already quieted the bar, so holding it changes nothing. **(b) It duplicated a better mechanism
+  that already exists** — `sample(t, h, damageable)` lets the DRIVER assert an immune/hardened phase as fact
+  (the estimator has held that path since WO-056), which is strictly more reliable than guessing the same
+  thing from the curve; the future CLEU tier should use it. **(c) It was a bug farm** — three real defects
+  (a cadence-dependent gate, a stuck freeze, a delayed in-band release) were found by verification in code no
+  profile ever invoked; each cost a review cycle to find and fix. That is exactly the cost the engineering
+  principle warns about ("promote when a second consumer is real, not speculatively"). *Consequence:* the
+  schema loses `freeze`/`stallSec`; `regimes_spec` now **fails the gate if the assembler ever emits one
+  again** (dead data in a generated file is otherwise invisible); the lab keeps stall detection as a printed
+  **diagnostic only** (that Viscidus stalls at h≈0.92 in 29/30 kills is real knowledge for the CLEU tier)
+  but never emits it. The implementation stays recoverable in git history (PR #95). *This departs from the
+  accepted D-014 design, which specified the tier — the measurement, not the design, is authoritative here.*
 
 - **[D-019-IJ] Regime confidence caps are LEARNED from the estimator's own measured error, and the FREEZE
   tier is subsumed by them (it ships unused). Status: Accepted.** *(Refines D-014's method; forced by the
