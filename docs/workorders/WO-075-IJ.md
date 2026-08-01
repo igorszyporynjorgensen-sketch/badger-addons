@@ -105,7 +105,7 @@ release) + a latent `reset()` bug — each now guarded by a regression test (20 
 **PR2** = `learn-regime.py`/`assemble-regimes.py` + confCap-at-scale roster + `suppressFlush`.
  *(PR3 caveat, from the PR1 freeze verify: a boss with BOTH a `freeze` band AND `resetOnRise` can have the resetOnRise swallowed — the freeze's nil'd `prevSampleT` routes an out-of-band up-jump to the reacquire path before the resetOnRise check. Pre-existing, latent (no profile combines them). Confirm Thekal has no freeze band, or fix the seam ordering.)*
 
-## Outcome — PR2 (PR #96, awaiting human merge)
+## Outcome — PR2 (PR #96 merged; main green)
 
 Built the **lab that learns the caps** and applied it to **11 bosses / 800 real Fresh kills**:
 `estimator-perbin.lua` (the shipped estimator's real per-bin error) → `learn-regime.py` (caps, plus
