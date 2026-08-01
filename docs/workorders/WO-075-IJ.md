@@ -1,8 +1,8 @@
 ---
 wo: WO-075-IJ
-status: In progress
+status: Done
 assigned: IJ
-mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/95
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/95 (PR1) · /96 (PR2) · /97 (PR3)
 decision: D-014-IJ
 depends_on:
   - docs/workorders/WO-069-IJ.md
@@ -125,7 +125,7 @@ un-profiled bosses only. (3) Categorical facts must be active while measuring �
 `suppressFlush` were calibrated to an estimator ~3x worse. **See also D-019: the freeze tier is subsumed by
 confCap and ships unused.**
 
-## Outcome — PR3 (awaiting human merge)
+## Outcome — PR3 (PR #97 merged; main green)
 
 **Thekal `resetOnRise`** — the id fact the design flagged is now **verified against real data**, not assumed:
 WCL fixture names give `150789` = "High Priest Thekal" and `150790` = "Gahz'ranka"; Thekal resurrects in
