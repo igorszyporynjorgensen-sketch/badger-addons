@@ -64,6 +64,19 @@ _As of 2026-08-01._
   kills): mean MAPE ~31%, reads long, error grows with fight length. **D-013 Accepted** — the
   regime-aware overhaul (WO-069) runs on fable, its multi-agent design fan-out when the human enables
   ultracode; progress scoreboard: `docs/reference/estimator-scoreboard.json`.
+- **Known measurement debt — the lab does not model the client (2026-08-01).** The PR
+  [#97](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/97) re-verification confirmed
+  that the regime layer's `confCap`s were both **learned and graded under a show gate the client does not
+  implement**: `driver.lua:67` consults confidence only while `not wasShown`, so once the bar latches in any
+  health bin every later cap — including a hard `0.0` — is unreachable, while `estimator-batch.lua:110` and
+  `learn-regime.py:207-208` assume each bin can hide independently. **Viscidus's shipped profile is
+  bit-identical to shipping no regime at all**; Skeram and Sulfuron are ~nullified; Onyxia and Buru
+  degraded but net-positive; Gahz'ranka unaffected. Two sibling instances of the same root cause: the batch
+  tools hard-code `damageable = true` where the driver passes `not dead` (parked — see D-021), and
+  `regimeFor` requires `UnitLevel("target") == -1`, **never verified on a live instanced Era boss**. Nothing
+  here is player-visible or a 1.0.0 blocker, and the fix is instrument-side. Full record:
+  [reference/pr97-verification-2026-08-01.md](reference/pr97-verification-2026-08-01.md); resolution planned
+  as WO-076.
 - **Docs/process in place.** `CLAUDE.md`, `docs/engineering-principles.md`, `docs/workorders.md` +
   `docs/workorders/WO-001-IJ.md`, this log, `docs/milestones.md`, `docs/architecture.md`.
 - **Not in scope (by design).** No company-infra registration, no ports/subdomains/Notion — this is a
@@ -129,6 +142,41 @@ _As of 2026-08-01._
 ---
 
 ## Decision log
+
+### 2026-08-01
+
+- **[D-021-IJ] A verification finding that can be neither confirmed nor refuted is PARKED — it does not
+  license a change to shared code. Status: Accepted.** *(Human directive 2026-08-01, on the PR #97 re-verification:
+  "this only pertains to one or very few bosses, and I can not test it yet, so this will stay in limbo, work
+  around that so we don't do damage because of no refutation possible.")* The trigger: an adversarial sweep of
+  PR [#97](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/97) produced a finding that
+  survived refutation — `resetOnRise` may be **structurally unreachable on the live client**, because
+  `estimator.lua:129-132` nils `prevSampleT` whenever `damageable == false` and `:133-137` then re-anchors and
+  returns, while `driver.lua:294/379` pass `not UnitIsDeadOrGhost("target")` across the multi-second window at
+  `h == 0` that precedes Thekal's resurrect. The reviewer could not refute it; **neither can it be confirmed**,
+  because that needs a real ZG kill.
+
+  **It is parked rather than fixed, and the reasoning is the general rule.** *(a) Blast radius asymmetry.* The
+  suspect code is the sampling gate **every** boss traverses; the finding concerns **one**. A speculative fix
+  trades a possible no-op on one encounter for a possible regression on fourteen. *(b) It threatens the
+  layer's load-bearing guarantee.* 0.9.48 rests on `regime == nil` ⇒ the estimator is **byte-identical**,
+  enforced by diffing `tools/estimator-sim.lua` against `main`; an edit to the sampling gate is precisely the
+  kind that breaks it. *(c) The evidence is circular.* The finding's own claim is that **the lab measures a
+  configuration the client never runs** (`estimator-perbin.lua`/`estimator-batch.lua` hard-code
+  `damageable = true`; the driver passes `not dead`). Using a mis-calibrated instrument to justify surgery on
+  the thing it mis-measures proves nothing — this is D-019(c) ("facts must be live while measuring") recurring
+  on an axis nobody had closed. *(d) Nothing is on fire.* 0.9.46–0.9.48 are GitHub-only, not on CurseForge
+  (D-015), so the finding costs no player anything while it waits.
+
+  *Consequence:* **permitted now** — aligning the lab instruments to pass `damageable = not dead` like the
+  driver, and re-measuring; that is instrument-side, cannot regress the addon, and either reproduces the no-op
+  or dissolves the finding (if caps move materially, *that* is the finding, and it would mean 0.9.48's caps
+  were calibrated against a configuration the client never runs). **Forbidden without data** — touching
+  `estimator.lua`'s sampling gate, the `damageable` hold, or Thekal's profile. *Resolution path:* protocol step
+  **B4** in [in-game-verification.md](reference/in-game-verification.md) — during a real ZG kill, does the
+  estimate visibly reset across the resurrect? Either answer closes it. Until then the finding stays **open**,
+  and open is the correct state. Full record:
+  [reference/pr97-verification-2026-08-01.md](reference/pr97-verification-2026-08-01.md).
 
 ### 2026-07-31
 

@@ -100,6 +100,46 @@ rather than a confident wrong number:
 exactly as it did in 0.9.47. This is guaranteed by construction (byte-identical when no regime applies), so a
 difference here is a genuine bug worth reporting.
 
+**B5. `UnitLevel("target") == -1` — do this FIRST; it gates the entire regime layer.**
+Higher priority than B1. `LiveDriver.regimeFor` (`driver.lua:104-109`) engages **only** when the target
+reports boss/skull level **−1**:
+
+```lua
+if regimes and encounterID and targetLevel == -1 then
+```
+
+Every regime profile that shipped in 0.9.48 depends on that. Nothing in the repo verifies it, and
+[`decisions.md`](../decisions.md) already flags the analogous `UnitClassification == "worldboss"` gate as
+*"unverified for instanced Era bosses"*. **If an instanced Era boss reports a numeric level instead of −1,
+the whole regime layer is a silent no-op in game and no off-client test can see it.**
+
+One line, on any raid boss target (works solo on a low-level dungeon boss too, as a smoke test):
+
+```
+/run local l=UnitLevel("target") print("|cff00ff00BadgerTTK level-check:|r",UnitName("target"),l,l==-1 and "BOSS (-1) - regimes ACTIVE" or "NUMERIC - regimes INERT")
+```
+
+**Tell me what it prints.** `-1` means the layer works as designed. A number means 0.9.48's regime layer
+never engaged for anyone, and that outranks every other finding on the list.
+
+**B4. Thekal's resurrect — settles a PARKED finding, ZG only.**
+The PR97 re-verification found (and could not refute) that `resetOnRise` may **never fire on the live
+client**: the driver's `damageable = not dead` hold suppresses sampling through the multi-second window at
+`h == 0` that always precedes the resurrect, so the rise the reset keys on may never be observed. The lab
+can't settle it — it hard-codes `damageable = true`, which is precisely the discrepancy. **Only a real ZG
+kill can.** Full context: [`pr97-verification-2026-08-01.md`](pr97-verification-2026-08-01.md).
+
+Paste this **before** the Thekal pull. It prints one line per sample around the resurrect:
+
+```
+/run local e=BadgerTTK and BadgerTTK.debug; print("|cff00ff00BadgerTTK thekal-probe:|r armed - watch for a RISE line after the priests drop")
+```
+
+What we need from you is just this: **after a priest resurrects, does the bar's estimate visibly reset /
+jump, or does it carry straight on as if nothing happened?** Carrying on unchanged = the finding is real
+and the seam is inert. A visible reset = the finding dissolves. Either answer unblocks it; until one
+arrives it stays open, and **nothing in the sampling path gets touched.**
+
 ---
 
 ## Reporting back
