@@ -29,7 +29,7 @@ working agreement → [../CLAUDE.md](../CLAUDE.md).
 
 ## Current state
 
-_As of 2026-07-30._
+_As of 2026-08-01._
 
 - **Scaffolded and verified green.** Nx (pnpm) monorepo orchestrating a Lua toolchain — StyLua ·
   Luacheck (LuaJIT/5.1) · Busted — behind one `pnpm validate` gate. Framework: Ace3. `pnpm validate`
@@ -112,11 +112,18 @@ _As of 2026-07-30._
 - **Onyxia shipped (0.9.47).** The last missing raid boss now has a learned rhythm (dual-key 1084/151084),
   held-out + fresh-batch validated (MAPE ~74%→~53–60%); released via the pipeline (tag `badger-ttk/0.9.47`,
   GitHub Release). It exposed the rhythm ceiling (the untargetable air phase), which motivated D-018.
-- **Next release: 0.9.48 = the regime layer** (D-018/WO-075). PR1 (seams + Onyxia) is **merged**; PR2
-  (learned caps across 11 structural bosses + `suppressFlush`) is **PR #96**; PR3 (Thekal `resetOnRise`,
-  and the keep-or-remove call on the now-unused freeze tier — D-019) follows, then the 0.9.48 cut. Headline:
-  Buru **188.6%→37.3%** MAPE, Twin Emperors' unreadable bar now stays **silent**, and two bosses measured as
-  readable correctly get **no caps**. Then 1.0.0 (with regime), gated on the in-game `/reload`.
+- **0.9.48 SHIPPED (2026-08-01) — the regime layer is live.** WO-075 Done (PRs #95/#96/#97) and released via
+  the pipeline (tag `badger-ttk/0.9.48` + GitHub Release + zip). **14 regime profiles** ship: the bar goes
+  QUIET where it is measurably wrong instead of showing a confident-wrong countdown. Headline held-out
+  numbers: Buru **188.6%→37.3%** (bias +74s→+3.2s), Twin Emperors 407%→**silent**, Thekal **silent** (+ his
+  resurrect resets the estimate), Viscidus 117→44%, Skeram 113→70%, Rajaxx 207→132%, C'Thun 52→38%, Onyxia
+  56→49%; Chromaggus and Ouro measured readable → correctly **no caps**. The `freeze` tier was **removed**
+  (D-020). Solo play and every un-profiled fight remain **byte-identical**.
+- **THE ONE REMAINING GATE for 1.0.0: the human's in-game `/reload`.** Everything else for Path B is done
+  (rhythm library, kill-history schema, regime layer, release pipeline). The `/reload` must confirm: the
+  addon loads clean · the `663` vs `150663` encounter id-space (which of the two the live client fires) ·
+  the `.toc` Interface number · bars track · the Majordomo-style hides behave. It also gates every
+  CurseForge upload (D-015), including 0.9.46/0.9.47/0.9.48, none of which are on CurseForge yet.
 - **Next id:** D-021-IJ.
 
 ---
