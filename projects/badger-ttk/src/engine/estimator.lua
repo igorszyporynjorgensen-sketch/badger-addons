@@ -71,49 +71,15 @@ end
 -- nil-guarded seams below. Every seam is a literal no-op when self.regime == nil, so solo / sim / any
 -- un-profiled encounter is byte-identical to the baseline (the sim injects no regime — that IS the gate).
 local REGIME_K = 20 -- confCap per-bin resolution (mirrors the rhythm bin math)
-local STALL_RATE = 0.004 -- fraction/s; health falling slower than this in-band is a TRUE stall (the boss is
--- untargetable / frozen), NOT a slow ranged drop. RATE-based (Δh/Δt) so the gate is independent of poll
--- cadence — a per-sample |Δh| threshold would mis-read any slow continuous drop at a fast cadence as a stall.
 
--- Is health h in a FROZEN band right now? Stateless bands freeze whenever lo≤h≤hi. Stall-gated bands freeze
--- only after health has STALLED in-band for stallSec. The stall test is the RECENT drop rate (Δh over the
--- last sample interval, tracked via self.regimeStall.lastT/lastH — NOT prevSampleT, which the freeze nils),
--- so it is (a) independent of poll cadence, (b) valid across the frozen hold, and (c) releases on the FIRST
--- sample where health genuinely resumes falling: the reference advances every sample, so a resumed drop is
--- judged against recent time, never diluted by the length of the stall. A ranged kill dropping through never
--- freezes; a true near-zero-rate stall does. Side effect: maintains self.regimeStall, cleared on band exit.
-local function inFreezeBand(self, t, h)
-    local bands = self.regime.freeze
-    if not bands then
-        self.regimeStall = nil
-        return false
-    end
-    for i = 1, #bands do
-        local band = bands[i]
-        if h >= band.lo and h <= band.hi then
-            if not band.stallSec then
-                return true -- stateless band: in-band ⇒ frozen
-            end
-            local s = self.regimeStall
-            if not s then
-                self.regimeStall = { lastT = t, lastH = h, stalled = 0 } -- open a stall window on band entry
-                return false
-            end
-            local dt = t - s.lastT
-            if dt > 0 then
-                if (s.lastH - h) / dt < STALL_RATE then
-                    s.stalled = s.stalled + dt -- health ~still (or healing): accrue stall time
-                else
-                    s.stalled = 0 -- a real drop resumed: release the timer
-                end
-                s.lastT, s.lastH = t, h -- advance the reference EVERY sample (survives the frozen hold)
-            end
-            return s.stalled >= band.stallSec
-        end
-    end
-    self.regimeStall = nil -- out of every band
-    return false
-end
+-- NOTE — the `freeze` tier was REMOVED in WO-075 PR3 (D-020). It let a profile declare health bands where the
+-- countdown should hold, inferring "the boss can't be damaged right now" from the health curve alone. Across
+-- the whole structural roster it never improved a grade, and freezing ALONE made Viscidus worse (85.5%→90.5%):
+-- wherever a fight stalls, the confidence caps have already quieted the bar, so holding it changed nothing.
+-- It was also redundant with a better mechanism that already exists — `sample(t, h, damageable)` lets the
+-- DRIVER state an immune/hardened phase as fact instead of guessing it from health — and being unused it was
+-- a bug farm (three real defects found by verification in code no profile invoked). If a future CLEU tier
+-- needs a phase hold, `damageable = false` is the seam to use; the removed implementation is in git history.
 
 -- opts: { reactivity, executeThreshold, executeModifier, rateFloor, priorRate, priorWeight, rhythm }.
 -- The caller (a driver) reads these from db.profile and passes plain values; the estimator never touches
@@ -154,7 +120,6 @@ function Estimator:reset()
     self.runD, self.runT = 0, 0 -- the armed run's own evidence (graft: re-seeds the fit on flush)
     self.slowFlushed = false -- a jumpLo flush fired: live evidence proved the fight SLOWER than the
     -- prior, so the prior floor must stop binding (WO-061 — it capped genuinely slow fights forever)
-    self.regimeStall = nil -- open stall window { t0, h0 } for stall-gated freeze bands (WO-075); nil = none
 end
 
 -- Feed one sample: t (seconds, monotonic), h (health fraction in [0,1]). `damageable` defaults true;
@@ -162,14 +127,6 @@ end
 -- freeze, and ttk() holds bit-identically until damage resumes.
 function Estimator:sample(t, h, damageable)
     if damageable == false then
-        self.prevSampleT = nil
-        return
-    end
-    -- Regime freeze (WO-075 seam 3): a frozen band reuses the immune-hold path — drop the reference so no
-    -- event forms and the open span/evidence freeze; ttk() then holds bit-identically and confidence stops
-    -- growing. Placed AFTER the damageable short-circuit, so the driver's swap-back sample(0,0,false) is
-    -- untouched. No-op when self.regime == nil.
-    if self.regime and inFreezeBand(self, t, h) then
         self.prevSampleT = nil
         return
     end

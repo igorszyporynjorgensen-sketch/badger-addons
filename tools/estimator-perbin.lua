@@ -21,16 +21,20 @@ local mock = require("tools.wow-mock.init")
 local enc =
     assert(tonumber(arg[1]), "usage: estimator-perbin.lua <encounterID> [corpusDir] [--even]")
 local dir = (arg[2] and not arg[2]:match("^%-%-")) and arg[2] or "tools/fights/corpus"
-local evenOnly, suppressFlush = false, false
+-- `--regime '<lua table literal>'` measures with the OTHER regime fields that will ship already active
+-- (suppressFlush, resetOnRise — never confCap, which is what we are deriving). Caps must be calibrated
+-- against the estimator the client actually runs: measured without its own facts, Buru's error is ~3x worse
+-- and Thekal's ~1.5x worse, so the caps would silence readouts that are in fact usable.
+local evenOnly, contextRegime = false, nil
 for i = 2, #arg do
     if arg[i] == "--even" then
         evenOnly = true
-    elseif arg[i] == "--suppress-flush" then
-        -- Measure with the categorical fact that WILL ship enabled. Caps must be learned under the
-        -- configuration the client actually runs: Buru's scripted chunk damage triggers the regime-change
-        -- flush, and suppressing it cuts his error ~3x — caps learned without it would be calibrated to an
-        -- estimator far worse than the one that ships, and would silence a readout that is in fact fine.
-        suppressFlush = true
+    elseif arg[i] == "--regime" then
+        local src = arg[i + 1]
+        if src and src ~= "" then
+            local chunk = assert(loadstring("return " .. src), "bad --regime literal")
+            contextRegime = chunk()
+        end
     end
 end
 
@@ -71,7 +75,7 @@ for idx, path in ipairs(files) do
                 executeThreshold = 0.20,
                 executeModifier = 1.2,
                 rhythm = rhythm,
-                regime = suppressFlush and { suppressFlush = true } or nil,
+                regime = contextRegime,
             })
             for i = 1, #samples do
                 local s = samples[i]
