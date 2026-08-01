@@ -1,6 +1,6 @@
 ---
 wo: WO-076-IJ
-status: Proposed
+status: Accepted
 assigned: IJ
 mr:
 decision: D-021-IJ
@@ -167,11 +167,22 @@ number is not by itself a licence to edit shared data).
    byte-identical.
 8. `CHANGELOG [Unreleased]` notes the instrument fix.
 
-## Open questions
+## Resolved questions
 
-- **[NEEDS CLARIFICATION]** §2 — option **(a)** (drop unreachable caps) or **(b)** (emit-but-mark-inert)?
-  Recommendation: **(a)**.
-- **[NEEDS CLARIFICATION]** §1 — should the replay graders also model the `minTTK` qualification, or is
-  confidence-only the right fidelity for a health-curve replay?
+Both markers were resolved at acceptance (human: "approved - proceed", 2026-08-01).
 
-*Both must be resolved before this WO moves to `Accepted`.*
+- **§2 — drop unreachable caps (option (a)).** An unreachable `0.0` in a shipped table is precisely the
+  dead data that caused this WO; emitting it marked-inert keeps the hazard alive one indirection further
+  away. `learn-regime.py` emits caps only for bins reachable pre-show, and reports the remainder as
+  *"measurably wrong but unreachable by confidence — needs another mechanism."*
+- **§1 — model `minTTK` as well as confidence.** Not confidence-only. `minTTK` sits inside the same
+  `not wasShown` block in `driver.lua:70-73`, the graders already hold `pred` at every tick, so it is
+  nearly free. It is also not academic: the default is `minTTK = 10` (`core.lua:22`) and while raid kills
+  run 104–207s, the corpus holds 10–12s Lucifron kills where the predicted TTK genuinely crosses that
+  threshold. Modelling one half of a two-term gate would leave a known divergence in exactly the fights
+  the corpus grades best.
+
+**One consequence to respect when reading §5's diff:** the latch must be evaluated on **every** tick,
+including those outside the `WARMUP`/`TAIL` scoring window — the client's bar can latch during the
+warm-up. Grading stays restricted to the in-scope window; only the *gate* sees every sample. Conflating
+the two would relatch the bar late and understate the fix.
