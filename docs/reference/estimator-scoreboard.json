@@ -1,454 +1,611 @@
 {
-  "what": "Badger TTK estimator — batch grades over real Warcraft Logs corpora (learning-how-to-learn phase). Raw corpora are local-only (gitignored); this file is the curated outcome.",
-  "runs": [
-    {
-      "id": 1,
-      "date": "2026-07-29",
-      "estimator": "chunk-clock (WO-056/061) @ v0.9.44",
-      "corpus": "Fresh Lucifron ×12 (first corpus)",
-      "corpus_short": "Lucifron ×12",
-      "label": "Lucifron ×12",
-      "fights": 12,
-      "fixtures": 12,
-      "never_confident": 0,
-      "mape_mean": 0.306,
-      "mape_median": 0.313,
-      "mape_p90": 0.441,
-      "bias_s": 2.3,
-      "within15": 0.348,
-      "shown": 0.751,
-      "dur_min": 10.7,
-      "dur_max": 16.5
-    },
-    {
-      "id": 2,
-      "date": "2026-07-29",
-      "estimator": "chunk-clock (WO-056/061) @ v0.9.44",
-      "corpus": "Fresh MC ×10 · BWL ×8 · AQ ×2 — 126 kills, each raid from its own relevance window",
-      "corpus_short": "MC+BWL+AQ ×126",
-      "label": "MC+BWL+AQ ×126",
-      "fights": 121,
-      "fixtures": 126,
-      "never_confident": 5,
-      "mape_mean": 1.1709,
-      "mape_median": 0.415,
-      "mape_p90": 1.065,
-      "bias_s": 17.7,
-      "within15": 0.2607,
-      "shown": 0.8741,
-      "dur_min": 8.5,
-      "dur_max": 149.4
-    },
-    {
-      "id": 3,
-      "date": "2026-07-29",
-      "estimator": "rhythm-injected candidate (loop 1) — tools/candidates/estimator-rhythm.lua",
-      "corpus": "Lucifron ×20, frozen (the human's hunt) — rhythm learned from the same 20 (mechanism proof; validation on fresh kills next loop)",
-      "corpus_short": "Lucifron ×20 · loop 1",
-      "label": "loop 1: rhythm",
-      "fights": 20,
-      "fixtures": 20,
-      "never_confident": 0,
-      "mape_mean": 0.211,
-      "mape_median": 0.2,
-      "mape_p90": 0.307,
-      "bias_s": 1.1,
-      "within15": 0.538,
-      "shown": 0.765,
-      "dur_min": 10.7,
-      "dur_max": 16.4,
-      "compare": {
-        "baseline_mean": 0.347,
-        "baseline_median": 0.394,
-        "baseline_bias": 2.9,
-        "better_on": "18/20"
-      }
-    },
-    {
-      "id": 4,
-      "date": "2026-07-29",
-      "estimator": "rhythm candidate, retrained (loop 2) — profile from 25-kill TRAIN half",
-      "corpus": "Lucifron ×50 — graded on the HELD-OUT 25 (train/test split; fresh-30 view: 38.7%→26.9%, 25/30 better)",
-      "corpus_short": "Lucifron ×50 · loop 2 (held-out)",
-      "label": "loop 2: validated",
-      "fights": 25,
-      "fixtures": 50,
-      "never_confident": 0,
-      "mape_mean": 0.256,
-      "mape_median": 0.236,
-      "mape_p90": 0.391,
-      "bias_s": 1.4,
-      "within15": 0.526,
-      "shown": 0.79,
-      "dur_min": 10.7,
-      "dur_max": 17.4,
-      "compare": {
-        "baseline_mean": 0.355,
-        "baseline_bias": 3.3,
-        "better_on": "18/25 held-out · 25/30 fresh",
-        "train_mean": 0.247,
-        "note": "train≈test → no overfitting; profile stable across retrains"
-      }
-    },
-    {
-      "id": 5,
-      "date": "2026-07-29",
-      "estimator": "rhythm candidate — Magmadar profile from 25-kill TRAIN half (loop 3)",
-      "corpus": "Magmadar ×50 — graded on the HELD-OUT 25 (train/test split)",
-      "corpus_short": "Magmadar ×50 · loop 3 (held-out)",
-      "label": "loop 3: Magmadar",
-      "fights": 25,
-      "fixtures": 50,
-      "never_confident": 0,
-      "mape_mean": 0.205,
-      "mape_median": 0.194,
-      "mape_p90": 0.314,
-      "bias_s": 2.3,
-      "within15": 0.65,
-      "shown": 0.9,
-      "dur_min": 12.1,
-      "dur_max": 32.0,
-      "compare": {
-        "baseline_mean": 0.385,
-        "baseline_bias": 6.7,
-        "better_on": "24/25 held-out · 25/25 train",
-        "train_mean": 0.192,
-        "note": "second encounter, different shape (Frenzy slow-phase), bigger win"
-      }
-    },
-    {
-      "id": 6,
-      "date": "2026-07-29",
-      "estimator": "rhythm candidate — Gehennas profile from 25-kill TRAIN half (loop 4)",
-      "corpus": "Gehennas ×50 — graded on the HELD-OUT 25 (train/test split)",
-      "corpus_short": "Gehennas ×50 · loop 4 (held-out)",
-      "label": "loop 4: Gehennas",
-      "fights": 25,
-      "fixtures": 50,
-      "never_confident": 0,
-      "mape_mean": 0.268,
-      "mape_median": 0.264,
-      "mape_p90": 0.481,
-      "bias_s": 2.1,
-      "within15": 0.505,
-      "shown": 0.83,
-      "dur_min": 12.1,
-      "dur_max": 17.6,
-      "compare": {
-        "baseline_mean": 0.484,
-        "baseline_bias": 4.8,
-        "better_on": "22/25 held-out · 23/25 train",
-        "train_mean": 0.291,
-        "note": "largest absolute drop yet (-21.6pp); test beats train"
-      }
-    },
-    {
-      "id": 7,
-      "date": "2026-07-29",
-      "estimator": "rhythm candidate — Garr profile from 25-kill TRAIN half (loop 5)",
-      "corpus": "Garr ×50 — graded on the HELD-OUT 25 (train/test split)",
-      "corpus_short": "Garr ×50 · loop 5 (held-out)",
-      "label": "loop 5: Garr",
-      "fights": 25,
-      "fixtures": 50,
-      "never_confident": 0,
-      "mape_mean": 0.291,
-      "mape_median": 0.257,
-      "mape_p90": 0.408,
-      "bias_s": 3.0,
-      "within15": 0.547,
-      "shown": 0.88,
-      "dur_min": 17.3,
-      "dur_max": 29.1,
-      "compare": {
-        "baseline_mean": 0.442,
-        "baseline_bias": 6.9,
-        "better_on": "24/25 held-out · 25/25 train",
-        "train_mean": 0.246,
-        "note": "adds smear the shape (mildest execute 1.4-1.6x; small train/test gap) — still a big win"
-      }
-    },
-    {
-      "id": 8,
-      "date": "2026-07-29",
-      "estimator": "rhythm candidate — Shazzrah profile from 25-kill TRAIN half (loop 6)",
-      "corpus": "Shazzrah ×50 — graded on the HELD-OUT 25 (train/test split)",
-      "corpus_short": "Shazzrah ×50 · loop 6 (held-out)",
-      "label": "loop 6: Shazzrah",
-      "fights": 22,
-      "fixtures": 50,
-      "never_confident": 3,
-      "mape_mean": 0.228,
-      "mape_median": 0.229,
-      "mape_p90": 0.403,
-      "bias_s": 1.2,
-      "within15": 0.612,
-      "shown": 0.71,
-      "dur_min": 7.2,
-      "dur_max": 13.8,
-      "compare": {
-        "baseline_mean": 0.411,
-        "baseline_bias": 3.2,
-        "better_on": "22/25 held-out · 24/25 train",
-        "train_mean": 0.256,
-        "note": "short-fight floor test passed; most violent execute yet (3.2x); NC identical both configs"
-      }
-    },
-    {
-      "id": 9,
-      "date": "2026-07-29",
-      "estimator": "rhythm candidate — Geddon profile from 25-kill TRAIN half (loop 7)",
-      "corpus": "Baron Geddon ×50 — graded on the HELD-OUT 25 (train/test split)",
-      "corpus_short": "Geddon ×50 · loop 7 (held-out)",
-      "label": "loop 7: Geddon",
-      "fights": 25,
-      "fixtures": 50,
-      "never_confident": 0,
-      "mape_mean": 0.398,
-      "mape_median": 0.259,
-      "mape_p90": 0.631,
-      "bias_s": 3.1,
-      "within15": 0.459,
-      "shown": 0.88,
-      "dur_min": 9.9,
-      "dur_max": 21.4,
-      "compare": {
-        "baseline_mean": 0.52,
-        "baseline_median": 0.405,
-        "baseline_bias": 5.8,
-        "better_on": "24/25 held-out · 23/25 train",
-        "note": "noisiest boss yet (mean>>median both sides: Living Bomb chaos pulls); median improvement in line with the rest"
-      }
-    },
-    {
-      "id": 10,
-      "date": "2026-07-29",
-      "estimator": "rhythm candidate — Sulfuron profile from 25-kill TRAIN half (loop 8)",
-      "corpus": "Sulfuron Harbinger ×50 — graded on the HELD-OUT 25 (train/test split)",
-      "corpus_short": "Sulfuron ×50 · loop 8 (held-out)",
-      "label": "loop 8: Sulfuron",
-      "fights": 25,
-      "fixtures": 50,
-      "never_confident": 0,
-      "mape_mean": 0.495,
-      "mape_median": 0.379,
-      "mape_p90": 0.696,
-      "bias_s": 6.2,
-      "within15": 0.389,
-      "shown": 0.89,
-      "dur_min": 24.0,
-      "dur_max": 32.6,
-      "compare": {
-        "baseline_mean": 0.919,
-        "baseline_median": 0.75,
-        "baseline_bias": 16.1,
-        "better_on": "24/25 held-out · 20/25 train",
-        "note": "worst baseline in MC (priest heals suppress net damage: +16.1s bias) — biggest correction (-42pp) but weakest absolute endpoint; heal residual is structural"
-      }
-    },
-    {
-      "id": 11,
-      "date": "2026-07-30",
-      "estimator": "rhythm candidate — Golemagg profile from 25-kill TRAIN half (loop 9)",
-      "corpus": "Golemagg ×50 — graded on the HELD-OUT 25 (train/test split)",
-      "corpus_short": "Golemagg ×50 · loop 9 (held-out)",
-      "label": "loop 9: Golemagg",
-      "fights": 25,
-      "fixtures": 50,
-      "never_confident": 0,
-      "mape_mean": 0.204,
-      "mape_median": 0.196,
-      "mape_p90": 0.283,
-      "bias_s": 2.7,
-      "within15": 0.687,
-      "shown": 0.92,
-      "dur_min": 28.0,
-      "dur_max": 38.6,
-      "compare": {
-        "baseline_mean": 0.306,
-        "baseline_bias": 5.7,
-        "better_on": "25/25 held-out (first perfect sweep) · 24/25 train",
-        "train_mean": 0.204,
-        "note": "train == test exactly (20.4%) — textbook generalization on the textbook boss"
-      }
-    },
-    {
-      "id": 12,
-      "date": "2026-07-30",
-      "estimator": "rhythm candidate — Ragnaros profile from 25-kill TRAIN half (loop 10)",
-      "corpus": "Ragnaros ×50 — graded on the HELD-OUT 25 (train/test split). THE MC LIBRARY IS COMPLETE.",
-      "corpus_short": "Ragnaros ×50 · loop 10 (held-out)",
-      "label": "loop 10: Ragnaros",
-      "fights": 25,
-      "fixtures": 50,
-      "never_confident": 0,
-      "mape_mean": 0.3,
-      "mape_median": 0.247,
-      "mape_p90": 0.493,
-      "bias_s": 5.2,
-      "within15": 0.612,
-      "shown": 0.94,
-      "dur_min": 30.2,
-      "dur_max": 44.9,
-      "compare": {
-        "baseline_mean": 0.444,
-        "baseline_bias": 11.5,
-        "better_on": "24/25 held-out · 25/25 train",
-        "train_mean": 0.305,
-        "note": "library complete: nine encounters, nine held-out wins, zero overfit in nine splits"
-      }
-    },
-    {
-      "id": 13,
-      "date": "2026-07-30",
-      "estimator": "shipped estimator + Razorgore profile from 25-kill TRAIN half (loop 11 — first BWL boss)",
-      "corpus": "Razorgore ×50 — graded on the HELD-OUT 25 (train/test split); baseline = pre-wiring estimator",
-      "corpus_short": "Razorgore ×50 · loop 11 (held-out)",
-      "label": "loop 11: Razorgore",
-      "fights": 25,
-      "fixtures": 50,
-      "never_confident": 0,
-      "mape_mean": 0.204,
-      "mape_median": 0.153,
-      "mape_p90": 0.386,
-      "bias_s": 1.1,
-      "within15": 0.557,
-      "shown": 0.86,
-      "dur_min": 8.2,
-      "dur_max": 12.4,
-      "compare": {
-        "baseline_mean": 0.264,
-        "baseline_bias": 1.8,
-        "better_on": "20/25 held-out",
-        "train_mean": 0.209,
-        "note": "BWL begins; best median endpoint yet (15.3%); ranked window = post-egg burn only"
-      }
-    },
-    {
-      "id": 14,
-      "date": "2026-07-30",
-      "estimator": "shipped estimator + Vaelastrasz profile from 25-kill TRAIN half (loop 12)",
-      "corpus": "Vaelastrasz ×50 — held-out 25 (baseline = pre-wiring estimator). PERFECT 50/50 sweep.",
-      "corpus_short": "Vaelastrasz ×50 · loop 12",
-      "label": "loop 12: Vaelastrasz",
-      "fights": 25,
-      "fixtures": 50,
-      "never_confident": 0,
-      "mape_mean": 0.266,
-      "mape_median": 0.287,
-      "bias_s": 1.9,
-      "within15": 0.464,
-      "shown": 0.95,
-      "compare": {
-        "baseline_mean": 0.615,
-        "baseline_bias": 6.0,
-        "better_on": "25/25 held-out AND 25/25 train",
-        "note": "30%-start boss; scale-invariance proven; the only DEcelerating shape (6x top -> 0.38x end)"
-      }
-    },
-    {
-      "id": 15,
-      "date": "2026-07-30",
-      "estimator": "shipped estimator + six new BWL profiles (loop 13 — the wing finisher)",
-      "corpus": "Broodlord/Firemaw/Ebonroc/Flamegor/Chromaggus/Nefarian ×50 each — held-out 25s; BWL COMPLETE and SHIPPED as a set",
-      "corpus_short": "BWL finish ×6 · loop 13",
-      "label": "loop 13: BWL complete",
-      "fights": 150,
-      "fixtures": 300,
-      "never_confident": 0,
-      "mape_mean": 0.31,
-      "mape_median": 0.243,
-      "bias_s": 4.3,
-      "within15": null,
-      "shown": null,
-      "compare": {
-        "baseline_mean": 0.549,
-        "baseline_bias": 12.1,
-        "better_on": "146/150 (Firemaw/Flamegor/Chromaggus/Nefarian perfect 25/25)",
-        "detail": "Broodlord 41.1→25.8 · Firemaw 81.8→31.6 · Ebonroc 66.4→32.4 · Flamegor 36.1→20.4 · Chromaggus 71.2→54.1 · Nefarian 32.6→21.8",
-        "note": "wing ships as a set into rhythms.lua (17 profiles total); Chromaggus residual = random vulnerability rotations (structural)"
-      }
-    },
-    {
-      "id": 16,
-      "date": "2026-07-30",
-      "estimator": "shipped estimator + 24 new profiles (loop 14 — the full remaining-raids sweep)",
-      "corpus": "ZG ×9 + AQ40 ×9 + AQ20 ×6 (50 kills each, held-out 25s). Library → 41 profiles across five raids.",
-      "corpus_short": "ZG+AQ sweep · loop 14",
-      "label": "loop 14: ZG+AQ sweep",
-      "fights": 575,
-      "fixtures": 1250,
-      "compare": {
-        "highlights": "Viscidus 608→86 (bias +270s→−13s!) · C'Thun 225→55 · Bug Trio 379→84 · Sartura 178→60 · Venoxis 364→95 · Huhuran 46→24 · Fankriss 44→28 · Ouro 38→29",
-        "structural": "Twin Emperors 466→418 (heal-council) · Rajaxx 424→348 (wave event) · Skeram 177→174 (splits) · Thekal (tiger reset) · Buru (egg boss) — improve but stay rough: regime-work agenda",
-        "excluded": "Edge of Madness (4 random bosses share the id, ungated) · Naxx + Onyxia (no Fresh-window corpus exists)"
-      }
-    },
-    {
-      "id": 17,
-      "date": "2026-07-30",
-      "estimator": "shipped estimator + Onyxia profile (WO-074) @ 0.9.47",
-      "corpus": "Fresh Onyxia ×40 (WCL id 151084), 20 held-out. Library → 42 profiles — Onyxia was the last missing raid boss.",
-      "corpus_short": "Onyxia ×40 · WO-074",
-      "label": "Onyxia (0.9.47)",
-      "fights": 20,
-      "fixtures": 40,
-      "mape_mean": 0.527,
-      "mape_median": 0.507,
-      "mape_p90": 0.671,
-      "bias_s": 34.0,
-      "dur_min": 74.4,
-      "dur_max": 222.1,
-      "baseline": {
-        "mape_mean": 0.742,
-        "mape_median": 0.711,
-        "mape_p90": 0.958,
-        "bias_s": 49.3
-      },
-      "compare": {
-        "highlights": "Onyxia — TWO out-of-sample tests agree: held-out (20 kills) MAPE 74.2%->52.7%; a separate FRESH dps batch (26 slower kills) 79.8%->59.3%. Both ~20-pt cuts, driven by the ~50%-health air-phase dip (untargetable, whelps) a flat rate can't see. Generalizes across pace.",
-        "structural": "Onyxia stays rough (~53%) — the air phase is inherently unpredictable — but strictly better than flat",
-        "excluded": "Naxxramas (still no Fresh-window corpus) · Edge of Madness (4 random bosses share the id) · Majordomo (fight is his adds)"
-      },
-      "fresh_batch": {
-        "kills": 26,
-        "note": "separate dps harvest, slower 167-382s, deduped vs training",
-        "mape_mean": 0.593,
-        "mape_median": 0.562,
-        "mape_p90": 0.733,
-        "bias_s": 49.6,
-        "baseline": {
-          "mape_mean": 0.798,
-          "mape_median": 0.801,
-          "mape_p90": 0.967,
-          "bias_s": 63.4
-        }
-      }
-    },
-    {
-      "id": 18,
-      "date": "2026-07-31",
-      "estimator": "shipped estimator + regime layer PR1 (WO-075/0.9.48) — Onyxia air-phase confCap",
-      "corpus": "Fresh Onyxia ×200 (id 151084). Regime = per-health-bin confCap over the air-phase bins (8-12).",
-      "corpus_short": "Onyxia ×200 · regime PR1",
-      "label": "Onyxia regime (PR1)",
-      "fights": 200,
-      "fixtures": 200,
-      "mape_mean": 0.443,
-      "mape_median": 0.427,
-      "bias_s": 20.1,
-      "shown": 0.55,
-      "baseline": {
-        "note": "rhythm only, no regime",
-        "mape_mean": 0.57,
-        "mape_median": 0.554,
-        "bias_s": 41.3,
-        "shown": 0.99
-      },
-      "compare": {
-        "highlights": "Onyxia regime (WO-075 PR1): a per-bin confCap makes the bar go QUIET through the unreadable air phase → MAPE mean 57%→44%, median 55%→43%, reads-long bias +41s→+20s, shown 99%→55%.",
-        "method": "A stall-gated FREEZE was tried first and found WRONG for Onyxia: 200 kills show the air phase is a SLOWDOWN (ranged chips health), not a true stall, so the freeze over-holds and grows a heavy right tail (mean 63-83%). The honest fix is the confCap (bar quiet where unreadable). The freeze mechanism ships for TRUE-stall bosses (Viscidus/Ouro, later PRs). An adversarial 6-lens verify also caught + fixed a cadence-dependent freeze gate."
-      }
+ "what": "Badger TTK estimator — batch grades over real Warcraft Logs corpora (learning-how-to-learn phase). Raw corpora are local-only (gitignored); this file is the curated outcome.",
+ "runs": [
+  {
+   "id": 1,
+   "date": "2026-07-29",
+   "estimator": "chunk-clock (WO-056/061) @ v0.9.44",
+   "corpus": "Fresh Lucifron ×12 (first corpus)",
+   "corpus_short": "Lucifron ×12",
+   "label": "Lucifron ×12",
+   "fights": 12,
+   "fixtures": 12,
+   "never_confident": 0,
+   "mape_mean": 0.306,
+   "mape_median": 0.313,
+   "mape_p90": 0.441,
+   "bias_s": 2.3,
+   "within15": 0.348,
+   "shown": 0.751,
+   "dur_min": 10.7,
+   "dur_max": 16.5
+  },
+  {
+   "id": 2,
+   "date": "2026-07-29",
+   "estimator": "chunk-clock (WO-056/061) @ v0.9.44",
+   "corpus": "Fresh MC ×10 · BWL ×8 · AQ ×2 — 126 kills, each raid from its own relevance window",
+   "corpus_short": "MC+BWL+AQ ×126",
+   "label": "MC+BWL+AQ ×126",
+   "fights": 121,
+   "fixtures": 126,
+   "never_confident": 5,
+   "mape_mean": 1.1709,
+   "mape_median": 0.415,
+   "mape_p90": 1.065,
+   "bias_s": 17.7,
+   "within15": 0.2607,
+   "shown": 0.8741,
+   "dur_min": 8.5,
+   "dur_max": 149.4
+  },
+  {
+   "id": 3,
+   "date": "2026-07-29",
+   "estimator": "rhythm-injected candidate (loop 1) — tools/candidates/estimator-rhythm.lua",
+   "corpus": "Lucifron ×20, frozen (the human's hunt) — rhythm learned from the same 20 (mechanism proof; validation on fresh kills next loop)",
+   "corpus_short": "Lucifron ×20 · loop 1",
+   "label": "loop 1: rhythm",
+   "fights": 20,
+   "fixtures": 20,
+   "never_confident": 0,
+   "mape_mean": 0.211,
+   "mape_median": 0.2,
+   "mape_p90": 0.307,
+   "bias_s": 1.1,
+   "within15": 0.538,
+   "shown": 0.765,
+   "dur_min": 10.7,
+   "dur_max": 16.4,
+   "compare": {
+    "baseline_mean": 0.347,
+    "baseline_median": 0.394,
+    "baseline_bias": 2.9,
+    "better_on": "18/20"
+   }
+  },
+  {
+   "id": 4,
+   "date": "2026-07-29",
+   "estimator": "rhythm candidate, retrained (loop 2) — profile from 25-kill TRAIN half",
+   "corpus": "Lucifron ×50 — graded on the HELD-OUT 25 (train/test split; fresh-30 view: 38.7%→26.9%, 25/30 better)",
+   "corpus_short": "Lucifron ×50 · loop 2 (held-out)",
+   "label": "loop 2: validated",
+   "fights": 25,
+   "fixtures": 50,
+   "never_confident": 0,
+   "mape_mean": 0.256,
+   "mape_median": 0.236,
+   "mape_p90": 0.391,
+   "bias_s": 1.4,
+   "within15": 0.526,
+   "shown": 0.79,
+   "dur_min": 10.7,
+   "dur_max": 17.4,
+   "compare": {
+    "baseline_mean": 0.355,
+    "baseline_bias": 3.3,
+    "better_on": "18/25 held-out · 25/30 fresh",
+    "train_mean": 0.247,
+    "note": "train≈test → no overfitting; profile stable across retrains"
+   }
+  },
+  {
+   "id": 5,
+   "date": "2026-07-29",
+   "estimator": "rhythm candidate — Magmadar profile from 25-kill TRAIN half (loop 3)",
+   "corpus": "Magmadar ×50 — graded on the HELD-OUT 25 (train/test split)",
+   "corpus_short": "Magmadar ×50 · loop 3 (held-out)",
+   "label": "loop 3: Magmadar",
+   "fights": 25,
+   "fixtures": 50,
+   "never_confident": 0,
+   "mape_mean": 0.205,
+   "mape_median": 0.194,
+   "mape_p90": 0.314,
+   "bias_s": 2.3,
+   "within15": 0.65,
+   "shown": 0.9,
+   "dur_min": 12.1,
+   "dur_max": 32.0,
+   "compare": {
+    "baseline_mean": 0.385,
+    "baseline_bias": 6.7,
+    "better_on": "24/25 held-out · 25/25 train",
+    "train_mean": 0.192,
+    "note": "second encounter, different shape (Frenzy slow-phase), bigger win"
+   }
+  },
+  {
+   "id": 6,
+   "date": "2026-07-29",
+   "estimator": "rhythm candidate — Gehennas profile from 25-kill TRAIN half (loop 4)",
+   "corpus": "Gehennas ×50 — graded on the HELD-OUT 25 (train/test split)",
+   "corpus_short": "Gehennas ×50 · loop 4 (held-out)",
+   "label": "loop 4: Gehennas",
+   "fights": 25,
+   "fixtures": 50,
+   "never_confident": 0,
+   "mape_mean": 0.268,
+   "mape_median": 0.264,
+   "mape_p90": 0.481,
+   "bias_s": 2.1,
+   "within15": 0.505,
+   "shown": 0.83,
+   "dur_min": 12.1,
+   "dur_max": 17.6,
+   "compare": {
+    "baseline_mean": 0.484,
+    "baseline_bias": 4.8,
+    "better_on": "22/25 held-out · 23/25 train",
+    "train_mean": 0.291,
+    "note": "largest absolute drop yet (-21.6pp); test beats train"
+   }
+  },
+  {
+   "id": 7,
+   "date": "2026-07-29",
+   "estimator": "rhythm candidate — Garr profile from 25-kill TRAIN half (loop 5)",
+   "corpus": "Garr ×50 — graded on the HELD-OUT 25 (train/test split)",
+   "corpus_short": "Garr ×50 · loop 5 (held-out)",
+   "label": "loop 5: Garr",
+   "fights": 25,
+   "fixtures": 50,
+   "never_confident": 0,
+   "mape_mean": 0.291,
+   "mape_median": 0.257,
+   "mape_p90": 0.408,
+   "bias_s": 3.0,
+   "within15": 0.547,
+   "shown": 0.88,
+   "dur_min": 17.3,
+   "dur_max": 29.1,
+   "compare": {
+    "baseline_mean": 0.442,
+    "baseline_bias": 6.9,
+    "better_on": "24/25 held-out · 25/25 train",
+    "train_mean": 0.246,
+    "note": "adds smear the shape (mildest execute 1.4-1.6x; small train/test gap) — still a big win"
+   }
+  },
+  {
+   "id": 8,
+   "date": "2026-07-29",
+   "estimator": "rhythm candidate — Shazzrah profile from 25-kill TRAIN half (loop 6)",
+   "corpus": "Shazzrah ×50 — graded on the HELD-OUT 25 (train/test split)",
+   "corpus_short": "Shazzrah ×50 · loop 6 (held-out)",
+   "label": "loop 6: Shazzrah",
+   "fights": 22,
+   "fixtures": 50,
+   "never_confident": 3,
+   "mape_mean": 0.228,
+   "mape_median": 0.229,
+   "mape_p90": 0.403,
+   "bias_s": 1.2,
+   "within15": 0.612,
+   "shown": 0.71,
+   "dur_min": 7.2,
+   "dur_max": 13.8,
+   "compare": {
+    "baseline_mean": 0.411,
+    "baseline_bias": 3.2,
+    "better_on": "22/25 held-out · 24/25 train",
+    "train_mean": 0.256,
+    "note": "short-fight floor test passed; most violent execute yet (3.2x); NC identical both configs"
+   }
+  },
+  {
+   "id": 9,
+   "date": "2026-07-29",
+   "estimator": "rhythm candidate — Geddon profile from 25-kill TRAIN half (loop 7)",
+   "corpus": "Baron Geddon ×50 — graded on the HELD-OUT 25 (train/test split)",
+   "corpus_short": "Geddon ×50 · loop 7 (held-out)",
+   "label": "loop 7: Geddon",
+   "fights": 25,
+   "fixtures": 50,
+   "never_confident": 0,
+   "mape_mean": 0.398,
+   "mape_median": 0.259,
+   "mape_p90": 0.631,
+   "bias_s": 3.1,
+   "within15": 0.459,
+   "shown": 0.88,
+   "dur_min": 9.9,
+   "dur_max": 21.4,
+   "compare": {
+    "baseline_mean": 0.52,
+    "baseline_median": 0.405,
+    "baseline_bias": 5.8,
+    "better_on": "24/25 held-out · 23/25 train",
+    "note": "noisiest boss yet (mean>>median both sides: Living Bomb chaos pulls); median improvement in line with the rest"
+   }
+  },
+  {
+   "id": 10,
+   "date": "2026-07-29",
+   "estimator": "rhythm candidate — Sulfuron profile from 25-kill TRAIN half (loop 8)",
+   "corpus": "Sulfuron Harbinger ×50 — graded on the HELD-OUT 25 (train/test split)",
+   "corpus_short": "Sulfuron ×50 · loop 8 (held-out)",
+   "label": "loop 8: Sulfuron",
+   "fights": 25,
+   "fixtures": 50,
+   "never_confident": 0,
+   "mape_mean": 0.495,
+   "mape_median": 0.379,
+   "mape_p90": 0.696,
+   "bias_s": 6.2,
+   "within15": 0.389,
+   "shown": 0.89,
+   "dur_min": 24.0,
+   "dur_max": 32.6,
+   "compare": {
+    "baseline_mean": 0.919,
+    "baseline_median": 0.75,
+    "baseline_bias": 16.1,
+    "better_on": "24/25 held-out · 20/25 train",
+    "note": "worst baseline in MC (priest heals suppress net damage: +16.1s bias) — biggest correction (-42pp) but weakest absolute endpoint; heal residual is structural"
+   }
+  },
+  {
+   "id": 11,
+   "date": "2026-07-30",
+   "estimator": "rhythm candidate — Golemagg profile from 25-kill TRAIN half (loop 9)",
+   "corpus": "Golemagg ×50 — graded on the HELD-OUT 25 (train/test split)",
+   "corpus_short": "Golemagg ×50 · loop 9 (held-out)",
+   "label": "loop 9: Golemagg",
+   "fights": 25,
+   "fixtures": 50,
+   "never_confident": 0,
+   "mape_mean": 0.204,
+   "mape_median": 0.196,
+   "mape_p90": 0.283,
+   "bias_s": 2.7,
+   "within15": 0.687,
+   "shown": 0.92,
+   "dur_min": 28.0,
+   "dur_max": 38.6,
+   "compare": {
+    "baseline_mean": 0.306,
+    "baseline_bias": 5.7,
+    "better_on": "25/25 held-out (first perfect sweep) · 24/25 train",
+    "train_mean": 0.204,
+    "note": "train == test exactly (20.4%) — textbook generalization on the textbook boss"
+   }
+  },
+  {
+   "id": 12,
+   "date": "2026-07-30",
+   "estimator": "rhythm candidate — Ragnaros profile from 25-kill TRAIN half (loop 10)",
+   "corpus": "Ragnaros ×50 — graded on the HELD-OUT 25 (train/test split). THE MC LIBRARY IS COMPLETE.",
+   "corpus_short": "Ragnaros ×50 · loop 10 (held-out)",
+   "label": "loop 10: Ragnaros",
+   "fights": 25,
+   "fixtures": 50,
+   "never_confident": 0,
+   "mape_mean": 0.3,
+   "mape_median": 0.247,
+   "mape_p90": 0.493,
+   "bias_s": 5.2,
+   "within15": 0.612,
+   "shown": 0.94,
+   "dur_min": 30.2,
+   "dur_max": 44.9,
+   "compare": {
+    "baseline_mean": 0.444,
+    "baseline_bias": 11.5,
+    "better_on": "24/25 held-out · 25/25 train",
+    "train_mean": 0.305,
+    "note": "library complete: nine encounters, nine held-out wins, zero overfit in nine splits"
+   }
+  },
+  {
+   "id": 13,
+   "date": "2026-07-30",
+   "estimator": "shipped estimator + Razorgore profile from 25-kill TRAIN half (loop 11 — first BWL boss)",
+   "corpus": "Razorgore ×50 — graded on the HELD-OUT 25 (train/test split); baseline = pre-wiring estimator",
+   "corpus_short": "Razorgore ×50 · loop 11 (held-out)",
+   "label": "loop 11: Razorgore",
+   "fights": 25,
+   "fixtures": 50,
+   "never_confident": 0,
+   "mape_mean": 0.204,
+   "mape_median": 0.153,
+   "mape_p90": 0.386,
+   "bias_s": 1.1,
+   "within15": 0.557,
+   "shown": 0.86,
+   "dur_min": 8.2,
+   "dur_max": 12.4,
+   "compare": {
+    "baseline_mean": 0.264,
+    "baseline_bias": 1.8,
+    "better_on": "20/25 held-out",
+    "train_mean": 0.209,
+    "note": "BWL begins; best median endpoint yet (15.3%); ranked window = post-egg burn only"
+   }
+  },
+  {
+   "id": 14,
+   "date": "2026-07-30",
+   "estimator": "shipped estimator + Vaelastrasz profile from 25-kill TRAIN half (loop 12)",
+   "corpus": "Vaelastrasz ×50 — held-out 25 (baseline = pre-wiring estimator). PERFECT 50/50 sweep.",
+   "corpus_short": "Vaelastrasz ×50 · loop 12",
+   "label": "loop 12: Vaelastrasz",
+   "fights": 25,
+   "fixtures": 50,
+   "never_confident": 0,
+   "mape_mean": 0.266,
+   "mape_median": 0.287,
+   "bias_s": 1.9,
+   "within15": 0.464,
+   "shown": 0.95,
+   "compare": {
+    "baseline_mean": 0.615,
+    "baseline_bias": 6.0,
+    "better_on": "25/25 held-out AND 25/25 train",
+    "note": "30%-start boss; scale-invariance proven; the only DEcelerating shape (6x top -> 0.38x end)"
+   }
+  },
+  {
+   "id": 15,
+   "date": "2026-07-30",
+   "estimator": "shipped estimator + six new BWL profiles (loop 13 — the wing finisher)",
+   "corpus": "Broodlord/Firemaw/Ebonroc/Flamegor/Chromaggus/Nefarian ×50 each — held-out 25s; BWL COMPLETE and SHIPPED as a set",
+   "corpus_short": "BWL finish ×6 · loop 13",
+   "label": "loop 13: BWL complete",
+   "fights": 150,
+   "fixtures": 300,
+   "never_confident": 0,
+   "mape_mean": 0.31,
+   "mape_median": 0.243,
+   "bias_s": 4.3,
+   "within15": null,
+   "shown": null,
+   "compare": {
+    "baseline_mean": 0.549,
+    "baseline_bias": 12.1,
+    "better_on": "146/150 (Firemaw/Flamegor/Chromaggus/Nefarian perfect 25/25)",
+    "detail": "Broodlord 41.1→25.8 · Firemaw 81.8→31.6 · Ebonroc 66.4→32.4 · Flamegor 36.1→20.4 · Chromaggus 71.2→54.1 · Nefarian 32.6→21.8",
+    "note": "wing ships as a set into rhythms.lua (17 profiles total); Chromaggus residual = random vulnerability rotations (structural)"
+   }
+  },
+  {
+   "id": 16,
+   "date": "2026-07-30",
+   "estimator": "shipped estimator + 24 new profiles (loop 14 — the full remaining-raids sweep)",
+   "corpus": "ZG ×9 + AQ40 ×9 + AQ20 ×6 (50 kills each, held-out 25s). Library → 41 profiles across five raids.",
+   "corpus_short": "ZG+AQ sweep · loop 14",
+   "label": "loop 14: ZG+AQ sweep",
+   "fights": 575,
+   "fixtures": 1250,
+   "compare": {
+    "highlights": "Viscidus 608→86 (bias +270s→−13s!) · C'Thun 225→55 · Bug Trio 379→84 · Sartura 178→60 · Venoxis 364→95 · Huhuran 46→24 · Fankriss 44→28 · Ouro 38→29",
+    "structural": "Twin Emperors 466→418 (heal-council) · Rajaxx 424→348 (wave event) · Skeram 177→174 (splits) · Thekal (tiger reset) · Buru (egg boss) — improve but stay rough: regime-work agenda",
+    "excluded": "Edge of Madness (4 random bosses share the id, ungated) · Naxx + Onyxia (no Fresh-window corpus exists)"
+   }
+  },
+  {
+   "id": 17,
+   "date": "2026-07-30",
+   "estimator": "shipped estimator + Onyxia profile (WO-074) @ 0.9.47",
+   "corpus": "Fresh Onyxia ×40 (WCL id 151084), 20 held-out. Library → 42 profiles — Onyxia was the last missing raid boss.",
+   "corpus_short": "Onyxia ×40 · WO-074",
+   "label": "Onyxia (0.9.47)",
+   "fights": 20,
+   "fixtures": 40,
+   "mape_mean": 0.527,
+   "mape_median": 0.507,
+   "mape_p90": 0.671,
+   "bias_s": 34.0,
+   "dur_min": 74.4,
+   "dur_max": 222.1,
+   "baseline": {
+    "mape_mean": 0.742,
+    "mape_median": 0.711,
+    "mape_p90": 0.958,
+    "bias_s": 49.3
+   },
+   "compare": {
+    "highlights": "Onyxia — TWO out-of-sample tests agree: held-out (20 kills) MAPE 74.2%->52.7%; a separate FRESH dps batch (26 slower kills) 79.8%->59.3%. Both ~20-pt cuts, driven by the ~50%-health air-phase dip (untargetable, whelps) a flat rate can't see. Generalizes across pace.",
+    "structural": "Onyxia stays rough (~53%) — the air phase is inherently unpredictable — but strictly better than flat",
+    "excluded": "Naxxramas (still no Fresh-window corpus) · Edge of Madness (4 random bosses share the id) · Majordomo (fight is his adds)"
+   },
+   "fresh_batch": {
+    "kills": 26,
+    "note": "separate dps harvest, slower 167-382s, deduped vs training",
+    "mape_mean": 0.593,
+    "mape_median": 0.562,
+    "mape_p90": 0.733,
+    "bias_s": 49.6,
+    "baseline": {
+     "mape_mean": 0.798,
+     "mape_median": 0.801,
+     "mape_p90": 0.967,
+     "bias_s": 63.4
     }
-  ]
+   }
+  },
+  {
+   "id": 18,
+   "date": "2026-07-31",
+   "estimator": "shipped estimator + regime layer PR1 (WO-075/0.9.48) — Onyxia air-phase confCap",
+   "corpus": "Fresh Onyxia ×200 (id 151084). Regime = per-health-bin confCap over the air-phase bins (8-12).",
+   "corpus_short": "Onyxia ×200 · regime PR1",
+   "label": "Onyxia regime (PR1)",
+   "fights": 200,
+   "fixtures": 200,
+   "mape_mean": 0.443,
+   "mape_median": 0.427,
+   "bias_s": 20.1,
+   "shown": 0.55,
+   "baseline": {
+    "note": "rhythm only, no regime",
+    "mape_mean": 0.57,
+    "mape_median": 0.554,
+    "bias_s": 41.3,
+    "shown": 0.99
+   },
+   "compare": {
+    "highlights": "Onyxia regime (WO-075 PR1): a per-bin confCap makes the bar go QUIET through the unreadable air phase → MAPE mean 57%→44%, median 55%→43%, reads-long bias +41s→+20s, shown 99%→55%.",
+    "method": "A stall-gated FREEZE was tried first and found WRONG for Onyxia: 200 kills show the air phase is a SLOWDOWN (ranged chips health), not a true stall, so the freeze over-holds and grows a heavy right tail (mean 63-83%). The honest fix is the confCap (bar quiet where unreadable). The freeze mechanism ships for TRUE-stall bosses (Viscidus/Ouro, later PRs). An adversarial 6-lens verify also caught + fixed a cadence-dependent freeze gate."
+   }
+  },
+  {
+   "id": 19,
+   "date": "2026-07-31",
+   "estimator": "shipped estimator + regime layer PR2 (WO-075/0.9.48) — learned confCap roster + suppressFlush",
+   "corpus": "10 structural bosses x60 Fresh kills + Onyxia x200 (800 fixtures). Caps LEARNED from the estimator's own measured per-bin error (tools/estimator-perbin.lua); graded on the HELD-OUT odd half against the SHIPPED profiles.",
+   "corpus_short": "10 bosses x60 + Onyxia x200 · regime PR2",
+   "label": "regime roster (PR2)",
+   "fights": 800,
+   "fixtures": 800,
+   "note": "Per-boss held-out results below; there is no single aggregate because each boss is its own regime.",
+   "per_boss_heldout": {
+    "buru": {
+     "baseline": {
+      "mape_mean": 1.886,
+      "bias_s": 74.0,
+      "shown": 0.97
+     },
+     "regime": {
+      "mape_mean": 0.373,
+      "bias_s": 3.2,
+      "shown": 0.67
+     },
+     "why": "suppressFlush — scripted egg-phase cliffs were flushing a sound prior"
+    },
+    "viscidus": {
+     "baseline": {
+      "mape_mean": 1.169,
+      "bias_s": 4.7,
+      "shown": 0.97
+     },
+     "regime": {
+      "mape_mean": 0.44,
+      "bias_s": -16.0,
+      "shown": 0.33
+     }
+    },
+    "skeram": {
+     "baseline": {
+      "mape_mean": 1.132,
+      "bias_s": 6.8,
+      "shown": 0.87
+     },
+     "regime": {
+      "mape_mean": 0.703,
+      "bias_s": 5.7,
+      "shown": 0.23
+     }
+    },
+    "rajaxx": {
+     "baseline": {
+      "mape_mean": 2.067,
+      "bias_s": 23.8,
+      "shown": 0.83
+     },
+     "regime": {
+      "mape_mean": 1.315,
+      "bias_s": 10.4,
+      "shown": 0.31
+     },
+     "why": "wave gate — the whole opening is unreadable"
+    },
+    "cthun": {
+     "baseline": {
+      "mape_mean": 0.52,
+      "bias_s": 6.9,
+      "shown": 0.98
+     },
+     "regime": {
+      "mape_mean": 0.383,
+      "bias_s": 4.8,
+      "shown": 0.86
+     }
+    },
+    "onyxia": {
+     "baseline": {
+      "mape_mean": 0.556,
+      "bias_s": 40.7,
+      "shown": 0.99
+     },
+     "regime": {
+      "mape_mean": 0.489,
+      "bias_s": 27.6,
+      "shown": 0.84
+     }
+    },
+    "sulfuron": {
+     "baseline": {
+      "mape_mean": 0.412,
+      "bias_s": 4.9,
+      "shown": 0.9
+     },
+     "regime": {
+      "mape_mean": 0.385,
+      "bias_s": 4.0,
+      "shown": 0.81
+     }
+    },
+    "twin_emperors": {
+     "baseline": {
+      "mape_mean": 4.074,
+      "bias_s": 210.3,
+      "shown": 0.98
+     },
+     "regime": {
+      "silent": true,
+      "shown": 0.0
+     },
+     "why": "two pools behind one readout — health is uninformative all fight; the bar stays quiet"
+    },
+    "chromaggus": {
+     "baseline": {
+      "mape_mean": 0.572,
+      "bias_s": 8.9,
+      "shown": 0.97
+     },
+     "regime": {
+      "mape_mean": 0.572,
+      "bias_s": 8.9,
+      "shown": 0.97
+     },
+     "why": "measured as readable — correctly NO caps"
+    },
+    "ouro": {
+     "baseline": {
+      "mape_mean": 0.293,
+      "bias_s": 3.7,
+      "shown": 0.96
+     },
+     "regime": {
+      "mape_mean": 0.293,
+      "bias_s": 3.7,
+      "shown": 0.96
+     },
+     "why": "measured as readable — correctly NO caps"
+    },
+    "jindo": {
+     "baseline": {
+      "mape_mean": 0.772,
+      "bias_s": 10.5,
+      "shown": 0.96
+     },
+     "regime": {
+      "mape_mean": 0.772,
+      "bias_s": 10.5,
+      "shown": 0.96
+     },
+     "why": "caps learned but all above the show threshold — no behavioural change"
+    }
+   },
+   "findings": [
+    "confCap is learned from the estimator's OWN measured per-bin error, not a statistical proxy: the obvious proxy (dispersion of remaining time) explodes as the denominator vanishes and would have silenced the ENDGAME — the stretch the readout gets most right (~3s error with 10s to live).",
+    "Caps use two currencies: <=30% relative OR <=5s absolute is useful (keeps the endgame); >=45s absolute is never usable (kills the pull); between, the cap crosses the 0.5 show threshold at 50% error.",
+    "The universal default cap must NOT be folded into a MEASURED boss — doing so silenced Chromaggus' most readable band and made his grade worse. It remains the fallback for un-profiled bosses only.",
+    "The FREEZE tier is subsumed by confCap: on this roster no freeze band improved a grade, and freeze-only made Viscidus worse (85.5%->90.5%). No shipped profile uses one.",
+    "Categorical facts must be active while measuring: Buru's caps learned without suppressFlush were calibrated to an estimator ~3x worse and over-silenced a usable readout."
+   ]
+  }
+ ]
 }

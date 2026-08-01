@@ -646,6 +646,26 @@ describe("Estimator — regime seams (WO-075)", function()
         end
     )
 
+    it("suppressFlush blocks the two-cliff regime flush, but evidence still folds", function()
+        -- Scripted chunk damage (Buru's cliffs) fires the regime-change flush on a MECHANIC rather than a
+        -- genuine kill-speed change, discarding a sound prior. Drive two big out-of-band cliffs: unflagged
+        -- the estimator flushes (priorT collapses to JUMP_KEEP); flagged it must not — yet events/evidence
+        -- still accumulate exactly as normal.
+        local function run(regime)
+            local e = ns.Estimator.new({ priorRate = 0.02, regime = regime })
+            for i = 0, 5 do
+                e:sample(i * 1.0, 1.0 - i * 0.02) -- steady, slow: establishes a belief
+            end
+            e:sample(6.0, 0.60) -- cliff 1 (way out of band): arms
+            e:sample(7.0, 0.20) -- cliff 2: would fire the flush
+            return e
+        end
+        local plain, capped = run(nil), run({ suppressFlush = true })
+        assert.is_true(capped.priorT > plain.priorT, "the flush should have been suppressed")
+        assert.equals(plain.events, capped.events) -- evidence still folds: same event count
+        assert.is_true(capped.sumD > 0 and capped.sumT > 0)
+    end)
+
     it("an UN-flagged profile does NOT reset on an up-jump (Twin/Skeram negative test)", function()
         local e = ns.Estimator.new({ regime = { confCap = 0.9 } }) -- no resetOnRise
         for i = 0, 9 do

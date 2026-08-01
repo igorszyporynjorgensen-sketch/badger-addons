@@ -210,7 +210,11 @@ function Estimator:sample(t, h, damageable)
         local obs = drop / span
         local den = self.sumT + self.priorT
         local flushed = false
-        if den > 0 then
+        -- Regime suppressFlush (WO-075 seam 5): a boss whose fight is SCRIPTED chunk damage (Buru's
+        -- scripted cliffs) fires the two-cliff regime-change flush on mechanics rather than on a genuine
+        -- kill-speed change, throwing away a sound prior. Suppress only the flush — the fold below still
+        -- runs, so evidence keeps accumulating normally. No-op when unflagged.
+        if den > 0 and not (self.regime and self.regime.suppressFlush) then
             local belief = (self.sumD + (self.priorRate or 0) * self.priorT) / den
             if belief > 0 then
                 local base = self.jumpBase or belief

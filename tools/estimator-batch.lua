@@ -14,8 +14,15 @@ local TAIL = 6.0
 local MINCONF = 0.5 -- src/core.lua default minConfidenceToShow — grade only what the bar would show
 
 local mock = require("tools.wow-mock.init")
-local dir = arg[1] or "tools/fights/corpus"
-local estPath = arg[2] or "projects/badger-ttk/src/engine/estimator.lua"
+-- Positional args are the first two NON-flag arguments, so flags may appear anywhere.
+local positional = {}
+for i = 1, #arg do
+    if not tostring(arg[i]):match("^%-%-") then
+        positional[#positional + 1] = arg[i]
+    end
+end
+local dir = positional[1] or "tools/fights/corpus"
+local estPath = positional[2] or "projects/badger-ttk/src/engine/estimator.lua"
 local ns = mock.load(estPath) -- once
 
 -- List *.lua fixtures in the directory (portable via ls; the corpus is flat).
@@ -49,9 +56,25 @@ end
 -- tools/candidates/regime-<enc>.lua is injected via opts.regime, EXACTLY as the live driver will on
 -- ENCOUNTER_START. The est:sample(s.t, s.h, true) call is UNCHANGED — the estimator freezes ITSELF off h.
 -- No candidate ⇒ nil ⇒ baseline (the non-regime regression guard: those boss rows stay byte-identical).
+-- `--shipped` grades the profile that actually SHIPS (src/raids/regimes.lua) instead of the lab candidate.
+-- They are not the same artifact: the shipped profile also carries the hand-authored categorical facts
+-- (suppressFlush, hideBar) that the learner never emits, so a candidate-only grade can badly misreport a
+-- boss whose fix is one of those facts (Buru's flush suppression is worth ~3x on its own).
+local useShipped = false
+for i = 1, #arg do
+    if arg[i] == "--shipped" then
+        useShipped = true
+    end
+end
+local shippedRegimes = useShipped and mock.load("projects/badger-ttk/src/raids/regimes.lua").Regimes
+    or nil
+
 local function regimeFor(encounterID)
     if not encounterID then
         return nil
+    end
+    if useShipped then
+        return shippedRegimes and (shippedRegimes[encounterID] or shippedRegimes.default) or nil
     end
     local ok, prof = pcall(function()
         return assert(loadfile(("tools/candidates/regime-%d.lua"):format(encounterID)))()
