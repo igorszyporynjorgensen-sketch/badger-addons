@@ -1,3 +1,26 @@
+## 0.9.48 (2026-08-01)
+
+### Added
+
+- **The bar now goes quiet instead of guessing.** On fights (and phases) where a boss's health simply can't
+  tell you when it will die, the countdown now hides rather than showing a confident, wrong number. Which
+  fights those are wasn't guessed — it was **measured** across ~900 real raid kills, per boss and per health
+  range, so the bar stays up wherever it's actually trustworthy.
+  - **Buru the Gorger** is the big win: his scripted egg damage used to wreck the estimate, and the countdown
+    is now roughly **five times closer** (it used to read over a minute long; now it's a few seconds off).
+  - **Twin Emperors** and **High Priest Thekal** stay quiet — two bosses sharing one health readout, and a
+    boss who resurrects, genuinely can't be read from health alone.
+  - **General Rajaxx** hides during his opening waves, **Viscidus** through his freeze phases, **Skeram**
+    around his images, **C'Thun** behind his opening gate, and **Onyxia** through the air phase.
+  - **Majordomo Executus** no longer shows a bar at all — his encounter ends with his adds, not his health.
+  - Bosses the measurements found perfectly readable (**Chromaggus**, **Ouro**) are untouched.
+- **Thekal's resurrect is understood.** When he refills his health mid-fight, the estimate starts fresh
+  instead of dragging the old pool's "about to die" into the new one.
+
+### Changed
+
+- Estimates on every other fight — and all solo play — are **completely unchanged**.
+
 ## 0.9.47 (2026-07-30)
 
 ### Added
