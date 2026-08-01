@@ -1,8 +1,8 @@
 ---
 wo: WO-076-IJ
-status: Accepted
+status: Done
 assigned: IJ
-mr:
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/100
 decision: D-021-IJ
 depends_on:
   - docs/workorders/WO-075-IJ.md
@@ -166,6 +166,39 @@ number is not by itself a licence to edit shared data).
 7. `pnpm validate --skip-nx-cache` green (`PATH="$HOME/.luarocks/bin:$PATH"`); non-regime corpus rows
    byte-identical.
 8. `CHANGELOG [Unreleased]` notes the instrument fix.
+
+## Outcome (2026-08-01)
+
+Merged as [PR #100](https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/100) at `bf6ed75`;
+`pnpm validate --skip-nx-cache` green on `main` (187 tests, 0 warnings / 0 errors, 33 files). Full numbers
+and method: [docs/reference/wo076-lab-vs-client.md](../reference/wo076-lab-vs-client.md).
+
+- **Grading honestly costs 14.6 MAPE points.** Same corpus, `--shipped`: mean 55.6% → **70.2%**, median
+  47.5% → 54.6%, p90 86.3% → 103.2%, bias +10.4s → +15.6s. The estimator was never as good as the lab
+  said. (788 → 778 graded fights: with `minTTK` modelled, a kill whose predicted TTK never reaches 10s
+  never shows a bar — the client wouldn't either.)
+- **16 of 105 learned caps can never fire** — Onyxia 4/5, Viscidus 4/5, Gahz'ranka 3/5, Sulfuron 2/4,
+  Jin'do 2/3, Skeram 1/17. Bosses capped from bin 20 downward in an unbroken run (Twin Emperors, Thekal,
+  Buru) keep the bar hidden deep into the fight, so their later caps stay reachable and they lose nothing.
+- **Onyxia:** `[20] = 0.0` is real and load-bearing (99.9% pre-show with caps active); `[11] = 0.0` — the
+  air phase, the fight's worst bin at 45.9% rel / 59.0s abs over 22k samples — has 0.0% reachability.
+
+### Two findings the WO did not anticipate
+
+1. **Caps interact.** Keeping bin 20's cap is what holds the bar hidden into bin 19, so reachability
+   cannot be decided in one pass. `learn-regime.py` iterates: derive → re-measure with the candidate caps
+   active → drop what stays unreachable → repeat (converges in 2-3 passes).
+2. **The committed candidates are stale** — learned from a corpus that no longer exists on disk. `main`'s
+   own learner reproduces Onyxia's committed caps against today's corpus but *not* Buru's, so a
+   committed-vs-regenerated diff conflates corpus drift with this fix. **No candidate files were
+   regenerated**; every number above uses a corpus-controlled baseline built in a throwaway worktree.
+
+`damageable = h > 0` moved the measurement on exactly two bosses — Thekal and Skeram, the only fights
+whose curves touch `h = 0` mid-fight (56/60 and 23/60 kills). Recorded, **not acted on**, per [D-021-IJ].
+
+**Handed forward:** the air phase needs a mechanism other than confidence — the bar is already up by 50%
+health, hiding it mid-fight needs a deliberate un-show, and D-020 removed the `freeze` tier. Wants its own
+decision (next id `D-022-IJ`).
 
 ## Resolved questions
 
