@@ -112,13 +112,40 @@ _As of 2026-07-30._
 - **Onyxia shipped (0.9.47).** The last missing raid boss now has a learned rhythm (dual-key 1084/151084),
   held-out + fresh-batch validated (MAPE ~74%→~53–60%); released via the pipeline (tag `badger-ttk/0.9.47`,
   GitHub Release). It exposed the rhythm ceiling (the untargetable air phase), which motivated D-018.
-- **Next release: 0.9.48 = the regime layer** (D-018/WO-075) — makes the bar go quiet in phases it can't
-  read (Onyxia's air phase the first beneficiary). Then 1.0.0 (with regime), gated on the in-game `/reload`.
-- **Next id:** D-019-IJ.
+- **Next release: 0.9.48 = the regime layer** (D-018/WO-075). PR1 (seams + Onyxia) is **merged**; PR2
+  (learned caps across 11 structural bosses + `suppressFlush`) is **PR #96**; PR3 (Thekal `resetOnRise`,
+  and the keep-or-remove call on the now-unused freeze tier — D-019) follows, then the 0.9.48 cut. Headline:
+  Buru **188.6%→37.3%** MAPE, Twin Emperors' unreadable bar now stays **silent**, and two bosses measured as
+  readable correctly get **no caps**. Then 1.0.0 (with regime), gated on the in-game `/reload`.
+- **Next id:** D-020-IJ.
 
 ---
 
 ## Decision log
+
+### 2026-07-31
+
+- **[D-019-IJ] Regime confidence caps are LEARNED from the estimator's own measured error, and the FREEZE
+  tier is subsumed by them (it ships unused). Status: Accepted.** *(Refines D-014's method; forced by the
+  PR2 measurement over 11 bosses / 800 real Fresh kills — WO-075.)* **(a) The statistic.** A `confCap` is
+  derived by replaying the *shipped* estimator over a boss's corpus and measuring its real per-health-bin
+  error (`tools/estimator-perbin.lua`), **not** from the design's proposed proxy (per-bin dispersion of
+  remaining time). The proxy is an artifact: its denominator vanishes as the fight ends, so it would have
+  **silenced the endgame** — the stretch the readout gets most right (~3s error with 10s to live). Caps use
+  two currencies (≤30% relative **or** ≤5s absolute is useful; ≥45s absolute never is; between, the cap
+  crosses the client's 0.5 show threshold at exactly 50% error), because a ratio alone misjudges the endgame
+  and an absolute alone misjudges the pull. **(b) Measurement beats the blanket default.** The universal
+  raid cap is NOT folded into a measured boss — doing so silenced Chromaggus' most readable band and made his
+  grade *worse*; it remains the fallback for un-profiled bosses only. A measured boss therefore always ships a
+  profile, even one with no caps ("measured: nothing to cap"), so the default cannot re-impose itself.
+  **(c) Facts must be live while measuring** — Buru's caps learned without `suppressFlush` were calibrated to
+  an estimator ~3× worse and over-silenced a usable readout. **(d) The freeze tier is subsumed.** Across the
+  structural roster **no freeze band improved a grade**, and freeze-*only* made Viscidus worse (85.5%→90.5%):
+  where a fight stalls, the caps have already quieted the bar, so freezing adds nothing. **No shipped profile
+  uses `freeze`.** The mechanism stays in the estimator — nil-guarded, tested, inert — pending the CLEU tier;
+  **PR3 decides keep-or-remove** (an unused seam is a cost, per the "promote when a second consumer is real"
+  principle). *Consequence:* the hand-authored cap guesses of PR1 are replaced by measured ones, and two
+  bosses the design predicted would need caps (Chromaggus, Ouro) provably do not.
 
 ### 2026-07-30
 

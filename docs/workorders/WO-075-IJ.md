@@ -104,3 +104,23 @@ re-verifies caught & fixed **three real freeze bugs** (cadence-dependent gate, s
 release) + a latent `reset()` bug — each now guarded by a regression test (20 regime tests; gate green).
 **PR2** = `learn-regime.py`/`assemble-regimes.py` + confCap-at-scale roster + `suppressFlush`.
  *(PR3 caveat, from the PR1 freeze verify: a boss with BOTH a `freeze` band AND `resetOnRise` can have the resetOnRise swallowed — the freeze's nil'd `prevSampleT` routes an out-of-band up-jump to the reacquire path before the resetOnRise check. Pre-existing, latent (no profile combines them). Confirm Thekal has no freeze band, or fix the seam ordering.)*
+
+## Outcome — PR2 (PR #96, awaiting human merge)
+
+Built the **lab that learns the caps** and applied it to **11 bosses / 800 real Fresh kills**:
+`estimator-perbin.lua` (the shipped estimator's real per-bin error) → `learn-regime.py` (caps, plus
+freeze/resetOnRise detection with a train-half verification gate) → `assemble-regimes.py` (deterministic
+`regimes.lua`) → `grade-regimes.py` (held-out baseline-vs-shipped, MAPE **and** `shown%`). Shipped: seam 5
+(`suppressFlush`) + spec, 12 regenerated profiles, a structure-guarding `regimes_spec`.
+
+**Held-out (baseline → shipped):** Buru **188.6%→37.3%** (bias +74s→+3.2s) · Viscidus 116.9→44.0 · Skeram
+113.2→70.3 · Rajaxx 206.7→131.5 · C'Thun 52.0→38.3 · Onyxia 55.6→48.9 · Sulfuron 41.2→38.5 · Twin Emperors
+407%→**SILENT** · Chromaggus/Ouro **unchanged (measured readable → correctly no caps)**.
+
+**Three findings the measurement forced.** (1) Caps must come from the estimator's OWN measured error — the
+obvious proxy (dispersion of remaining time) explodes as its denominator vanishes and would have silenced the
+ENDGAME, the stretch the readout gets most right. (2) The universal default cap must NOT be folded into a
+measured boss — it silenced Chromaggus' most readable band and made his grade worse; it stays the fallback for
+un-profiled bosses only. (3) Categorical facts must be active while measuring — Buru's caps learned without
+`suppressFlush` were calibrated to an estimator ~3x worse. **See also D-019: the freeze tier is subsumed by
+confCap and ships unused.**
