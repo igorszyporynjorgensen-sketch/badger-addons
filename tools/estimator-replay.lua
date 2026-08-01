@@ -14,13 +14,12 @@
 -- it points at the worst moments and says WHY it was off, so we know what to tune.
 
 local DT = 0.15
-local WARMUP = 3.0 -- exclude the first seconds (both estimators get a warm-up)
-local TAIL = 6.0 -- exclude the last seconds: as actual→0 the % error explodes for any tiny miss
 local W = 27 -- ~4s window for the local-rate "why" heuristic
--- Grade only what the PLAYER sees: the live driver hides the bar until confidence clears this gate
--- (src/core.lua default minConfidenceToShow). Grading raw ttk() would score reads the client suppresses
--- — e.g. a boss sitting at 99% HP during an adds phase, where any rate estimator reads "forever".
-local MINCONF = 0.5
+-- Grade only what the PLAYER sees. The live driver hides the bar until minTTK AND minConfidenceToShow
+-- both clear — and then STOPS CHECKING (the gate is sticky). Both the window and that gate live in the
+-- shared harness (WO-076) so all three graders model the same client.
+local G = require("tools.estimator-grade")
+local WARMUP, TAIL = G.WARMUP, G.TAIL
 
 local mock = require("tools.wow-mock.init")
 local fightPath = arg[1] or error("usage: estimator-replay.lua <fight.lua> [estimator.lua]")
@@ -42,12 +41,16 @@ end
 -- Replay the fight; return per-tick { t, h, pred, actual } (pred may be nil while unknown).
 local function replay(priorRate)
     local est = newEst(priorRate)
+    local gate = G.newGate()
     local reads = {}
     for i = 1, #samples do
         local s = samples[i]
-        est:sample(s.t, s.h, true)
+        est:sample(s.t, s.h, G.damageable(s.h))
         local pred, conf = est:ttk()
-        reads[i] = { t = s.t, h = s.h, pred = pred, conf = conf, actual = death - s.t }
+        -- The gate sees every tick, in order — it can latch during the warm-up.
+        local onScreen = gate:update(pred, conf)
+        reads[i] =
+            { t = s.t, h = s.h, pred = pred, conf = conf, shown = onScreen, actual = death - s.t }
     end
     return reads
 end
@@ -57,9 +60,9 @@ local function scored(r)
     return r.pred and r.t >= WARMUP and r.actual > TAIL
 end
 
--- ...and it's actually GRADED only if the client would have shown it (confidence past the gate).
+-- ...and it's actually GRADED only if the bar was on screen — which, once latched, it stays.
 local function graded(r)
-    return scored(r) and r.conf and r.conf >= MINCONF
+    return scored(r) and r.shown
 end
 
 -- Aggregate the length-independent grade.
@@ -159,7 +162,13 @@ print(("fight: dies at %.0fs · %d samples · estimator %s"):format(death, #samp
 local base = replay(nil)
 local m = metrics(base)
 print("\nRHYTHM  (relative — the length-independent grade, over what the bar actually SHOWS):")
-print(("  confidently shown          %s   of in-scope ticks (conf ≥ %.2f gate)"):format(pct(m.shown), MINCONF))
+print(
+    ("  on screen                  %s   of in-scope ticks (sticky gate: ttk ≥ %ds, conf ≥ %.2f)"):format(
+        pct(m.shown),
+        G.MINTTK,
+        G.MINCONF
+    )
+)
 print(("  MAPE (mean |err|/remaining) %s   <- the headline (graded ticks only)"):format(pct(m.mape)))
 print(("  within 15%%                  %s   of graded ticks"):format(pct(m.within)))
 print(("  locks within 15%% by         %s HP"):format(pct(m.convHP)))

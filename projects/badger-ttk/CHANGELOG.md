@@ -1,3 +1,21 @@
+## [Unreleased]
+
+### Fixed
+
+- **The lab now measures the addon the way the game actually runs it** (WO-076). Nothing in the addon
+  changed — this is the workshop, not the product — but it corrected what we *believe* about it. The
+  off-client grader assumed the countdown could be hushed at any point in a fight; the addon only ever
+  decides whether to show the bar *before it first appears*, and after that it stays. Grading the honest
+  way moves the measured error from **55.6% to 70.2%** across 788 real kills: the estimator was never as
+  good as the workshop said.
+- **Known issue this exposed:** several of 0.9.48's "the bar goes quiet here" claims do not happen in
+  game. **Onyxia** through the air phase, **Viscidus**, **Sulfuron Harbinger**, **Jin'do** and
+  **Gahz'ranka** all keep showing a countdown where the release notes said they would fall silent — 16 of
+  the 105 measured quiet-points sit past the moment the bar has already appeared, so they never fire. No
+  wrong number is *introduced* by this; the bar simply stays up where it was meant to stand down. Onyxia's
+  air phase is the worst of them (the readout runs about **59s** long there). Fixing it needs a mechanism
+  other than confidence and is not yet designed.
+
 ## 0.9.48 (2026-08-01)
 
 ### Added

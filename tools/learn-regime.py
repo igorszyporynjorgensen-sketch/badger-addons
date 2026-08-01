@@ -129,38 +129,88 @@ if suppress_flush:
     context.append("suppressFlush = true")
 if reset_on_rise:
     context.append(f"resetOnRise = {reset_on_rise}")
-context_lua = "{ " + ", ".join(context) + " }" if context else ""
 if context:
     print(f"  measuring with the shipping facts active: {{{', '.join(context)}}}")
-cmd = (
-    [luajit, "tools/estimator-perbin.lua", str(enc), corpus]
-    + (["--even"] if split_even else [])
-    + (["--regime", context_lua] if context_lua else [])
-)
-proc = subprocess.run(cmd, capture_output=True, text=True)
-if proc.returncode != 0:
-    sys.exit(f"estimator-perbin failed: {proc.stderr.strip()[:300]}")
 
-measured = {}  # bin -> (n, medianRel, medianAbs)
-for line in proc.stdout.splitlines():
-    parts = line.split("\t")
-    if len(parts) == 4:
-        b, n, mr, ma = int(parts[0]), int(parts[1]), float(parts[2]), float(parts[3])
-        measured[b] = (n, mr, ma)
 
-caps = {}
-for b, (n, mr, ma) in measured.items():
-    if n < 20:  # too little evidence in this bin to judge it
-        continue
-    if ma <= ABS_OK or mr <= REL_OK:
-        continue  # measurably useful here — no cap, whichever currency says so
-    if ma >= ABS_BAD:
-        caps[b] = 0.0  # tens of seconds wrong: unusable regardless of ratio
-        continue
-    frac = (mr - REL_OK) / (REL_BAD - REL_OK)
-    cap = round(max(0.0, min(1.0, 1.0 - frac)), 2)
-    if cap < 0.995:
-        caps[b] = cap
+def run_perbin(extra_caps=None):
+    """Replay the corpus per health bin. Returns {bin: (n, medianRel, medianAbs, preShow)}.
+
+    `extra_caps` injects a candidate confCap so REACHABILITY is measured with those caps active — caps
+    interact, because a cap that holds the bar hidden in one bin is what lets a later bin still be
+    pre-show. The error columns are unaffected by confidence, so injecting caps never contaminates the
+    measurement the caps are derived FROM.
+    """
+    fields = list(context)
+    if extra_caps:
+        body = ", ".join(f"[{b}] = {extra_caps[b]}" for b in sorted(extra_caps, reverse=True))
+        fields.append(f"confCap = {{ {body} }}")
+    lua = "{ " + ", ".join(fields) + " }" if fields else ""
+    cmd = (
+        [luajit, "tools/estimator-perbin.lua", str(enc), corpus]
+        + (["--even"] if split_even else [])
+        + (["--regime", lua] if lua else [])
+    )
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    if proc.returncode != 0:
+        sys.exit(f"estimator-perbin failed: {proc.stderr.strip()[:300]}")
+    out = {}
+    for line in proc.stdout.splitlines():
+        parts = line.split("\t")
+        if len(parts) == 5:
+            b, n, mr, ma, pre = parts
+            out[int(b)] = (int(n), float(mr), float(ma), float(pre))
+    if not out:
+        sys.exit("estimator-perbin returned no rows (expected 5-column TSV — stale tool?)")
+    return out
+
+
+perbin = run_perbin()
+measured = {b: v[:3] for b, v in perbin.items()}  # bin -> (n, medianRel, medianAbs)
+
+
+def derive(measured):
+    """The measurement → cap rule. Unchanged by WO-076; reachability is applied separately, after."""
+    out = {}
+    for b, (n, mr, ma) in measured.items():
+        if n < 20:  # too little evidence in this bin to judge it
+            continue
+        if ma <= ABS_OK or mr <= REL_OK:
+            continue  # measurably useful here — no cap, whichever currency says so
+        if ma >= ABS_BAD:
+            out[b] = 0.0  # tens of seconds wrong: unusable regardless of ratio
+            continue
+        frac = (mr - REL_OK) / (REL_BAD - REL_OK)
+        cap = round(max(0.0, min(1.0, 1.0 - frac)), 2)
+        if cap < 0.995:
+            out[b] = cap
+    return out
+
+
+# ── 2b. REACHABILITY (WO-076) — drop caps the client can never apply ────────────────────────────────
+# The client's show gate is STICKY (src/live/driver.lua:55-80): minTTK and minConfidenceToShow are
+# consulted only while `not wasShown`. Once the bar latches, every later cap — including a hard 0.0 — is
+# unreachable. Caps derived without this are dead data; it is why Viscidus's shipped profile was
+# bit-identical to shipping no regime at all, and why Onyxia's `[11] = 0.0` (the air phase, its WORST
+# bin at 45.9% / 59.0s) never fired. D-021 says a re-derived number is not licence to edit shipped data,
+# so this only stops the learner EMITTING dead caps — the shipped table is a separate human call.
+#
+# Iterate, because caps interact: keeping bin 20's cap is what holds the bar hidden into bin 19. Dropping
+# a cap can only make later bins latch EARLIER, so the set shrinks monotonically and converges fast.
+REACH_MIN = 0.05  # a cap must be able to act on ≥5% of its bin's in-scope samples to be worth shipping
+
+caps = derive(measured)
+unreachable = {}
+for _ in range(BINS):  # bounded; converges in 2-3 passes in practice
+    if not caps:
+        break
+    reach = {b: v[3] for b, v in run_perbin(caps).items()}
+    dead = {b: reach.get(b, 0.0) for b, c in caps.items() if reach.get(b, 0.0) < REACH_MIN}
+    if not dead:
+        break
+    for b in dead:
+        unreachable[b] = (caps.pop(b), dead[b])
+final_reach = {b: v[3] for b, v in run_perbin(caps).items()} if caps else {}
 
 # NOTE: the universal raid floor (ns.Regimes.default) is deliberately NOT folded in here. It is a blanket
 # assumption for bosses we have never measured; where we HAVE measured, the measurement wins — folding the
@@ -183,6 +233,10 @@ with open(f"tools/candidates/regime-{enc}.lua", "w") as fh:
 -- h in (0.95,1.0], bin 1 = the execute end), learned from the estimator's OWN measured error over real
 -- kills: where the readout is measurably wrong the bar goes QUIET (the client hides it below
 -- minConfidenceToShow = 0.5) instead of showing a confident-wrong countdown.
+--
+-- Only REACHABLE bins carry a cap (WO-076): the client's show gate is sticky, so a cap can act only
+-- while the bar has not yet latched. Bins that are measurably wrong but only reached after the bar is
+-- already up are deliberately left uncapped — a cap there would never fire.
 return {{
 {chr(10).join(lines)}
 }}
@@ -198,11 +252,32 @@ for b in range(BINS, 0, -1):
     hi, lo = b * 100 // BINS, (b - 1) * 100 // BINS
     cap = caps.get(b, 1.0)
     bar = "█" * max(1, round(min(mr, 1.5) * 13))
-    tag = " ← QUIET (measurably wrong)" if cap < 0.5 else (" ← capped" if cap < 0.995 else "")
+    if b in unreachable:
+        dropped_cap, reach = unreachable[b]
+        tag = f" ← WRONG BUT UNREACHABLE (cap {dropped_cap:.2f} dropped; bar already up, {reach * 100:.1f}% pre-show)"
+    elif cap < 0.5:
+        tag = " ← QUIET (measurably wrong)"
+    elif cap < 0.995:
+        tag = " ← capped"
+    else:
+        tag = ""
     print(f"  {hi:3d}–{lo:3d}%  err {mr * 100:5.1f}% / {ma:5.1f}s  n{n:6d}  cap {cap:4.2f}  {bar}{tag}")
 if freeze:
     print(f"\n  [diagnostic only, not emitted] stall band: h {freeze[0]:.2f}–{freeze[1]:.2f}, ~{freeze[2]}s  ({len(mid_fight)}/{kills} kills)")
 if reset_on_rise:
     print(f"  resetOnRise: {reset_on_rise}  ({rises}/{kills} kills show a >={RISE_MIN} one-sample rise)")
 quiet = sum(1 for b in caps if caps[b] < 0.5)
-print(f"\n  {quiet}/{BINS} bins would HIDE the bar (cap < minConf 0.5)")
+print(f"\n  {quiet}/{BINS} bins can HIDE the bar (cap < minConf 0.5, and reachable before it latches)")
+if unreachable:
+    detail = ", ".join(
+        f"[{b}] {c:.2f}" for b, (c, _) in sorted(unreachable.items(), reverse=True)
+    )
+    print(
+        f"  {len(unreachable)} cap(s) DROPPED as unreachable: {detail}\n"
+        f"    The show gate is sticky (driver.lua:55-80) — by these bins the bar has already latched, so\n"
+        f"    no confidence value can hide it. These bins are measurably wrong but need a mechanism other\n"
+        f"    than confidence; emitting a cap here would ship dead data. (WO-076)"
+    )
+if caps and final_reach:
+    worst = min((final_reach.get(b, 0.0), b) for b in caps)
+    print(f"  reachability of kept caps: min {worst[0] * 100:.1f}% pre-show (bin {worst[1]})")
