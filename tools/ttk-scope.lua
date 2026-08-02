@@ -18,7 +18,7 @@
 local G = require("tools.estimator-grade")
 local mock = require("tools.wow-mock.init")
 
-local path, speed, rhythmMode, static, throttle = nil, 4.0, "candidate", nil, nil
+local path, speed, rhythmMode, static, throttle, priorDur = nil, 4.0, "candidate", nil, nil, nil
 for i = 1, #arg do
     local a = arg[i]
     if a == "--speed" then
@@ -29,6 +29,13 @@ for i = 1, #arg do
         -- movement is almost always genuine and needs no limit, while a large upward jump is almost
         -- always noise — a raid cannot slow by 174 seconds inside one 0.15s tick.
         throttle = tonumber(arg[i + 1]) or 2.0
+    elseif a == "--prior" then
+        -- Seconds this player has historically needed to kill this boss. The live driver ALWAYS passes
+        -- a prior (driver.lua:219) and history defaults on (core.lua:78-79), so a replay without one
+        -- models a FIRST kill, not the normal case. Omitting it here was the same defect WO-076 found in
+        -- the show gate and WO-077 F1 found in the graders — reintroduced in a new tool. It matters a
+        -- lot: without a prior the opening read can reach 43 MINUTES; with one it is sane from tick one.
+        priorDur = tonumber(arg[i + 1])
     elseif a == "--rhythm" then
         rhythmMode = arg[i + 1]
     elseif a == "--static" then
@@ -114,6 +121,7 @@ local est = ns.Estimator.new({
     executeThreshold = 0.20,
     executeModifier = 1.2,
     rhythm = rhythm,
+    priorRate = priorDur and priorDur > 0 and (1 / priorDur) or nil,
 })
 local gate = G.newGate()
 local frames, peak = {}, 0
@@ -148,13 +156,25 @@ if not static then
     io.write("\27[2J\27[H")
 end
 print(("%s%s  %s%s"):format(C.gold, C.bold, fight.name or path, C.r))
+-- State the simulated PLAYER, not just the fight. A replay without a prior models someone who has never
+-- killed this boss, which is the minority case and behaves very differently — it must never be mistaken
+-- for the normal experience.
 print(
-    ("%smaxHP %s · %s · rhythm: %s · replay %.0f×%s\n"):format(
+    ("%smaxHP %s · %s · rhythm: %s · throttle: %s · replay %.0f×%s"):format(
         C.dim,
         fight.maxHP and tostring(fight.maxHP) or "?",
         fight.size and (fight.size .. "-player") or "?",
         rhythm and rhythmMode or "none",
+        throttle and (throttle .. "s/s") or "off",
         speed,
+        C.r
+    )
+)
+print(
+    ("%splayer: %s%s\n"):format(
+        C.dim,
+        priorDur and ("%sRETURNING — has killed this boss in ~%.0fs%s"):format(C.good, priorDur, C.dim)
+            or (C.warn .. "FIRST KILL — no history prior (the minority case)" .. C.dim),
         C.r
     )
 )
