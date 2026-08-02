@@ -89,6 +89,34 @@ point estimate.
    kills, health-anchoring beats time-anchoring (spread **0.352 vs 0.452**), and both agree the opening is
    the high-variance region (1.19 top health bin; 1.88 in the first 6s) — independent support for H1.
 
+
+## OUTCOME (2026-08-02) — a documented NULL for the profiles; the win came from elsewhere
+
+Corpus built: **1,061 fixtures**, 9 bosses, 3 phase groups × 3 trimmed-quantile tiers, split
+664 train / 198 val / 197 test, **0/1059 flagged** by the grade-blind audit. `test/` was scored **once**.
+
+**Re-learned rhythm profiles do NOT ship.** Paired on held-out `test/`, negative = better:
+
+| comparison | mean | 95% CI | verdict |
+|---|---|---|---|
+| profiles: shipped → re-learned | −14.39 | [−17.60, −11.18] | improvement |
+| **rise throttle added** | **−45.03** | **[−52.75, −37.31]** | **improvement** |
+| profiles → re-learned **with throttle** | **+1.42** | **[+0.44, +2.40]** | **REGRESSION** |
+
+The profiles are a real improvement in isolation and a **significant regression** once the throttle exists,
+because they were largely **compensating for rubber-banding**; fixing that at source turns compensation
+into over-correction. The −14.4 is also mostly one encounter — Sulfuron is 115 of 197 test fights, and the
+six well-behaved bosses move ±0.5.
+
+**What the corpus bought** was not a profile change but the evidence that one should not ship — an
+interaction only visible when both changes are measured together on data neither was tuned against.
+
+**What ships instead:** [D-022-IJ] (Proposed) — a rise throttle found by the human watching a replay, worth
+−45 points on held-out data and needing **no corpus at all**, plus a learned opening baseline that beats the
+shipped estimator by 8–16 median points in the first 3–8 seconds.
+
+Full numbers and the refuted hypotheses: [mc-spectrum-findings.md](../reference/mc-spectrum-findings.md).
+
 ## Why this is not an optimization pass
 
 **Nine of the ten MC bosses have zero fixtures on disk** (only Sulfuron `150669` survives, 60). The MC corpus
