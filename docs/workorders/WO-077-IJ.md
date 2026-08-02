@@ -1,6 +1,6 @@
 ---
 wo: WO-077-IJ
-status: Accepted
+status: Proposed
 assigned: IJ
 mr:
 decision: D-013-IJ
@@ -25,6 +25,69 @@ related:
 - **Accepted:** human directive — *"make a massive learning pass and do Molten Core bosses again … from top
   end, middle and bottom of logged raids … Phase 1 to Phase 5"*, then *"the amount or manner from which you
   learn best"* and *"I approve of your plan"*.
+
+## ⚠ REV B — returned to `Proposed` (2026-08-02). Four measurements falsified Rev A.
+
+Rev A was accepted and its branch cut before a 12-agent adversarial review reported. The review, plus a
+live harvest that hit **HTTP 429**, falsified enough of the plan that it must be re-accepted. Work already
+committed on `feature/WO-077-IJ-mc-spectrum-pass` (Part A instrument fixes + the sampler) stands; the
+**corpus size, the tier semantics, and the floor table below are all wrong as stated**.
+
+**F1 — The lab STILL does not model the client. WO-076 one layer down.**
+`estimator-batch.lua:87` and `estimator-perbin.lua:101` construct `Estimator.new` **without `priorRate`**,
+while `driver.lua:219` *always* passes it and `core.lua:78-79` default `useHistory`/`recordHistory` to
+**true**. Verified independently. So every number in the floor table, every latch time and every `shown%`
+describes **a player who has never killed the boss before** — the minority case. The same class of defect
+WO-076 fixed, one layer deeper.
+
+**F2 — The designated fallback lever is provably inert.** `estimator.lua:314-319` raises confidence to the
+prior's evidence share, which **starts at exactly 1.0** on a history-backed pull (documented WO-061
+design). `1.0 < threshold` is false, so raising `minConfidenceToShow` changes the latch by **zero ticks**
+for any returning player. `PRIOR_FLOOR = 0.5` further clamps the rate to ≥ half the player's own history —
+precisely the slow-pug regime this corpus exists to study.
+
+**F3 — The API budget is the binding constraint, not latency.** Measured: `x-ratelimit-limit: 800`, exactly
+**2 points per call**, on a **contended** key (observed dropping 47 and 98 points in 21s windows with one
+call of our own). Rev A's ~4,500 fights ≈ 9,000 calls ≈ **18,000 points** — 22× the bucket. The live run
+confirmed it: **HTTP 429 after 691 fights.** Wall-clock was never the limit.
+
+**F4 — "The bottom of logged raids" does not exist in this data.** WCL rankings are **guild-deduplicated**
+(50 rows = 50 distinct `guildID` = 50 distinct `reportID`). Every row is one guild's **best kill of that
+phase** — a min-of-N, where N varies ~6× across phases. So the slow tier is *bad guilds' best nights*,
+never anyone's bad night, and **no wipe or recovery can ever enter the corpus**. Combined with the page-20
+ceiling (`metric=speed` exposes at most the fastest 1000 kills; Ragnaros P1's visible max of 82.2s is
+roughly its 48th percentile), the corpus cannot represent the human's own pug. Four independent selection
+effects all push the same direction.
+
+**F5 — The corpus was oversized by ~15×.** Measured on the 60 real Sulfuron fixtures, the decision this
+corpus funds — optimal latch depth — is **identical at n = 10, 15, 20, 30, 40 and 60**. ~30–60/boss buys
+the same answer as 450/boss for ~6% of the budget.
+
+**F6 — Two targets are unmeasurable by construction.** Majordomo's `hideBar` makes `estimator.lua:275-277`
+return `(nil, 0)` before any rate exists, so his MAPE is undefined and "bar hidden on 100% of ticks" is a
+lab tautology. And **Ragnaros submerges at ~180s**, above every trim cut — so a directive-compliant corpus
+encodes "Ragnaros never submerges": true of the ranked population, false of a pug.
+
+**F7 — The ship rule manufactures false positives.** At the measured paired-delta SD of ~28pp,
+P(observed ≥3pp | true = 0) = **6.6% per boss**, across ~70 threshold tests. It needs an interval, not a
+point estimate.
+
+### What Rev B changes
+
+1. **Fix F1 first.** Pass `priorRate` in the graders and re-measure the floor **twice** — cold (first kill)
+   and history-backed (the returning player). Until then no floor number is quotable.
+2. **~60/boss, not 450** (~1,200 calls ≈ 2,400 points), with a measured escalation rule if an effect is
+   near the noise floor. 691 fixtures are already on disk.
+3. **Drop Majordomo** from the harvest; keep him as a documented tautology.
+4. **State the population honestly** in every conclusion: *guild-best-of-N kills from logging raids*, not
+   "the bottom of the ladder".
+5. **Interval-based ship rule**, not a point estimate.
+6. **H3 (new, from the human):** absolute DPS. `maxHP` is now preserved in every fight file, and the client
+   can compute the same from `UnitHealthMax("target")` since Classic boss health is fixed. Note the
+   arithmetic caveat — `maxHP` cancels in instantaneous TTK — so the value is in *cross-fight comparison*
+   and *forward projection*, not the current calculation. **First measurement already in:** on 590 Sulfuron
+   kills, health-anchoring beats time-anchoring (spread **0.352 vs 0.452**), and both agree the opening is
+   the high-variance region (1.19 top health bin; 1.88 in the first 6s) — independent support for H1.
 
 ## Why this is not an optimization pass
 
