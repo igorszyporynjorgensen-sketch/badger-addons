@@ -1,6 +1,6 @@
 ---
 wo: WO-077-IJ
-status: Proposed
+status: Done
 assigned: IJ
 mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/101
 decision: D-013-IJ
