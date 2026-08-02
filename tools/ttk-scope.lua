@@ -138,6 +138,11 @@ print(
     )
 )
 
+-- One shared seconds-per-cell scale for both time bars. Anchored on the fight's true length (with
+-- headroom) rather than on the estimate, so an over-long read visibly overflows instead of silently
+-- rescaling the picture under it.
+local SCALE = death * 1.25
+
 local latchedAt
 local STEP = 2 -- render every other 0.15s sample ≈ 3.3 fps × speed
 if static then
@@ -166,22 +171,28 @@ for i = 1, #frames, STEP do
     else
         io.write("\27[6;1H")
     end
-    -- TTK bar: drains against the largest estimate the player has seen.
+    -- BOTH time bars share ONE seconds-per-cell scale, so "the estimator is right" reads as "the two
+    -- bars are the same length". Scaling each to its own maximum (the first version of this view) made
+    -- a locked-on countdown and a drifting one look identical — the comparison has to be like-for-like.
     if f.shown and f.pred then
         io.write(
-            ("  %sTTK %s%s%s  %s%s  %sactual %s%s   %s%+.1fs%s\27[K\n"):format(
-                C.ink, C.ttk, bar(f.pred / math.max(peak, 1e-9), W), C.r,
-                C.bold, fmt(f.pred), C.dim, fmt(f.actual), C.r,
-                ecol, err or 0, C.r
+            ("  %sSAYS  %s%s%s %s%s%s\27[K\n"):format(
+                C.ink, C.ttk, bar(f.pred / SCALE, W), C.r, C.bold, fmt(f.pred), C.r
             )
         )
     else
         io.write(
-            ("  %sTTK %s%s   %s— hidden (gate: ttk ≥ %ds, conf ≥ %.2f) —%s\27[K\n"):format(
-                C.ink, C.dim, string.rep("·", W), C.dim, G.MINTTK, G.MINCONF, C.r
+            ("  %sSAYS  %s%s %s— hidden —%s\27[K\n"):format(
+                C.ink, C.dim, string.rep("·", W), C.dim, C.r
             )
         )
     end
+    io.write(
+        ("  %sTRUTH %s%s%s %s%s%s   %s%s%s\27[K\n"):format(
+            C.ink, C.good, bar(f.actual / SCALE, W), C.r, C.bold, fmt(f.actual), C.r,
+            ecol, err and ("%+.1fs"):format(err) or "", C.r
+        )
+    )
     -- Health bar.
     io.write(
         ("  %sHP  %s%s%s  %s%5.1f%%%s\27[K\n"):format(
