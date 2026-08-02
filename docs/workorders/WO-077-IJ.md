@@ -2,7 +2,7 @@
 wo: WO-077-IJ
 status: Proposed
 assigned: IJ
-mr:
+mr: https://github.com/igorszyporynjorgensen-sketch/badger-addons/pull/101
 decision: D-013-IJ
 depends_on:
   - docs/workorders/WO-076-IJ.md
