@@ -19,6 +19,8 @@ local G = require("tools.estimator-grade")
 local mock = require("tools.wow-mock.init")
 
 local path, speed, rhythmMode, static, throttle, priorDur = nil, 4.0, "candidate", nil, nil, nil
+local openK, openTo = nil, 10.0
+local OPEN_W = 5.0 -- seconds of early rate the baseline is measured over
 for i = 1, #arg do
     local a = arg[i]
     if a == "--speed" then
@@ -36,6 +38,13 @@ for i = 1, #arg do
         -- the show gate and WO-077 F1 found in the graders — reintroduced in a new tool. It matters a
         -- lot: without a prior the opening read can reach 43 MINUTES; with one it is sane from tick one.
         priorDur = tonumber(arg[i + 1])
+    elseif a == "--opening" then
+        -- WO-078: the human's learned opening baseline. Over the first `openW` seconds measure the early
+        -- kill rate r, then show (k / r) * health instead of the estimator, until `openTo` seconds.
+        -- k is the per-boss constant learned from real kills (k = duration x early-rate); k = 1 would be
+        -- naive linear extrapolation, which over-predicts fight length by 3x-33x at 3 seconds.
+        openK = tonumber(arg[i + 1])
+        openTo = tonumber(arg[i + 2]) or 10.0
     elseif a == "--rhythm" then
         rhythmMode = arg[i + 1]
     elseif a == "--static" then
@@ -123,6 +132,20 @@ local est = ns.Estimator.new({
     rhythm = rhythm,
     priorRate = priorDur and priorDur > 0 and (1 / priorDur) or nil,
 })
+-- The early kill rate this fight actually showed, over the first OPEN_W seconds.
+local earlyRate
+do
+    local h0 = samples[1].h
+    for _, s in ipairs(samples) do
+        if s.t > OPEN_W then
+            break
+        end
+        if s.t > 0 and h0 - s.h > 0 then
+            earlyRate = (h0 - s.h) / s.t
+        end
+    end
+end
+
 local gate = G.newGate()
 local frames, peak = {}, 0
 local disp, prevT, jumps = nil, nil, 0
@@ -133,6 +156,10 @@ for i = 1, #samples do
     local shown = gate:update(pred, conf)
     -- The gate still sees the RAW estimate; only what the player reads is throttled.
     local out = pred
+    -- WO-078: during the opening, substitute the learned baseline for the estimator's own read.
+    if openK and earlyRate and pred and s.t <= openTo then
+        out = (openK / earlyRate) * s.h
+    end
     if shown and pred then
         if throttle and disp and prevT then
             local lim = disp + throttle * (s.t - prevT)
