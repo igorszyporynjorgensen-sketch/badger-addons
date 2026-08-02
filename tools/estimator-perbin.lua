@@ -50,7 +50,10 @@ local rhythms = mock.load("projects/badger-ttk/src/raids/rhythms.lua").Rhythms
 local rhythm = rhythms and rhythms[enc]
 
 local files = {}
-local p = io.popen(('ls "%s"/%d-*.lua 2>/dev/null'):format(dir, enc))
+-- LC_ALL=C forces BYTE ordering, matching Python's sorted() in learn-rhythm.py / learn-regime.py. The
+-- even/odd train-test split is taken over this order in three separate tools, so they must agree on it.
+-- Measured identical under the current locale — this pins it so it cannot drift with the environment.
+local p = io.popen(('LC_ALL=C ls "%s"/%d-*.lua 2>/dev/null'):format(dir, enc))
 if p then
     for line in p:lines() do
         files[#files + 1] = line
@@ -62,11 +65,27 @@ if #files == 0 then
     os.exit(1)
 end
 
-local rel, abs = {}, {} -- per bin: lists of relative / absolute error
-local preShow, seenN = {}, {} -- per bin: in-scope samples reached BEFORE the bar latched / in total
+-- PER-KILL aggregation (WO-077). Each kill contributes exactly ONE value per bin — its own median — and
+-- the bin's figure is the median ACROSS KILLS. The previous version pooled every in-window sample into
+-- one flat list, so a kill's weight was proportional to its DURATION: on a spectrum corpus a 320s kill
+-- outvotes a 15s kill ~20:1 and the slow tier silently dictates the learned caps. Harmless when every
+-- fixture is a similar length (the old MC corpus), corrupting the moment the corpus spans durations on
+-- purpose — which is exactly what this pass builds. Mirrors learn-rhythm.py:75's per-kill median.
+local rel, abs = {}, {} -- per bin: one entry PER KILL (that kill's median error)
+local samplesN = {} -- per bin: total in-scope samples (reporting only, no longer a weight)
+local preShow = {} -- per bin: one entry per kill — that kill's pre-latch fraction in this bin
 for i = 1, K do
-    rel[i], abs[i] = {}, {}
-    preShow[i], seenN[i] = 0, 0
+    rel[i], abs[i], preShow[i] = {}, {}, {}
+    samplesN[i] = 0
+end
+
+local function med(t)
+    if #t == 0 then
+        return nil
+    end
+    table.sort(t)
+    local m = math.floor(#t / 2)
+    return (#t % 2 == 1) and t[m + 1] or (t[m] + t[m + 1]) / 2
 end
 
 local used = 0
@@ -87,6 +106,11 @@ for idx, path in ipairs(files) do
                 regime = contextRegime,
             })
             local gate = G.newGate()
+            -- This kill's own per-bin samples; collapsed to one value per bin below.
+            local kRel, kAbs, kPre, kN = {}, {}, {}, {}
+            for i = 1, K do
+                kRel[i], kAbs[i], kPre[i], kN[i] = {}, {}, 0, 0
+            end
             for i = 1, #samples do
                 local s = samples[i]
                 est:sample(s.t, s.h, G.damageable(s.h))
@@ -104,38 +128,42 @@ for idx, path in ipairs(files) do
                     if b < 1 then
                         b = 1
                     end
-                    rel[b][#rel[b] + 1] = math.abs(pred - actual) / actual
-                    abs[b][#abs[b] + 1] = math.abs(pred - actual)
-                    seenN[b] = seenN[b] + 1
+                    kRel[b][#kRel[b] + 1] = math.abs(pred - actual) / actual
+                    kAbs[b][#kAbs[b] + 1] = math.abs(pred - actual)
+                    kN[b] = kN[b] + 1
                     if hiddenHere then
-                        preShow[b] = preShow[b] + 1
+                        kPre[b] = kPre[b] + 1
                     end
+                end
+            end
+            -- Collapse: one entry per bin per kill, so every kill weighs the same regardless of length.
+            for b = 1, K do
+                if kN[b] > 0 then
+                    rel[b][#rel[b] + 1] = med(kRel[b])
+                    abs[b][#abs[b] + 1] = med(kAbs[b])
+                    preShow[b][#preShow[b] + 1] = kPre[b] / kN[b]
+                    samplesN[b] = samplesN[b] + kN[b]
                 end
             end
         end
     end
 end
 
-local function median(t)
-    if #t == 0 then
-        return nil
-    end
-    table.sort(t)
-    local m = math.floor(#t / 2)
-    return (#t % 2 == 1) and t[m + 1] or (t[m] + t[m + 1]) / 2
-end
-
 io.stderr:write(
-    ("perbin: encounter %d — %d fixtures%s\n"):format(
+    ("perbin: encounter %d — %d fixtures%s (per-kill weighted)\n"):format(
         enc,
         used,
         evenOnly and " (train half)" or ""
     )
 )
+-- TSV: bin · KILLS · medianRel · medianAbs · preShow · samples
+-- Column 2 is now the number of KILLS contributing to the bin, not the sample count — that is the
+-- honest evidence count for a per-bin decision, and it is what learn-regime.py's guard must test.
+-- The raw sample total moves to column 6 for reporting only (WO-077).
 for b = K, 1, -1 do
-    local mr, ma = median(rel[b]), median(abs[b])
+    local mr, ma = med(rel[b]), med(abs[b])
     if mr then
-        local reach = seenN[b] > 0 and (preShow[b] / seenN[b]) or 0
-        print(("%d\t%d\t%.4f\t%.2f\t%.4f"):format(b, #rel[b], mr, ma, reach))
+        local reach = med(preShow[b]) or 0
+        print(("%d\t%d\t%.4f\t%.2f\t%.4f\t%d"):format(b, #rel[b], mr, ma, reach, samplesN[b]))
     end
 end
