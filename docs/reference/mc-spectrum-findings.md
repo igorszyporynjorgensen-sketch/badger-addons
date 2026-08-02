@@ -151,6 +151,71 @@ But §4 makes the underlying idea load-bearing anyway: **because shape depends o
 infer which tier it is in**, and early absolute HP/s is the only signal available to do it. What was
 proposed as "help classify the fight" turns out to be the missing input for choosing a profile at all.
 
+## 6b. The rubber-band — the largest finding of the pass, and it needed no corpus
+
+Found by **watching a fight**, not by reading a number. `ttk-scope` showed the displayed countdown
+jumping `27.3s → 137.4s` and `41.1s → 214.7s`, each inside a single 0.15s tick; on the corpus's worst
+fight it reached **43 minutes** on a boss with 36 seconds left. Measured: **13.2% of ticks** carry an
+upward jump >2s, worst **+2401s**. No aggregate had surfaced this — a fight-average MAPE blends
+"reads 2401s long" and "reads 0.3s short" into one number.
+
+**The fix is asymmetric and physically motivated.** A real time-to-kill falls at one second per second,
+so downward movement is almost always genuine while a large upward jump is almost always noise — a raid
+cannot slow by 174 seconds inside 150ms. Capping only the RISE removes the noise without costing any
+reactivity to a boss that is genuinely melting.
+
+| rise cap | MAPE | shown% | latch | jumps >2s | worst jump |
+|---|---|---|---|---|---|
+| none | 95.3% | 93.4% | 5.7s | 13.2% | +2401s |
+| 4 s/s | 36.0% | 93.4% | 5.7s | 0.0% | +7s |
+| **2 s/s** | **35.1%** | **93.4%** | **5.7s** | **0.0%** | **+4s** |
+| 1 s/s | 36.7% | 93.4% | 5.7s | 0.0% | +2s |
+| 0.5 s/s | 40.0% | — | — | 0.0% | +1s |
+
+Too tight is worse — at 0.5 s/s the display lags genuine slowdowns. The optimum is ~2 s/s.
+
+**It is not free, and calling it free was wrong.** Two Golemagg kills, same boss, same shipped profile:
+
+| | P4 farm (39.3s) | P1 progression (31.4s) |
+|---|---|---|
+| jumps unthrottled | 21 | 5 |
+| verdict | 20.7% → **12.8%** ✓ | 11.0% → **16.4%** ✗ |
+
+On an already-clean fight the cap blocks legitimate upward corrections and costs points. Across the val
+corpus, by unthrottled jump count:
+
+| jumps | fights | off | on | delta | % helped |
+|---|---|---|---|---|---|
+| 1–3 | 4 | 24.0% | 17.2% | −6.8 | 100% |
+| 4–10 | 14 | 41.2% | 23.3% | −17.9 | 93% |
+| 11–25 | 54 | 59.0% | 26.1% | −32.8 | 98% |
+| 26+ | 101 | 86.6% | 31.8% | −54.8 | 99% |
+
+**No fight in the corpus had zero jumps** — the rubber-banding is universal, only its severity varies.
+
+### Three follow-ups, all REFUTED by measurement
+
+- **Volatility as a show gate.** Buys 8 points, charges 37pp of `shown%` and a latch delay of 5.7s → 16.2s,
+  and adds only 2.2 points on top of the throttle. Rejected. Volatility stays a *diagnostic*: its error
+  deciles run 44%…153% monotonically, where the shipped confidence signal is flat noise
+  (103, 99, 82, 85, 76, 84, 59, 100, 162, 87 over 31,195 ticks) — **the confidence the show gate consults
+  does not predict error at all.**
+- **A relative (%-of-estimate) cap for the endgame.** Degrades the endgame monotonically (28.3% → 33.8%),
+  because late rises are often genuine recoveries from having fallen too short.
+- **An adaptive cap** that loosens while the estimate is calm. Every variant is worse than the fixed cap
+  (30.8–31.9% vs 30.6%).
+
+### Accuracy by how much of the fight remains (throttled, returning player)
+
+| remaining ≤ | 100% | 75% | 50% | 25% | 10% |
+|---|---|---|---|---|---|
+| mean / median | 30.8 / 27.3 | 24.5 / 21.3 | **24.4 / 21.1** | **22.4 / 19.9** | 28.0 / 24.4 |
+
+Accuracy improves through the fight and then **degrades again in the final 10%** — the execute lag. The
+true kill rate climbs (measured on one Golemagg: 2.34 → 3.99 %/s) and a backward-looking rate cannot
+anticipate it. That is the one band the throttle cannot help and the one band a per-encounter profile is
+uniquely able to fix, which is where the corpus work properly belongs.
+
 ## 7. Out of reach from health alone
 
 - **Majordomo** — `hideBar` makes `estimator.lua:275-277` return `(nil, 0)` before any rate exists, so his
