@@ -19,7 +19,7 @@ local G = require("tools.estimator-grade")
 local mock = require("tools.wow-mock.init")
 
 local path, speed, rhythmMode, static, throttle, priorDur = nil, 4.0, "candidate", nil, nil, nil
-local openK, openTo = nil, 10.0
+local openK, openTo, openCap = nil, 10.0, nil
 local OPEN_W = 5.0 -- seconds of early rate the baseline is measured over
 for i = 1, #arg do
     local a = arg[i]
@@ -45,6 +45,9 @@ for i = 1, #arg do
         -- naive linear extrapolation, which over-predicts fight length by 3x-33x at 3 seconds.
         openK = tonumber(arg[i + 1])
         openTo = tonumber(arg[i + 2]) or 10.0
+    elseif a == "--opening-cap" then
+        -- Multiple of the history prior the opening baseline may not exceed. WO-078 measured 1.5.
+        openCap = tonumber(arg[i + 1]) or 1.5
     elseif a == "--rhythm" then
         rhythmMode = arg[i + 1]
     elseif a == "--static" then
@@ -157,8 +160,18 @@ for i = 1, #samples do
     -- The gate still sees the RAW estimate; only what the player reads is throttled.
     local out = pred
     -- WO-078: during the opening, substitute the learned baseline for the estimator's own read.
+    -- The cap is load-bearing, not decoration: k/earlyRate divides by the early rate, so a slow opening
+    -- sends it to absurd values (measured worst case 14.2% -> 10320% MAPE). Capping at 1.5x the history
+    -- prior is what turns it from a regression (+4.46) into an improvement (-1.05, CI [-1.74,-0.36]).
+    -- Uncapped is available deliberately, so the failure can be watched rather than described.
     if openK and earlyRate and pred and s.t <= openTo then
         out = (openK / earlyRate) * s.h
+        if openCap and priorDur then
+            local lim = openCap * priorDur * s.h
+            if out > lim then
+                out = lim
+            end
+        end
     end
     if shown and pred then
         if throttle and disp and prevT then
