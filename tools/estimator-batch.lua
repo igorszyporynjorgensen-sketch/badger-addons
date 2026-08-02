@@ -85,7 +85,7 @@ local function regimeFor(encounterID)
 end
 
 -- Grade one fixture → { name, dur, mape, bias, within, shown, n } (nil if nothing graded).
-local function grade(path)
+local function grade(path, priorRate)
     local ok, fight = pcall(function()
         return assert(loadfile(path))()
     end)
@@ -100,6 +100,7 @@ local function grade(path)
         executeModifier = 1.2,
         rhythm = rhythmFor(fight.encounterID),
         regime = regimeFor(fight.encounterID),
+        priorRate = priorRate, -- nil = cold (never killed it); set = the returning player (WO-077 F1)
     })
     local relSum, biasSum, within, n, scored = 0, 0, 0, 0, 0
     local gate = G.newGate()
@@ -190,9 +191,56 @@ if #files == 0 then
     return
 end
 
+-- HISTORY PRIOR (WO-077 F1). The graders built Estimator.new WITHOUT priorRate, but driver.lua:219
+-- ALWAYS passes one and core.lua:78-79 default useHistory/recordHistory to true — so every number the
+-- lab produced described a player who had NEVER killed the boss. That is the minority case, and it is
+-- WO-076's defect one layer down: the lab modelling a client that does not exist.
+--
+-- `--prior loo` models the returning player. History.rate averages 1/dur over past kills of the same
+-- boss at the same group size (history.lua:88-131), so the lab equivalent is a LEAVE-ONE-OUT mean of
+-- 1/dur over the other fixtures of this encounter. Recency weighting (RECENCY=0.8) is deliberately not
+-- modelled: fixtures carry no per-player kill order, and a flat mean is that weighting's limit.
+-- NOTE the flag takes no value: positional args are "the first two non-`--` arguments" (see line 19), so
+-- a `--prior loo` pair would silently donate `loo` to positional[2] and load it as the estimator path.
+local looPrior = {} -- path -> priorRate
+local wantLoo = false
+for i = 1, #arg do
+    if tostring(arg[i]) == "--prior-loo" then
+        wantLoo = true
+    end
+end
+if wantLoo then
+    local byEnc = {} -- encounterID -> { {path=, invDur=}, ... }
+    for _, f in ipairs(files) do
+        local ok, fight = pcall(function()
+            return assert(loadfile(f))()
+        end)
+        if ok and type(fight) == "table" and fight.samples and #fight.samples > 0 then
+            local d = fight.samples[#fight.samples].t
+            local e = fight.encounterID or 0
+            if d and d > 0 then
+                byEnc[e] = byEnc[e] or {}
+                table.insert(byEnc[e], { path = f, inv = 1 / d })
+            end
+        end
+    end
+    for _, list in pairs(byEnc) do
+        local sum = 0
+        for _, it in ipairs(list) do
+            sum = sum + it.inv
+        end
+        for _, it in ipairs(list) do
+            -- leave-one-out: this kill is not part of its own history
+            if #list > 1 then
+                looPrior[it.path] = (sum - it.inv) / (#list - 1)
+            end
+        end
+    end
+end
+
 local rows = {}
 for _, f in ipairs(files) do
-    local r = grade(f)
+    local r = grade(f, looPrior[f])
     if r then
         rows[#rows + 1] = r
     end
