@@ -70,6 +70,10 @@ TIERS = ["t1", "t2", "t3"]
 TRIM_MULT = 3.0
 SPLITS = (("train", 0.60), ("val", 0.20), ("test", 0.20))
 
+# Strided page sample instead of a 20-page census — 5 calls per (boss, partition) rather than 20.
+# Spans the leaderboard end to end so the duration quantiles are still placed on the real spread.
+SAMPLE_PAGES = (1, 4, 8, 13, 19)
+
 C = dict(r="\x1b[0m", dim="\x1b[38;5;244m", gold="\x1b[38;5;178m", good="\x1b[38;5;71m",
          warn="\x1b[38;5;214m", bad="\x1b[38;5;203m", ink="\x1b[38;5;252m", bold="\x1b[1m")
 
@@ -114,13 +118,22 @@ def get(path, **params):
     return None
 
 
-def enumerate_kills(enc, partition):
-    """Every ranked kill for one (encounter, partition). Rows carry duration/startTime/comp for free."""
+def enumerate_kills(enc, partition, pages=None):
+    """Ranked kills for one (encounter, partition). Rows carry duration/startTime/comp for free.
+
+    BUDGET (WO-077 F3): the WCL key allows ~800 calls/hour (measured: limit 800, 1 point per call,
+    sliding ~1h window) and is shared. A full 20-page census costs 100 calls per boss — 1000 for MC,
+    over an hour of budget spent before a single fight is pulled. `metric=speed` is already sorted by
+    duration, so a strided sample of pages reconstructs the duration distribution well enough to place
+    quantile boundaries, at a fifth of the cost. Pass pages=None for the full census when budget allows.
+    """
     out = {}
-    for page in range(1, MAX_PAGE + 1):
+    for page in (pages or range(1, MAX_PAGE + 1)):
         d = get("rankings/encounter/%s" % enc, metric="speed", page=page, partition=partition)
         rows = (d or {}).get("rankings", [])
         if not rows:
+            if pages:
+                continue  # a strided probe may overshoot a thin partition; keep trying lower pages
             break
         for r in rows:
             rid, fid = r.get("reportID"), r.get("fightID")
@@ -143,7 +156,7 @@ def plan_boss(enc, name, per_boss):
     for gname, parts in GROUPS:
         pool = []
         for p in parts:
-            pool.extend(enumerate_kills(enc, p))
+            pool.extend(enumerate_kills(enc, p, pages=SAMPLE_PAGES))
         if not pool:
             continue
         durs = sorted(k["dur"] for k in pool)
@@ -265,11 +278,35 @@ def main():
 
     t0, done, failed = time.time(), [0], []
 
+    # RATE LIMIT (WO-077 F3). Measured: limit 800, 1 point per call, sliding ~1h window, and the key is
+    # SHARED. A fight costs ~2 calls (report/fights + one events page), so a sustainable ceiling is about
+    # 5 fights/min. The first attempt at this harvest ran 6 workers with no pacing and took an HTTP 429
+    # after 691 fights. Pace on dispatch rather than per-call, because the calls happen inside a subprocess.
+    import threading
+    FIGHTS_PER_MIN = 5.0
+    gap = 60.0 / FIGHTS_PER_MIN
+    lock = threading.Lock()
+    next_at = [time.time()]
+
+    def wait_turn():
+        with lock:
+            now = time.time()
+            due = max(now, next_at[0])
+            next_at[0] = due + gap
+        delay = due - time.time()
+        if delay > 0:
+            time.sleep(delay)
+
     def pull(job):
         enc, k, path = job
+        wait_turn()
         r = subprocess.run(
             [sys.executable, "tools/wcl-v1-to-fight.py", k["report"], str(k["fight"]), "--out", path],
             capture_output=True, text=True)
+        if r.returncode != 0 and "429" in (r.stderr or ""):
+            # Budget exhausted: back off hard rather than hammering a shared key.
+            with lock:
+                next_at[0] = max(next_at[0], time.time() + 300)
         done[0] += 1
         if r.returncode != 0:
             failed.append((k["report"], k["fight"]))
@@ -281,7 +318,9 @@ def main():
                   f"~{eta:4.0f}s left  {len(failed)} failed{C['r']}", flush=True)
         return r.returncode == 0
 
-    with ThreadPoolExecutor(max_workers=6) as ex:
+    print(f"  {C['dim']}paced at {FIGHTS_PER_MIN:.0f} fights/min (~800 calls/hr shared budget) — "
+          f"ETA ~{len(todo)/FIGHTS_PER_MIN:.0f} min{C['r']}\n")
+    with ThreadPoolExecutor(max_workers=2) as ex:
         list(ex.map(pull, todo))
 
     manifest = [dict(enc=p["enc"], boss=p["name"], **k) for p in plans for k in p["chosen"]]
