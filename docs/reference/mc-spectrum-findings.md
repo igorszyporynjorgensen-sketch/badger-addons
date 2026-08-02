@@ -237,3 +237,47 @@ and `driver.lua:186-193` `historyKey` carry the **same** test as `regimeFor`, so
 instead of −1, the rhythm profiles *and* the history prior have never fired for anyone. That would not
 merely moot the regime layer; it would invalidate the premise of this entire pass. It is a ten-second
 `/run` in game.
+
+## 9. THE VERDICT — scored once on held-out `test/` (197 fights, 2026-08-02)
+
+`test/` was written by the sampler and touched exactly once, at the end. Paired per-fight, negative = better:
+
+| comparison | mean | 95% CI | % better | verdict |
+|---|---|---|---|---|
+| profiles: shipped → re-learned | −14.39 | [−17.60, −11.18] | 74% | improvement |
+| **throttle added (shipped profiles)** | **−45.03** | **[−52.75, −37.31]** | **94%** | **improvement** |
+| profiles: shipped → re-learned, **with throttle** | **+1.42** | **[+0.44, +2.40]** | 40% | **REGRESSION** |
+| both changes vs today | −43.61 | [−51.22, −36.00] | 92% | improvement |
+
+Per boss (mean MAPE):
+
+| boss | n | shipped | re-learned | +throttle (shipped) | +throttle (re-learned) |
+|---|---|---|---|---|---|
+| Sulfuron | 115 | 87.7% | 64.3% | 30.0% | 32.2% |
+| Baron Geddon | 20 | 75.0% | 73.5% | 33.5% | 33.0% |
+| Lucifron | 9 | 76.1% | 69.9% | 24.1% | 25.3% |
+| Gehennas | 9 | 69.9% | 65.4% | 22.2% | 22.6% |
+| Magmadar | 9 | 36.0% | 35.6% | 20.6% | 21.0% |
+| Garr | 8 | 34.7% | 34.6% | 24.9% | 26.3% |
+| Golemagg | 9 | 33.8% | 33.4% | 24.3% | 24.8% |
+| Ragnaros | 9 | 33.2% | 35.0% | 22.1% | 21.8% |
+| Shazzrah | 9 | 31.7% | 29.0% | 20.2% | 20.9% |
+| **ALL** | **197** | **73.0%** | **58.6%** | **28.0%** | **29.4%** |
+
+### The conclusion, and it is a null for the thing this pass was built to do
+
+**Re-learned rhythm profiles do NOT ship.** They are a real improvement in isolation (−14.4) and a
+**significant regression** (+1.42, CI excluding zero) once the rise throttle exists. The coherent reading:
+the profiles were largely **compensating for rubber-banding**, so fixing the rubber-banding at source turns
+their compensation into over-correction. Two remedies for one defect; the cheaper one wins outright.
+
+Note the improvement is also concentrated where it looks largest for a boring reason — Sulfuron is 115 of
+the 197 test fights, so the −14.4 aggregate is mostly one encounter. On the six well-behaved bosses the
+re-learn moves nothing (±0.5).
+
+**What the 1,061-fight corpus actually bought:** not a profile change, but the evidence that a profile
+change should not ship — which no amount of validation-set tuning would have produced, because the
+interaction only appears when both changes are measured together on data neither was tuned against.
+
+**What ships instead is [D-022-IJ]** — a rise throttle that needs no corpus at all, wins 45 points on
+held-out data, and was found by a human watching a bar move.
