@@ -49,6 +49,9 @@ split_even = "--split-even" in sys.argv
 # is unusable no matter how long the fight is (the pull, and a long unreadable phase).
 REL_OK, REL_BAD = 0.30, 0.70  # median relative error: <=30% is useful, >=70% is noise
 ABS_OK, ABS_BAD = 5.0, 45.0  # median absolute error: <=5s is always useful, >=45s is never usable
+MIN_KILLS = 20  # a bin needs this many KILLS before its measurement decides anything (WO-077: perbin
+# now reports kills in column 2; this guard previously read a SAMPLE count, which at 60+ fixtures was
+# already nearly vacuous — thousands of samples per bin always cleared a threshold of 20.
 # Curve-shape detection.
 FLAT_EPS = 0.01  # health span that still counts as "not moving" within a stall run
 STALL_MIN_SEC = 3.0  # a stall must last at least this long
@@ -157,11 +160,14 @@ def run_perbin(extra_caps=None):
     out = {}
     for line in proc.stdout.splitlines():
         parts = line.split("\t")
-        if len(parts) == 5:
-            b, n, mr, ma, pre = parts
+        # 6 cols (WO-077): bin, KILLS, medianRel, medianAbs, preShow, samples. Column 2 changed meaning
+        # from samples to kills when perbin moved to per-kill weighting — which is what makes the
+        # `n < MIN_KILLS` guard below mean what it always claimed to.
+        if len(parts) == 6:
+            b, n, mr, ma, pre, _samples = parts
             out[int(b)] = (int(n), float(mr), float(ma), float(pre))
     if not out:
-        sys.exit("estimator-perbin returned no rows (expected 5-column TSV — stale tool?)")
+        sys.exit("estimator-perbin returned no rows (expected 6-column TSV — stale tool?)")
     return out
 
 
@@ -173,7 +179,7 @@ def derive(measured):
     """The measurement → cap rule. Unchanged by WO-076; reachability is applied separately, after."""
     out = {}
     for b, (n, mr, ma) in measured.items():
-        if n < 20:  # too little evidence in this bin to judge it
+        if n < MIN_KILLS:  # too little evidence in this bin to judge it — counted in KILLS (WO-077)
             continue
         if ma <= ABS_OK or mr <= REL_OK:
             continue  # measurably useful here — no cap, whichever currency says so

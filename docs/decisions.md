@@ -137,11 +137,55 @@ _As of 2026-08-01._
   addon loads clean · the `663` vs `150663` encounter id-space (which of the two the live client fires) ·
   the `.toc` Interface number · bars track · the Majordomo-style hides behave. It also gates every
   CurseForge upload (D-015), including 0.9.46/0.9.47/0.9.48, none of which are on CurseForge yet.
-- **Next id:** D-021-IJ.
+- **Next id:** D-023-IJ.
 
 ---
 
 ## Decision log
+
+### 2026-08-02
+
+- **[D-022-IJ] Two display-layer estimator changes, PROPOSED from measurement, not yet accepted: a rise
+  throttle on the countdown, and a learned opening baseline. Status: Proposed.** *(Human observations during
+  a live replay session: "it has a LOT of rubber banding — can these not be throttled?", "you are in fact
+  showing a new value you should feel very little confident about", and "you could have a reasonable time to
+  kill for this DPS in first seconds and work off that as an assumed baseline".)*
+
+  **(a) The rise throttle.** A time-to-kill falls at one second per second, so downward movement is almost
+  always genuine while a large upward jump is almost always noise — a raid cannot slow by 174 seconds inside
+  one 0.15s tick. Capping only the RISE at **2 s/s** is therefore asymmetric by design and costs no
+  reactivity. Measured over the WO-077 val corpus: mean MAPE **95.3% → 35.1%**, upward jumps >2s
+  **13.2% → 0%**, worst single jump **+2401s → +4s**, with `shown%` and latch time **unchanged**. Tighter is
+  worse (0.5 s/s → 40.0%, the display lags real slowdowns).
+
+  **It is not free**, and an earlier claim that it was is corrected here. On an already-clean fight the cap
+  blocks legitimate upward corrections: two Golemagg kills, same boss and profile — P4 farm (21 jumps)
+  20.7% → **12.8%**, but P1 progression (5 jumps) 11.0% → **16.4%**. Corpus-wide it helps 93–100% of fights,
+  with gains from ~7 points on the cleanest to ~55 on the messiest. **No fight in the corpus had zero jumps.**
+
+  **(b) The learned opening baseline.** The estimator extrapolates the early rate linearly, which is
+  catastrophically wrong before the raid has ramped: naive linear over-predicts the fight length by **3× to
+  33×** at 3 seconds (median error **1700%**). Learning a per-boss correction `k = duration × early-rate`
+  from real kills and predicting `duration = k / early-rate` beats what ships today at every window, fit on
+  `train` and evaluated on `val`: **3s 61.1% vs ~70%, 5s 54.3% vs ~66%, 8s 43.2% vs ~60%** (medians). The
+  measured `k` at 3s ranges from Sulfuron **0.03** (heal pollution) to Ragnaros **0.35**.
+
+  **Why this matters beyond the numbers:** the opening is where confidence is *inverted*. Measured over the
+  val corpus, the first 2 seconds carry **69.0% error at 0.96 mean confidence** — the estimator is most
+  certain exactly where it is most wrong, because a history prior's evidence share starts at 1.0 (WO-061, by
+  design) before any evidence exists. Separately, the confidence signal the show gate consults **does not
+  predict error at all** (deciles 103, 99, 82, 85, 76, 84, 59, 100, 162, 87 over 31,195 ticks), while
+  prediction volatility does (44%…153%, monotonic).
+
+  **Rejected by measurement, recorded so they are not re-proposed:** volatility as a *show gate* (buys 8
+  points, costs 37pp of `shown%` and a 5.7s → 16.2s latch delay); a relative %-of-estimate cap for the
+  endgame (degrades it monotonically, because late rises are often genuine recoveries); and an adaptive cap
+  that loosens while the estimate is calm (every variant worse than the fixed cap).
+
+  **Not accepted, and deliberately kept out of the WO-077 PR.** Both are ENGINE changes to what the player
+  reads; WO-077 is a lab-and-profiles pass. They need their own work order, spec, non-regression proof
+  (sim byte-identity, non-MC rows unchanged) and a single scoring pass on held-out `test/`. Everything above
+  is val-measured. Full numbers: [`docs/reference/mc-spectrum-findings.md`](reference/mc-spectrum-findings.md).
 
 ### 2026-08-01
 

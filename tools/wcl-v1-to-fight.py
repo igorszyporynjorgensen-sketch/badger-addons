@@ -165,8 +165,16 @@ def main():
     ]
     for t, name, _hp in timeline:
         lines.append("-- timeline: add down ~%.1fs — %s" % (t, name))
+    # maxHP is preserved (WO-077): the curve is a FRACTION, so without it the lab can only reason in
+    # "% per second" and cannot tell a speedguild from a pug. With it, absolute HP/s becomes comparable
+    # across every log — and the live client can compute the same quantity from UnitHealthMax("target"),
+    # since Classic boss health is fixed and does not scale with raid size. That makes early absolute
+    # DPS a usable FORWARD-looking prior ("raids doing X HP/s killed this boss in ~T"), instead of the
+    # backward-looking rate extrapolation that makes the estimator read long.
     lines += ["", "return {", "    name = %s," % lua_str("%s — %s#%d" % (fight["name"], code, fid)),
-              "    encounterID = %s," % (fight.get("boss") or "nil"), "    samples = {"]
+              "    encounterID = %s," % (fight.get("boss") or "nil"),
+              "    maxHP = %d," % maxhp,
+              "    size = %s," % (fight.get("size") or "nil"), "    samples = {"]
     for t, h in samples:
         lines.append("        { t = %.2f, h = %.4f }," % (t, h))
     lines += ["    },", "}", ""]
