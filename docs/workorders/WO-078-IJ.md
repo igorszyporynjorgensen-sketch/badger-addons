@@ -1,6 +1,6 @@
 ---
 wo: WO-078-IJ
-status: Accepted
+status: Done
 assigned: IJ
 mr:
 decision: D-022-IJ
@@ -20,6 +20,81 @@ related:
   then do a small investigation by working that WO"*.
 - **Investigation only.** No addon change, no profile change, no branch required for the measurement
   itself. The deliverable is evidence and a recommendation.
+
+## OUTCOME (2026-08-02) — the idea WORKS, scoped and capped. Small but real.
+
+Fit `k` on `train/` (W = 5s), evaluated on `val/`. `test/` untouched — it was spent by WO-077.
+
+### Q4 first, because it reframed everything: the crossover is ~5 seconds
+
+Error by time band, throttled estimator vs the baseline, **medians**:
+
+| band | estimator | baseline | winner |
+|---|---|---|---|
+| **0–3s** | 69.1% | **55.7%** | **baseline by 13** |
+| **3–5s** | 61.1% | **55.0%** | **baseline by 6** |
+| 5–8s | **50.4%** | 53.7% | estimator by 3 |
+| 8–12s | **33.7%** | 57.3% | estimator by 24 |
+| 12–20s | **22.7%** | 63.8% | estimator by 41 |
+| 20s+ | **21.0%** | 111.1% | estimator by 90 |
+
+*(Human, mid-investigation: "would seem only useful IF useful for first few seconds." Correct — the first
+measurement used a 10s handover, double the useful window, which is the only reason it looked bad.)*
+
+### Q3 — the failure mode is division by a near-zero early rate
+
+`k / earlyRate` explodes when a raid barely scratches the boss in the first 5s. Worst observed: a Shazzrah
+kill **14.2% → 10320.2%**. Best: a Sulfuron kill **95.0% → 15.5%**. Uncapped it is **median-good,
+mean-catastrophic** (band means 154–350% against competitive medians).
+
+### Q1 — yes, it survives the throttle, once scoped and capped
+
+Paired on `val`, throttled throughout, handover 5s, negative = better:
+
+| variant | mean | median | 95% CI | better | verdict |
+|---|---|---|---|---|---|
+| uncapped | +4.46 | +0.00 | [+2.12, +6.79] | 46% | REGRESSES |
+| cap 3× prior | +0.73 | −0.18 | [−0.17, +1.62] | 52% | no diff |
+| cap 2× prior | −0.27 | −0.81 | [−1.02, +0.49] | 58% | no diff |
+| **cap 1.5× prior** | **−1.05** | **−1.17** | **[−1.74, −0.36]** | **64%** | **IMPROVES** |
+
+Unlike WO-077's re-learned profiles — a −14.4 improvement alone but a **regression** once the throttle
+existed — this one survives it.
+
+### The control: is it the baseline, or just the cap?
+
+| variant | mean | CI | fights changed |
+|---|---|---|---|
+| baseline + cap 1.5× | −1.05 | [−1.74, −0.36] | 64% |
+| **cap only, no baseline** | **+0.00** | [−0.00, +0.00] | **0%** |
+
+**The cap alone does nothing** — the estimator's opening never exceeds 1.5× the prior, because the prior
+seeds it. The benefit is entirely the baseline; the cap is only a rail against the Q3 tail.
+
+### Q2 — complementary to the history prior, not redundant
+
+The cap *uses* the prior, so the two compose. Corollary: a **first-kill** player has no prior, therefore no
+cap, therefore the full Q3 tail. The idea is safe exactly where a prior exists.
+
+### Recommendation
+
+**Ship it, but only as specified, and judge it on the opening band rather than the aggregate.**
+Whole-fight it is worth ~1 MAPE point — negligible-sounding until you note it buys **6–13 median points
+across the first 5 seconds**, the band where the estimator is worst *and* claims 0.96 confidence. It is a
+visible-quality change, not an aggregate-accuracy one.
+
+Required conditions, all measured: **W = 5s**, **handover at 5s**, **cap at 1.5× the history prior**,
+**no baseline without a prior**.
+
+### Q5 — NOT ANSWERED, and it gates shipping
+
+An unknown boss has no `k`. A universal fallback was fitted (`k = 0.150`) but **not evaluated**. This
+matters more than it looks: if step B5 shows `UnitLevel ~= -1`, *every* boss is unknown at runtime.
+
+### Q6 — cost
+
+One `k` per encounter (9 floats), one estimator seam active only for the first 5s, and a dependency on the
+history prior for the cap. The `regime == nil` byte-identity guarantee is untouched — a separate opts field.
 
 ## The idea being tested
 
