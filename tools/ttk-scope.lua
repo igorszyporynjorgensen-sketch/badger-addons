@@ -18,11 +18,17 @@
 local G = require("tools.estimator-grade")
 local mock = require("tools.wow-mock.init")
 
-local path, speed, rhythmMode, static = nil, 4.0, "candidate", nil
+local path, speed, rhythmMode, static, throttle = nil, 4.0, "candidate", nil, nil
 for i = 1, #arg do
     local a = arg[i]
     if a == "--speed" then
         speed = tonumber(arg[i + 1]) or 4.0
+    elseif a == "--throttle" then
+        -- Cap on how fast the DISPLAYED countdown may RISE, in seconds of TTK per second of wall
+        -- clock. Asymmetric on purpose: a real time-to-kill falls at 1s per second, so downward
+        -- movement is almost always genuine and needs no limit, while a large upward jump is almost
+        -- always noise — a raid cannot slow by 174 seconds inside one 0.15s tick.
+        throttle = tonumber(arg[i + 1]) or 2.0
     elseif a == "--rhythm" then
         rhythmMode = arg[i + 1]
     elseif a == "--static" then
@@ -111,16 +117,31 @@ local est = ns.Estimator.new({
 })
 local gate = G.newGate()
 local frames, peak = {}, 0
+local disp, prevT, jumps = nil, nil, 0
 for i = 1, #samples do
     local s = samples[i]
     est:sample(s.t, s.h, G.damageable(s.h))
     local pred, conf = est:ttk()
     local shown = gate:update(pred, conf)
-    if shown and pred and pred > peak then
-        peak = pred
+    -- The gate still sees the RAW estimate; only what the player reads is throttled.
+    local out = pred
+    if shown and pred then
+        if throttle and disp and prevT then
+            local lim = disp + throttle * (s.t - prevT)
+            if out > lim then
+                out = lim
+            end
+        end
+        if disp and out - disp > 2.0 then
+            jumps = jumps + 1
+        end
+        disp, prevT = out, s.t
+    end
+    if shown and out and out > peak then
+        peak = out
     end
     frames[#frames + 1] =
-        { t = s.t, h = s.h, pred = pred, conf = conf, shown = shown, actual = death - s.t }
+        { t = s.t, h = s.h, pred = out, conf = conf, shown = shown, actual = death - s.t }
 end
 
 if not static then
@@ -226,7 +247,9 @@ print(
     )
 )
 print(
-    ("  %sbar was on screen from %s to the kill%s\n"):format(
-        C.dim, latchedAt and ("%.1fs"):format(latchedAt) or "never", C.r
+    ("  %sbar on screen from %s · throttle %s · upward jumps >2s: %s%d%s\n"):format(
+        C.dim, latchedAt and ("%.1fs"):format(latchedAt) or "never",
+        throttle and (throttle .. "s/s") or "OFF",
+        jumps > 0 and C.bad or C.good, jumps, C.r
     )
 )
