@@ -35,3 +35,4 @@ tools/fights/corpus/
 # Python bytecode cache (ttk-lab imports wcl-corpus.py)
 __pycache__/
 tools/fights/mc/
+tools/fights/guild/
